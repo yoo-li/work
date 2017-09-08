@@ -1,0 +1,118 @@
+<?php
+//自提货发货
+
+session_start();
+
+require_once (dirname(__FILE__) . "/config.inc.php");
+require_once (dirname(__FILE__) . "/config.common.php");
+require_once (dirname(__FILE__) . "/util.php");
+
+if(isset($_REQUEST['record']) && $_REQUEST['record'] !='')
+{
+	$orderid = $_REQUEST['record'];
+}
+else
+{
+	messagebox('错误','参数错误。');
+	die();
+}
+
+try{
+	$supplierid=$_REQUEST['supplierid'];
+	$orderContent=XN_Content::load($orderid,"mall_orders",7);
+	$profileid=$orderContent->my->profileid;
+	$orders_products = XN_Query::create('YearContent')->tag('mall_orders_products')
+							   ->filter('type', 'eic', 'mall_orders_products')
+							   ->filter('my.orderid', '=', $orderid)
+							   ->filter('my.deleted', '=', '0')
+							   ->end(-1)
+							   ->execute();
+   $vendorid=0;
+	foreach($orders_products as $orderdetail_info){
+		if($orderdetail_info->my->vendorid>0){
+			$vendorid=$orderdetail_info->my->vendorid;
+			break;
+		}
+	}
+	//自动发货\收货(暂时未做供货商权限锁定,尽快补上)
+	if($orderContent->my->order_status=='已付款'){
+		if($vendorid>0 ){
+			$orderContent->my->deliverystatus = "sendout";
+			$orderContent->my->delivery_status = "1";
+			$orderContent->my->invoicenumber = '';
+			$orderContent->my->delivery = '';
+			$orderContent->my->deliverytime = date('Y-m-d H:i:s');
+			$orderContent->my->confirmreceipt = "receipt";
+			$orderContent->my->needconfirmreceipt = "no";
+			$orderContent->my->confirmreceipttype = "ziti";
+			$orderContent->my->confirmreceipt_time = date("Y-m-d H:i");
+			$orderContent->my->order_status = "确认收货";
+			$orderContent->my->membersettlement = "0";
+			$orderContent->save("mall_orders,mall_orders_".$profileid);
+			
+			$settlementorders=XN_Query::create("YearContent")
+				->tag("mall_settlementorders")
+				->filter("type","eic","mall_settlementorders")
+				->filter("my.orderid","=",$orderid)
+				->filter("my.deleted",'=','0')
+				->end(-1)
+				->execute();
+			if(count($settlementorders)){
+				foreach($settlementorders as $settlementorder){
+                    $settlementorder->my->deliverystatus = "1";
+                    $settlementorder->my->invoicenumber = '';
+                    $settlementorder->my->delivery = '';
+                    $settlementorder->my->deliverytime = date('Y-m-d H:i:s');
+                    $settlementorder->my->vendortradestatus = '1';
+                    $settlementorder->my->vendorsettlementstatus = '1';
+                    $settlementorder->my->mall_settlementordersstatus = '可结算';
+                    $settlementorder->save("mall_settlementorders,mall_settlementorders_".$supplierid);
+				}
+			}
+			
+
+
+			$showsmg='发货成功,恭喜老板今天进账了!';
+			$smsCon='亲爱的会员您好,你的订单'.$orderContent->my->mall_orders_no.'已取货成功,谢谢您的惠顾,记得给个评论哦,我们会为您提供更贴心的服务!';
+		}
+		else{
+			$showsmg='此订单已发货,勿重复操作,如有疑问,请联系在线客服,我们将竭诚为您服务!!';
+			$smsCon='亲爱的会员您好,您在本店没有尚未取货的订单哦,请您确认后再操作,如有疑问,可联系在线客服,我们将竭诚为您服务!';
+		}
+        //向会员发微信通知消息
+        $supplier_wxsettings = XN_Query::create ( 'MainContent' ) ->tag('supplier_wxsettings')
+            ->filter ( 'type', 'eic', 'supplier_wxsettings')
+            ->filter ( 'my.deleted', '=', '0' )
+            ->filter ( 'my.supplierid', '=' ,$supplierid)
+            ->end(1)
+            ->execute();
+        if (count($supplier_wxsettings) > 0)
+        {
+
+            $supplier_wxsetting_info = $supplier_wxsettings[0];
+            $appid = $supplier_wxsetting_info->my->appid;
+            require_once (XN_INCLUDE_PREFIX."/XN/Message.php");
+            XN_Message::sendmessage($profileid,$smsCon,$appid);
+        }
+	}
+	else{
+		$showsmg='此订单尚未付款或已发货,请确认后再操作,如有疑问,请联系在线客服,我们将竭诚为您服务!!';
+		$smsCon='亲爱的会员您好,您在本店没有尚未取货的订单哦,请您确认后再操作,如有疑问,可联系在线客服,我们将竭诚为您服务!';
+	}
+}
+catch (XN_Exception $e)
+{
+	echo '{"statusCode":"300","message":"'.$e->getMessage().'"}';
+	die;
+}
+
+
+require_once('Smarty_setup.php');
+
+$smarty = new vtigerCRM_Smarty;
+$smarty->assign("showmsg",$showsmg);
+$smarty->display('vendorsendConfirm.tpl');
+
+
+
+?>

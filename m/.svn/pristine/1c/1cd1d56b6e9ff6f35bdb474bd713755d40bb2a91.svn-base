@@ -1,0 +1,31 @@
+<?php
+    session_start();
+    require_once(dirname(__FILE__)."/../include/config.inc.php");
+    require_once(dirname(__FILE__)."/../include/config.common.php");
+    require_once(dirname(__FILE__)."/../include/utils.php");
+
+
+
+//    $loadcontent=XN_Content::load('6038271',"ma_pickorders");
+//    $loadcontent->my->deleted="1";
+//    $loadcontent->save("ma_pickorders");
+
+    $saledetails = XN_Query::create("Content")->tag("ma_inventorycount")
+        ->filter('type', 'eic', 'ma_inventorycount')
+        ->filter('my.deleted', '=', '0')
+        ->filter('my.ma_storagelist', '=', '4731879')
+        ->end(-1)
+        ->execute();
+    if(count($saledetails)){
+        foreach ($saledetails as $info)
+        {
+            $loadcontent=XN_Content::load($info->my->ma_products,"ma_products");
+            if($loadcontent->my->deleted=='1'){
+                echo '编码：'.$info->my->barcode.'  条码：'.$info->my->itemcode.'   数量：'.$info->my->inventorynum.'<br>';
+            }
+        }
+    }
+
+
+
+?>

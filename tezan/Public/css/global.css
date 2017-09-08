@@ -1,0 +1,23 @@
+.panel-heading .fa-caret-square-o-up { display:block;}
+.panel-heading .fa-caret-square-o-down { display:none;}
+.panel-heading .collapsed .fa-caret-square-o-up { display:none;}
+.panel-heading .collapsed .fa-caret-square-o-down { display:block;} 
+.bjui-pageFooter {  border-bottom: none; }
+
+.dropdown-menu li.separate b { 
+       background: #ddd; 
+       float: left;
+       height: 1px;
+       margin-top: 10px;
+       width: 40px;
+       overflow: hidden;
+}
+
+.dropdown-menu li.separate span { 
+		float: left;
+	    padding: 0 5px;
+	    text-align: center;
+	    min-width: 50px;
+		height:20px;
+		line-height:20px;
+}

@@ -1,0 +1,50 @@
+function cadlinktarget_onchange()
+{
+    var f2cadlinktarget = $('input[name=f2cadlinktarget]:checked').val();
+    if (f2cadlinktarget == 0)
+    { 
+        jQuery('#cid_productid').css("display","");
+		jQuery('#cid_salesactivityid').css("display","none");
+		jQuery('#cid_newsid').css("display","none"); 
+        //jQuery("#push_title").removeClass("required  textInput valid");
+
+    }
+    else if (f2cadlinktarget == 1)
+    { 
+        jQuery('#cid_salesactivityid').css("display","");
+		jQuery('#cid_productid').css("display","none");
+		jQuery('#cid_newsid').css("display","none");  
+
+    }
+    else
+    {
+        jQuery('#cid_newsid').css("display","");
+		jQuery('#cid_salesactivityid').css("display","none");
+		jQuery('#cid_productid').css("display","none"); 
+    } 
+}
+
+
+if (jQuery('#f2cadlinktarget_1').length > 0)
+{
+    var wxroletype = $('input[id="f2cadlinktarget_1"]:checked').val();
+    jQuery("[name=f2cadlinktarget]").attr("onchange","cadlinktarget_onchange();");
+    jQuery("#f2cadlinktarget_1").change(cadlinktarget_onchange);
+    jQuery("#f2cadlinktarget_2").change(cadlinktarget_onchange);
+	jQuery("#f2cadlinktarget_3").change(cadlinktarget_onchange);
+    cadlinktarget_onchange();
+}
+
+function salesactivityid_callback(groupid,args)
+{
+	jQuery("#salesactivityid").val(args.id); 
+}
+function newsid_callback(groupid,args)
+{
+	jQuery("#newsid").val(args.id); 
+}
+
+function productid_callback(groupid,args)
+{
+	jQuery("#productid").val(args.id); 
+}

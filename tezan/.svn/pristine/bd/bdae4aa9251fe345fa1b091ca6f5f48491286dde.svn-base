@@ -1,0 +1,1 @@
+<?php$Create = false;$Delete = false;$MassEdit = false;$CustomMassDelete = true;  	$actionmapping = array (		// array ('actionname' => 'Statistics','securitycheck' => '1','button'=>'<a href="javascript:void();" class="icon" onclick="javascript:areastatistics();"><span>区域分享统计</span></a>','type'=>'listview'),	);?>

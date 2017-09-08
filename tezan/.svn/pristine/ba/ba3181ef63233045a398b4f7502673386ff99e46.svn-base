@@ -1,0 +1,227 @@
+<?php
+    if (!empty($_FILES) && $_POST['token'] == "smarty")
+    {
+        if (isset($_REQUEST['module']) && isset($_REQUEST['record']))
+        {
+            $module              = $_REQUEST['module'];
+            $recordid            = $_REQUEST['record'];
+            $template            = $_REQUEST['template'];
+            $supplierid    = $_REQUEST['supplierid'];
+            $productmsg            = '';
+            $warnmsg            = '';
+            $nummsg            = '';
+            $loadcontent = XN_Content::load($recordid, $module);
+            require_once($_SERVER['DOCUMENT_ROOT'].'/include/PHPExcel/PHPExcel.php');
+            $canRead   = true;
+            $filePath  = $_FILES['Filedata']['tmp_name'];
+            $PHPReader = new PHPExcel_Reader_Excel2007();
+            if (!$PHPReader->canRead($filePath))
+            {
+                $PHPReader = new PHPExcel_Reader_Excel5();
+                if (!$PHPReader->canRead($filePath))
+                {
+                    $error   = getTranslatedString('UPF_ONLY_EXCEL');
+                    $canRead = false;
+                }
+            }
+            if ($canRead)
+            {
+                $configpath = $_SERVER['DOCUMENT_ROOT']."/modules/".$module."/config.excel.php";
+                if (@file_exists($configpath))
+                {
+                    require_once($configpath);
+                    if (isset($exceltemplate[$template]) && $exceltemplate[$template] != "" && is_array($exceltemplate[$template]) && count($exceltemplate[$template]) > 0)
+                    {
+                        $fields = $exceltemplate[$template]["fields"];
+                        if (isset($fields) && $fields != "" && is_array($fields) && count($fields) > 0)
+                        {
+                            $objPHPExcel  = new PHPExcel();
+                            $objPHPExcel  = $PHPReader->load($filePath);
+                            $currentSheet = $objPHPExcel->getSheet(0);
+                            $allColumn    = $currentSheet->getHighestColumn();
+                            $allRow       = $currentSheet->getHighestRow();
+                            $allData      = [];
+                            for ($j = $exceltemplate[$template]["readrow"]; $j <= $allRow; $j++)
+                            {
+                                $rowdata = [];
+                                foreach ($fields as $key => $field)
+                                {
+                                    $tmp = $currentSheet->getCellByColumnAndRow($key, $j)->getValue();
+                                    if ($tmp instanceof PHPExcel_RichText)
+                                    {
+                                        $tmp = $tmp->getPlainText();
+                                    }
+                                    if ($field["type"] == "date" && is_numeric($tmp))
+                                    {
+                                        $tmp = gmdate("Y-m-d", PHPExcel_Shared_Date::ExcelToPHP($tmp));
+                                    }
+                                    if (isset($tmp))
+                                    {
+                                        $rowdata[$field["field"]] = $tmp;
+                                    }
+                                    else
+                                    {
+                                        $rowdata[$field["field"]] = "";
+                                    }
+                                }
+                                $isempty = true;
+                                foreach ($rowdata as $item)
+                                {
+                                    if (!empty($item))
+                                    {
+                                        $isempty = false;
+                                        break;
+                                    }
+                                }
+                                if (count($rowdata) > 0 && !$isempty)
+                                    $allData[] = $rowdata;
+                            }
+                            $Related = [];
+                            foreach ($fields as $field)
+                            {
+                                if (isset($field["type"]) && $field["type"] != "")
+                                {
+                                    if ($field["type"] == "reference" && isset($field["source"]) && $field["source"] != "" && isset($field["refield"]) && $field["refield"] != "")
+                                    {
+                                        $source = XN_Query::create("Content")->tag($field["source"])->end(-1)
+                                            ->filter("type", "eic", $field["source"])
+                                            ->filter("my.deleted", "=", "0");
+                                        if (isset($field["filter"]) && $field["filter"] != "" && is_array($field["filter"]) && count($field["filter"]) > 0)
+                                        {
+                                            foreach ($field["filter"] as $filter)
+                                            {
+                                                $source->filter($filter["field"], $filter["logic"], $filter["value"]);
+                                            }
+                                        }
+                                        $source = $source->execute();
+                                        foreach ($source as $item)
+                                        {
+                                            $Related[$field["field"]][$item->my->$field["refield"]] = $item->id;
+                                        }
+                                    }
+                                    if ($field["type"] == "picklist" && isset($field["source"]) && $field["source"] != "")
+                                    {
+                                        $pkCon = XN_Query::create('Content')->tag('picklists')->end(-1)
+                                            ->filter('type', 'eic', 'picklists')
+                                            ->filter('my.name', '=', $field["field"])
+                                            ->order('my.sequence', XN_Order::ASC_NUMBER)
+                                            ->execute();
+                                        foreach ($pkCon as $info)
+                                        {
+                                            $Related[$field["field"]][$info->my->$field["field"]] = $info->my->picklist_valueid;
+                                        }
+                                    }
+                                }
+                            }
+                            //查询已存在的数据
+                            $query = XN_Query::create("Content")->tag(strtolower($template))
+                                ->filter("type", "eic", strtolower($template))
+                                ->filter("my.record", "=", $recordid)
+                                ->end(-1)
+                                ->execute();
+                            XN_Content::delete($query, strtolower($template));
+                            $SaveConn = [];
+                            foreach ($allData as $item)
+                            {
+                                if($item["maximum"]<=$item["minimum"] || $item["maximum"]<=0 || $item["minimum"]<0){
+                                    $nummsg = $nummsg.$item["barcode"].',';
+                                    continue;
+                                }
+                                //查询产品是否存在
+                                $product = XN_Query::create("Content")->tag("ma_products")
+                                    ->filter('type', 'eic', 'ma_products')
+                                    ->filter('my.deleted', '=', '0')
+                                    ->end(-1);
+                                  if($item["barcode"]!=''){
+                                      $product->filter("my.barcode", "=",$item["barcode"]);
+                                  }else if($item["itemcode"]!=''){
+                                      $product->filter("my.itemcode", "=",$item["itemcode"]);
+                                  }
+                                 $product  = $product->execute();
+                                if (count($product) <= 0)
+                                {
+                                    $productmsg = $productmsg.$item["barcode"].',';
+                                    continue;
+                                }
+                                //查询该产品警戒库存是否存在
+                                $inventorywarndetails = XN_Query::create("Content")->tag("ma_inventorywarndetails")
+                                    ->filter('type', 'eic', 'ma_inventorywarndetails')
+                                    ->filter('my.deleted', '=', '0')
+                                    ->filter('my.supplierid', '=', $supplierid)
+                                    ->end(-1);
+                                 if($item["barcode"]!=''){
+                                     $inventorywarndetails->filter("my.barcode", "=",$item["barcode"]);
+                                 }else if($item["itemcode"]!=''){
+                                     $inventorywarndetails->filter("my.itemcode", "=",$item["itemcode"]);
+                                 }
+                                $inventorywarndetails  = $inventorywarndetails->execute();
+                                if (count($inventorywarndetails) > 0)
+                                {
+                                    $warnmsg = $warnmsg.$item["barcode"].',';
+                                    continue;
+                                }
+                                    $producinfo                     = $product[0];
+                                    $pickdetail                     = XN_Content::create(strtolower($template), "", false);
+                                    $pickdetail->my->record         = $recordid;
+                                    $pickdetail->my->ma_products    = $producinfo->id;
+                                    $pickdetail->my->supplierid    = $loadcontent->my->supplierid;
+                                    $pickdetail->my->ma_products_no = $producinfo->my->ma_products_no;
+                                    $pickdetail->my->productname    = $producinfo->my->productname;
+                                    $pickdetail->my->ma_factorys    = $producinfo->my->ma_factorys;
+                                    $pickdetail->my->factorys_name  = $producinfo->my->factorys_name;
+                                    $pickdetail->my->barcode        = $producinfo->my->barcode;
+                                    $pickdetail->my->itemcode       = $producinfo->my->itemcode;
+                                    $pickdetail->my->unit           = $producinfo->my->unit;
+                                    $pickdetail->my->guige          = $producinfo->my->guige;
+                                    $pickdetail->my->deleted        = '0';
+                                    $pickdetail->my->createnew      = '0';
+                                    $pickdetail->my->maximum        = $item["maximum"];
+                                    $pickdetail->my->minimum        = $item["minimum"];
+                                    $SaveConn[]                     = $pickdetail;
+                            }
+                            if (count($SaveConn) > 0)
+                            {
+                                XN_Content::batchsave($SaveConn, strtolower($template));
+                            }
+                            if ($productmsg == '' && $warnmsg == '' && $nummsg =='')
+                            {
+                                $error = "importok";
+                            }
+                            else
+                            {
+                                $newstr = substr($productmsg, 0, strlen($productmsg) - 1);
+                                $newstr1 = substr($warnmsg, 0, strlen($warnmsg) - 1);
+                                $newstr2 = substr($nummsg, 0, strlen($nummsg) - 1);
+                                if($newstr!=''){
+                                    $newstr=$newstr.'编码的产品没找到产品信息。';
+                                }
+                                if($newstr1!=''){
+                                    $newstr1=$newstr1.'编码的产品已存在警戒库存。';
+                                }
+                                if($newstr2!=''){
+                                    $newstr2=$newstr2.'编码的警戒库存填写有误。';
+                                }
+                                $error  = $newstr.$newstr1.$newstr2;
+                            }
+                        }
+                    }
+                }
+                else
+                {
+                    $error = getTranslatedString('UPF_PARAMETER_ERROR');
+                }
+            }
+        }
+        else
+        {
+            $error = getTranslatedString('UPF_PARAMETER_ERROR');
+        }
+    }
+    else
+    {
+        $error = getTranslatedString('UPF_PARAMETER_ERROR');
+    }
+    if (!isset($error) || empty($error))
+        $error = "";
+    $returnmsg["error"] = $error;
+    echo json_encode($returnmsg);

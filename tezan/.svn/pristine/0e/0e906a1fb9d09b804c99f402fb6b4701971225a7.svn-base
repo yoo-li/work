@@ -1,0 +1,770 @@
+<?php
+/*+**********************************************************************************
+ * The contents of this file are subject to the 361CRM Public License Version 1.0
+ * ("License"); You may not use this file except in compliance with the License
+ * The Original Code is:  361CRM Open Source
+ * The Initial Developer of the Original Code is vtiger.
+ * Portions created by vtiger are Copyright (C) vtiger.
+ * All Rights Reserved.
+ ************************************************************************************/
+
+global $mod_strings,$app_strings,$theme,$currentModule,$current_user;
+
+require_once('Smarty_setup.php');
+require_once('include/utils/utils.php');
+
+
+$smarty = new vtigerCRM_Smarty;
+
+$panel =  strtolower(basename(__FILE__,".php"));
+
+$smarty->assign("MODULE",$currentModule);
+$smarty->assign("PANEL",$panel);
+$smarty->assign("APP",$app_strings);
+$smarty->assign("MOD", $mod_strings);
+
+if(!isset($_REQUEST['record']) || $_REQUEST['record'] =='') 
+{
+	die();
+}
+
+$recordid = $_REQUEST['record'];
+$loadcontent = XN_Content::load($recordid,strtolower($currentModule));
+
+if(isset($_REQUEST['type']) && $_REQUEST['type'] =='submit') 
+{
+		$newcontent = XN_Content::create('comment','',false);	
+		$newcontent->my->rank = $_REQUEST['rank'] ;
+		$comment = $_REQUEST['comment'];
+		if ($comment == "")
+			$comment = "没有意见.";
+		$newcontent->my->comment = $_REQUEST['comment'];		
+		$newcontent->my->target = $_REQUEST['target'];
+		$newcontent->my->record = $record;
+		$newcontent->my->deleted = '0';
+		$newcontent->save('comment');
+		$loadcontent->my->comment = $_REQUEST['rank'];
+		$loadcontent->save(strtolower($currentModule));
+}
+
+
+if(isset($_REQUEST['fieldname']) && $_REQUEST['fieldname'] !='') 
+{
+	$fieldname = $_REQUEST['fieldname'];
+	$commenttarget = $loadcontent->my->$fieldname;
+}
+else
+{
+	$commenttarget = $loadcontent->my->commenttarget;
+}
+
+if ($commenttarget != "" && $commenttarget != "0")
+{
+	$comment = $loadcontent->my->comment;
+	$comment_username = getUserNameByProfile($commenttarget);
+
+	$currentrank = "";
+	$currencommentpublished = "";
+
+	
+
+	$comments = XN_Query::create ( 'Content' )->tag('comment')
+				->filter ( 'type', 'eic', 'comment' )
+				->filter ( 'my.deleted', '=', '0' )
+				->filter ( 'my.target', '=', $commenttarget )
+				->order("published",XN_Order::DESC)
+				->end(-1)
+				->execute ();
+	$count = count($comments);
+	$userids = array();
+	$rankcount = array();
+	$rankcount['verygood'] = 0;
+	$rankcount['good'] = 0;
+	$rankcount['normal'] = 0;
+	$rankcount['bad'] = 0;
+	$rankcount['verybad'] = 0;
+	$total = 0;
+	foreach($comments as $comment_info)
+	{
+		$userids[] = $comment_info->author;
+		if ($recordid == $comment_info->my->record)
+		{
+			$currentrank = $comment_info->my->rank;
+			$currencommentpublished = $comment_info->published;
+		}
+		switch($comment_info->my->rank)
+		{
+			case "verygood":
+				$rankcount['verygood']++;
+				$total += 5;
+			break;
+			case "good":
+				$rankcount['good']++;
+				$total += 4;
+			break;
+			case "normal":
+				$rankcount['normal']++;
+				$total += 3;
+			break;
+			case "bad":
+				$rankcount['bad']++;
+				$total += 2;
+			break;
+			case "verybad":
+				$rankcount['verybad']++;
+				$total += 1;
+			break;
+
+		}
+	}
+	$usernames = getUserNameList($userids);
+
+	if ($count != 0)
+	{
+		$average = formatnumber($total/$count);
+	}
+	else
+	{
+		$average = 0;
+	}
+
+	if(isset($_REQUEST['page']) && $_REQUEST['page'] !='')
+	{
+		$page = $_REQUEST['page'];
+	}
+	else
+	{
+		$page = 1;
+	}
+
+	$pagesize = 8;
+
+	$query = XN_Query::create ( 'Content' )->tag('comment')
+				->filter ( 'type', 'eic', 'comment' )
+				->filter ( 'my.deleted', '=', '0' )
+				->filter ( 'my.target', '=', $commenttarget )
+				->order("published",XN_Order::DESC)
+				->begin($page*$pagesize-$pagesize)
+				->end($page*$pagesize);
+	$comments =	$query->execute ();
+	
+	if(isset($_REQUEST['rank']) && $_REQUEST['rank'] !='' &&  $_REQUEST['rank'] != 'all' )
+	{
+		$query = XN_Query::create ( 'Content' )->tag('comment')
+								->filter ( 'type', 'eic', 'comment' )
+								->filter ( 'my.deleted', '=', '0' )
+								->filter ( 'my.rank', '=', $_REQUEST['rank'] )
+								->filter ( 'my.target', '=', $commenttarget )
+								->order("published",XN_Order::DESC)
+								->begin($page*$pagesize-$pagesize)
+								->end($page*$pagesize);
+		$comments =	$query->execute ();
+	}
+	else
+	{
+		$query = XN_Query::create ( 'Content' )->tag('comment')
+					->filter ( 'type', 'eic', 'comment' )
+					->filter ( 'my.deleted', '=', '0' )
+					->filter ( 'my.target', '=', $commenttarget )
+					->order("published",XN_Order::DESC)
+					->begin($page*$pagesize-$pagesize)
+					->end($page*$pagesize);
+		$comments =	$query->execute ();
+	}
+   
+    $recordcount = $query->getTotalCount();
+	 
+	$msg ='<style>
+	<!--
+	#reviews {
+		clear: both;
+		color: #404040;
+	}
+	#reviews .tb-r-summary {
+		background-color: #F6F6F6;
+		border: 1px solid #D7D7D7;
+		margin-bottom: 10px;
+		padding: 10px 30px 10px;
+		clear: both;  
+		height: 40px;
+	}
+	#reviews .tb-r-score {
+		color: #404040;
+		font-size: 14px;
+	}
+	#reviews .tb-r-score, #reviews .tb-r-count-num {
+		float: left;
+	}
+
+	#reviews .tb-r-count-num {
+		color: #AAAAAA;
+		margin: 3px 0 0 10px;
+	}
+
+
+	#reviews .tb-r-box {
+		background: none repeat scroll 0 0 #F9F9F9;
+		border: 1px solid #DDDDDD;
+	}
+	#reviews .tb-r-filter {
+		background: none repeat scroll 0 0 #FCFCFC;
+		border-top: 2px solid #E9E9E9;
+		color: #404040;
+		margin-top: -1px;
+		padding: 10px 0;
+		position: relative;
+		z-index: 1;
+	}
+	#reviews .tb-taglist {
+		padding-left: 10px;
+		height: 25px;
+	}
+	#reviews .tb-taglist li.tb-long {
+		min-width: 60px;
+	}
+	#reviews .tb-taglist li {
+		float: left;
+		margin-right: 10px;
+	}
+
+	#reviews .tb-r-filter input {
+		margin-right: 3px;
+		vertical-align: middle;
+		 float: left;
+	}
+	#reviews .tb-r-filter label {
+		margin-right: 2px;
+		width:70px;
+		vertical-align: middle;
+	}
+
+	#reviews .tb-taglist .tb-r-count {
+		color: #BBBBBB;
+		margin-left: 3px;
+	}
+	#reviews .tb-taglist .r-c-title {
+		font-size: 12px;
+	}
+	#reviews .tb-taglist li span {
+		vertical-align: middle;
+	}
+
+	#reviews .tb-revbd {
+		border-top: 1px solid #EDEDED;
+		/*min-height: 120px;*/
+	}
+
+	ul, ol {
+		list-style: none outside none;
+	}
+	#reviews .tb-r-review {
+		border-bottom: 1px solid #D4D4D4;
+		list-style: none outside none;
+		outline: 0 none;
+		padding-bottom: 10px;
+		min-height:90px;
+	}
+	.tb-r-buyer {
+		float: left;
+		margin-right: 10px;
+		padding-top: 18px;
+		width: 100px;
+	}
+
+	.tb-r-buyer .tb-r-avatar {
+		line-height: 1.5;
+		text-align: center;
+	}
+
+	#reviews .tb-r-bd {
+		min-height: 60px;
+		overflow: hidden;
+		padding: 10px 0 0 10px;
+	}
+
+	#reviews .tb-rev-item {
+		padding: 10px 0;
+	}
+
+	#reviews .tb-r-cnt {
+		color: #3F3F3F;
+	}
+	#reviews .tb-r-act-bar {
+		margin: 10px 0;
+	}
+
+	#reviews .tb-r-info {
+		color: #B0B0B0;
+		float: left;
+		font-size: 12px;
+	}
+
+
+	#comm-header-inner, #content {
+		margin: auto;
+		width: 950px;
+	}
+	.top-line {
+		clear: both;
+		height: 0;
+	}
+	.clearfix {
+		clear: both;
+		height: 0;
+	}
+
+	.top-line {
+		background: none repeat scroll 0 0 #EFEFEF;
+		border-bottom: 2px solid #FF9900;
+		margin: 20px 0 0;
+		position: relative;
+		z-index: 10;
+		height:30px;
+	}
+	.top-line .top-line-title {
+		background-color: #FF9900;
+		float: left;
+		height: 31px;
+		overflow: hidden;
+	}
+	.top-line-title {
+		background: url("/images/comment_head.png") no-repeat scroll 0 -78px transparent;
+		width: 171px;
+	}
+	h3 {
+		font-size: 14px;
+	}
+
+	.line {
+		margin-bottom: 10px;
+	}
+
+	.itemlist {
+		border: 1px solid #D9E3EB;
+	}
+	.remark-item{
+		clear: both;
+		display: block;
+		border-top: 0 none;
+		border-top: 1px dashed #D5D5D5;
+		padding: 10px 0 10px;
+	}
+	.remark-item .item-review {
+		overflow: hidden;
+		padding-left: 30px;
+		width: 600px;
+	}
+
+	.remark-item .item-review .rate-result {
+		float: left;
+		margin-left: -20px;
+	}
+	.icon {
+		background: url("/images/comment.png") no-repeat scroll 1000px 1000px transparent;
+		display: inline-block;
+		vertical-align: text-bottom;
+	}
+	.icon-verybad,
+	.icon-bad {
+		background-position: 0 -17px;
+	}
+	.icon-normal {
+		background-position: 0 -34px;
+	}
+	.icon-verygood,
+	.icon-good {
+		background-position: 0 -51px;
+	}
+	.icon-bad, .icon-verybad,.icon-normal, .icon-good, .icon-verygood{
+		height: 16px;
+		vertical-align: middle;
+		width: 16px;
+	}
+
+
+	.comment {
+		color: #333333;
+		margin-bottom: 2px;
+		padding: 0 5px 10px;
+	}
+	.comment label {
+		width:60px;
+	}
+	.comment .date {
+		color: #999999;
+	}
+
+
+	.rate-msg-box {
+		background: none repeat scroll 0 0 #F4F6F9;
+		border: 1px solid #DEE3EB;
+		padding: 3px;
+		width: 590px;
+	}
+
+	.rate-msg-box .textinput {
+		background: none repeat scroll 0 0 #FFFFFF;
+		border: 1px solid #CCCCCC;
+		position: relative;
+		height: 100px;
+	}
+	.rate-msg-box .ph-label {
+		display: block;
+		line-height: 1.5;
+		padding: 3px 6px;
+		width: 400px;
+	}
+	.ph-label {
+		color: #AAAAAA;
+		line-height: 1.2;
+		opacity: 1;
+		padding: 0;
+		position: absolute;
+		transition: all 0.2s ease-out 0s;
+	}
+	.rate-msg-box .rate-msg {
+		border: 0 none;
+		display: block;
+		height: 90px;
+		outline: 0 none;
+		padding: 5px;
+		resize: none;
+		width: 578px;
+	}
+
+
+	.submitbox {
+		margin: 10px 0;
+		padding-left: 390px;
+	}
+	.submit-btn {
+		background: url("/images/comment_head.png") no-repeat scroll 0 0 #FD8937;
+		border: 0 none;
+		color: #FFFFFF;
+		display: inline-block;
+		height: 37px;
+		line-height: 37px;
+		width: 132px;
+	}
+	.submit-btn:hover {
+		 background-position: 0 -39px;
+	}
+	
+.tb-pagination {
+    margin-top: 20px;
+    overflow: hidden;
+    width: 100%;
+}
+.tb-page-bottom .page-start,  .tb-page-bottom .page-prev,  .tb-page-bottom .page-next,  .tb-page-bottom .page-end {
+	color: #3366CC;
+    background: url("/images/page.png") no-repeat scroll 0 0 transparent;
+}
+.tb-page-bottom {
+    display: inline;
+    float: right;
+    width: auto;
+}
+
+.tb-page-bottom .page-start,  .tb-page-bottom .page-prev,  .tb-page-bottom .page-next,  .tb-page-bottom .page-end {
+    width: 36px;
+}
+.tb-page-bottom a,  .tb-page-bottom .page-start,  .tb-page-bottom .page-prev,  .tb-page-bottom .page-cur,  .tb-page-bottom .page-end,  .tb-page-bottom .page-break {
+    border: 1px solid #CCCCCC;
+    min-width: 16px;
+}
+.tb-page-bottom a,  .tb-page-bottom .page-info,  .tb-page-bottom .page-start,  .tb-page-bottom .page-prev,  .tb-page-bottom .page-cur,  .tb-page-bottom .page-end,  .tb-page-bottom .page-break {
+    display: inline;
+    float: left;
+    font-family: Tahoma,SimSun,Arial;
+    height: 24px;
+    line-height: 24px;
+    margin-right: 3px;
+    padding: 0 5px;
+    text-align: center;
+}
+
+
+ .tb-page-bottom .page-start,  .tb-page-bottom .page-prev,  .tb-page-bottom .page-next,  .tb-page-bottom .page-end {
+    width: 36px;
+}
+
+ .tb-page-bottom a,  .tb-page-bottom .page-start,  .tb-page-bottom .page-prev,  .tb-page-bottom .page-cur,  .tb-page-bottom .page-end,  .tb-page-bottom .page-break {
+    border: 1px solid #CCCCCC;
+    min-width: 16px;
+}
+ .tb-page-bottom a,  .tb-page-bottom .page-info,  .tb-page-bottom .page-start,  .tb-page-bottom .page-prev,  .tb-page-bottom .page-cur,  .tb-page-bottom .page-end,  .tb-page-bottom .page-break {
+    display: inline;
+    float: left;
+    font-family: Tahoma,SimSun,Arial;
+    height: 24px;
+    line-height: 24px;
+    margin-right: 3px;
+    padding: 0 5px;
+    text-align: center;
+}
+
+.tb-page-bottom .page-cur {
+    background-color: #FFEDE1;
+    border: 1px solid #FD6D01;
+    color: #FD6D01;
+    font-weight: 700;
+}
+.tb-page-bottom .page-start {
+    background-position: 5px 8px;
+    padding-left: 16px;
+}
+ .tb-page-bottom .page-next {
+    background-position: 42px -50px;
+    padding-right: 16px;
+}
+
+.tb-page-bottom .page-info,.tb-page-bottom .page-break {
+    border: 0 none;
+    color: #C0C0C0;
+}
+
+.tb-page-bottom .page-end {
+    background-position: 47px -31px;
+    padding-right: 16px;
+}
+.tb-page-bottom .page-prev {
+    background-position: 0 -12px;
+    padding-left: 16px;
+}
+	-->
+	</style>';
+
+	$msg .= '<div  id="reviews">
+	<div class="tb-revhd">';
+
+	if ($currentrank != "")
+	{
+		$msg .= '<div class="tb-r-summary">     
+			<div class="comment">本次评价：&nbsp;<i class="icon icon-'.$currentrank.'"></i> &nbsp; '.getTranslatedString($currentrank).'！<span class="date">['.date('Y年m月d日 H:i',strtotime($currencommentpublished)).']</span>
+			 </div>
+		</div>';   
+	}
+	$msg .= '<div class="tb-r-summary"> 
+			<div class="tb-r-score">		  
+			   <span>针对 <strong>'.$comment_username.'</strong> 的评价平均得分</span> <strong>'.$average.'</strong> <span>分</span></div>
+			<div class="tb-r-count-num">共'.$count.'次评价</div>     
+		</div>';   
+
+	if ($currentrank == "")
+	{
+	$msg .= '<div class="tb-r-box">
+				  <div class="tb-r-filter">
+						 <ul class="tb-taglist">  
+												<li>
+													<input onchange="filter_comment(\'all\')" type="radio" name="reviews-type" ' .(($_REQUEST['rank']=="all" || !isset($_REQUEST['rank']))?'checked="checked"':'') . '  id="reviews-t-1">
+													<label for="reviews-t-1"><span class="r-c-title">全部</span></label>
+												</li>
+												<li>
+													<input onchange="filter_comment(\'verygood\')" type="radio" name="reviews-type" ' .(($_REQUEST['rank']=="verygood")?'checked="checked"':'') . ' id="reviews-t-2">
+													<label for="reviews-t-2"><i class="icon icon-good"></i><span class="r-c-title">极好<span class="tb-r-count">('.$rankcount['verygood'].')</span></span></label>
+												</li>
+												<li>
+													<input onchange="filter_comment(\'good\')" type="radio" name="reviews-type" ' .(($_REQUEST['rank']=="good")?'checked="checked"':'') . ' id="reviews-t-3">
+													<label for="reviews-t-3"><i class="icon icon-good"></i><span class="r-c-title">好评<span class="tb-r-count">('.$rankcount['good'].')</span></span></label>
+												</li>
+												<li>
+													<input onchange="filter_comment(\'normal\')" type="radio" name="reviews-type" ' .(($_REQUEST['rank']=="normal")?'checked="checked"':'') . ' id="reviews-t-4">
+													<label for="reviews-t-4"><i class="icon icon-normal"></i><span class="r-c-title">中评<span class="tb-r-count">('.$rankcount['normal'].')</span></span></label>
+												</li>
+												<li>
+													<input onchange="filter_comment(\'bad\')" type="radio" name="reviews-type" ' .(($_REQUEST['rank']=="bad")?'checked="checked"':'') . ' id="reviews-t-5">
+													<label for="reviews-t-5"><i class="icon icon-bad"></i><span class="r-c-title">差评<span class="tb-r-count">('.$rankcount['bad'].')</span></span></label>
+												</li>
+												<li>
+													<input onchange="filter_comment(\'verybad\')" type="radio" name="reviews-type" ' .(($_REQUEST['rank']=="verybad")?'checked="checked"':'') . ' id="reviews-t-6">
+													<label for="reviews-t-6"><i class="icon icon-bad"></i><span class="r-c-title">极差<span class="tb-r-count">('.$rankcount['verybad'].')</span></span></label>
+												</li>
+																	 
+							</ul>             
+					</div>
+		</div>
+	</div>';
+	}
+	$msg .= '
+	<div class="tb-revbd">
+		  <ul class="tb-r-comments">';
+
+			foreach($comments as $comment_info)
+			{
+				$author = $comment_info->author;
+				$comment = $comment_info->my->comment;
+				$rank = $comment_info->my->rank;
+				$published = $comment_info->published;
+				$msg .= '<li data-uid="" class="tb-r-review" hidefocus="true" tabindex="0">
+					<div class="tb-r-buyer">
+						<div class="tb-r-avatar"><span class="tb-r-ulink"><img width="40" height="40" src="/images/user.png" class="tb-r-uimg"><br><span class="tb-r-unick">'.$usernames[$author].'</span> </span>                        </div>
+					</div>
+					<div class="tb-r-bd">
+							<div data-id="62253515334" class="tb-rev-item ">
+								<div class="tb-r-cnt">'.$comment.'</div>
+								<div class="tb-r-act-bar">
+										<div class="tb-r-info"><i class="icon icon-'.$rank.'"></i>&nbsp;&nbsp;<span class="tb-r-date">'.date('Y年m月d日 H:i',strtotime($published)).'</span> <span class="tb-r-sku"></span>
+										</div>               
+								</div>                  
+						<div class="tb-rev-comment"><div class="tb-r-sns-comment"></div></div></div></div>     
+				</li>';
+
+			}
+			$msg .= '</ul>
+			
+			<p class="tb-r-tip">&nbsp;</p>
+	</div>';
+	if ($recordcount > $pagesize)
+	{
+		$msg .= '<div class="tb-pagination" id="J_Pagination">
+				   <div class="tb-page-bottom">';
+						if ($page == 1)
+						{
+							$msg .='<span class="page-start">上一页</span>';
+						}
+						else
+						{
+							$msg .='<a class="page-prev" href="javascript:void(0);" onclick="page_comment('.($page-1).');">上一页</a>';
+						}
+						$temp = $page - 2;
+						if ($temp < 1)  $temp = 1;
+						for(;$temp <= $page+2;$temp++)
+						{
+							if ($temp == $page)
+							{
+								$msg .='<span class="page-cur">'.$page.'</span>';
+							}
+							else
+							{
+								if ( $recordcount / $pagesize > $temp-1)
+								{
+									$msg .='<a class=""  href="javascript:void(0);" onclick="page_comment('.$temp.');">'.$temp.'</a>';
+								}
+							}
+						}
+						$msg .= '<span class="page-break">...</span>';
+						if ( $recordcount / $pagesize > $page)
+						{
+							$msg .='<a class="page-next"  href="javascript:void(0);" onclick="page_comment('.($page+1).');">下一页</a>';
+						}
+						else
+						{
+							$msg .='<span class="page-end">下一页</span>';
+						}
+			$msg .='</div>
+			</div>';
+	}
+	$msg .= '</div>';
+
+
+
+	if ($currentrank == "" && $_REQUEST['mode'] != "view"  && $commenttarget == XN_Profile::$VIEWER && $fieldname == '' && $loadcontent->author != $commenttarget && in_array($loadcontent->my->vehicleapplystatus,array('Finished','Start','Archive')))
+	{
+		$msg .= '<div class="line top-line clearfix">
+			<h3 class="top-line-title">
+				<span class="page-title"> </span>
+			</h3>   
+		</div>
+		<div class="line">
+					<div class="itemlist commentplus">
+						  <div class="remark-item">
+						  <div class="item-review">
+								   <div class="comment" style="height:20px;vertical-align: middle;">
+									  <span><input style="float:left;"type="radio" value="verygood" name="commentrank" checked="checked" data-val="" data-act="type" id="rank-1"><label for="rank-1"><i class="icon icon-good"></i><span style="padding-left: 5px;" class="r-c-title">极好</span></label></span>
+
+									  <span><input style="float:left;"type="radio" value="good" name="commentrank"  data-val="" data-act="type" id="rank-2"><label for="rank-2"><i class="icon icon-good"></i><span style="padding-left: 5px;" class="r-c-title">好评</span></label></span>
+
+									   <span><input style="float:left;"type="radio" value="middle" name="commentrank"  data-val="" data-act="type" id="rank-3"><label for="rank-3"><i class="icon icon-normal"></i><span style="padding-left: 5px;" class="r-c-title">中评</span></label></span>
+									   
+									   <span><input style="float:left;"type="radio" value="bad" name="commentrank"  data-val="" data-act="type" id="rank-4"><label for="rank-4"><i class="icon icon-bad"></i><span style="padding-left: 5px;" class="r-c-title">差评</span></label></span>
+									
+									   <span><input style="float:left;"type="radio" value="verybad" name="commentrank"  data-val="" data-act="type" id="rank-5"><label for="rank-5"><i class="icon icon-bad"></i><span style="padding-left: 5px;" class="r-c-title">极差</span></label></span>
+
+								   </div>                       
+							  
+								<div class="rate-msg-box">
+									<div class="textinput">
+										<span style="" id="textinputlabel" class="ph-label">您有什么建议吗?来分享一下您的感受吧！</span>
+										<textarea onFocus="$(\'#textinputlabel\').html(\'\');" id="commentContents" maxlength="500" class="rate-msg"></textarea>                                
+									</div>                 
+								</div>
+							</div>
+						</div>
+								</div>
+
+					<div class="submitbox">
+						<input class="submit-btn" type="button" onclick="submit_comment();" value="" />
+					</div>
+		</div>';
+	}
+	
+	$msg .= '<input   type="hidden" id="rank" value="'.$_REQUEST['rank'].'" />';
+	$msg .= '<input   type="hidden" id="comment_fieldname" value="'.$_REQUEST['fieldname'].'" />';
+
+	$smarty->assign("PANELBODY", $msg);
+
+	$smarty->assign("SCRIPT", '
+
+	function filter_comment(value)
+	{
+		var fieldname = $("#comment_fieldname").val();
+		if (fieldname != "")
+		{
+			var postBody = "index.php?module=Public&action=Comment&record='.$recordid.'&formodule='.$currentModule.'&target='.$commenttarget.'&type=filter&rank=" + value + "&fieldname=" + fieldname;
+		}
+		else
+		{
+			var postBody = "index.php?module=Public&action=Comment&record='.$recordid.'&formodule='.$currentModule.'&target='.$commenttarget.'&type=filter&rank=" + value;
+		}
+		jQuery("#comment_form_div").loadUrl(postBody);		
+	}
+
+	function page_comment(value)
+	{
+		var rank = $("#rank").val();
+		var fieldname = $("#comment_fieldname").val();
+		if (fieldname != "")
+		{
+			var postBody = "index.php?module=Public&action=Comment&record='.$recordid.'&formodule='.$currentModule.'&target='.$commenttarget.'&type=filter&rank=" + rank + "&page=" + value + "&fieldname=" + fieldname;
+		}
+		else
+		{
+			var postBody = "index.php?module=Public&action=Comment&record='.$recordid.'&formodule='.$currentModule.'&target='.$commenttarget.'&type=filter&rank=" + rank + "&page=" + value;
+		}
+		jQuery("#comment_form_div").loadUrl(postBody);
+	}
+
+	function submit_comment()
+	{
+		var commentContents = $("#commentContents").val();
+		var commentrank = $("input[name=\'commentrank\']:checked").val();	
+		if(commentContents == "")
+		{		
+			if (commentrank == "bad" || commentrank == "verbad" || commentrank == "middle" )
+			{
+				alertmsg("error","差评或中评，您必须填写评价意见!");
+				return false;
+			}
+		}
+		
+		alertMsg.confirm("您确定保存评价？", {
+			okCall: function()
+			{
+				var postBody = "index.php?module=Public&action=Comment&record='.$recordid.'&formodule='.$currentModule.'&target='.$commenttarget.'&type=submit&comment=" + encodeURIComponent(commentContents) + "&rank=" + commentrank;
+			
+				jQuery("#comment_form_div").loadUrl(postBody);
+			}
+			});		
+	}
+
+
+	');
+	$smarty->display('Panel.tpl');
+}
+else
+{
+	$smarty->assign("PANELBODY", "");
+	$smarty->display('Panel.tpl');
+}
+
+?>

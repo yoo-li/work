@@ -1,0 +1,56 @@
+<div class="bjui-pageContent tableContent">
+   <table class="table table-bordered table-top table-hover" data-width="100%" data-nowrap="true">
+			<thead>
+			<tr>
+				<th align="center" width="2%" maxwidth="18"><input type="checkbox" group="ids" class="checkboxCtrl"></th>
+				{foreach name="listviewforeach" item=header key=key from=$LISTHEADER}
+					<th class="center" width="{$header.width}%" >{$header.label}</th>
+				{/foreach}
+			</tr>
+			</thead>
+			<tbody>
+			{foreach name="listviewentity" item=entity key=entity_id from=$LISTENTITY}
+				{assign var=worknotices value=$entity.worknotices}
+				<tr target="sid" rel="{$entity_id}" {if $worknotices eq 'UnRead'} style= "background:#DDDDD0"{/if} bgcolor={cycle values="#FFFFFF,#EEEEEE"} id="row_{$entity_id}">
+				<td width="2%" align="center"> <input name="ids" value="{$entity_id}" type="checkbox"></td>
+				{foreach item=data key=key from=$entity}
+					 {if $key neq 'worknotices' || $key eq '0' }
+						{foreach name="listviewforeach" item=header key=headkey from=$LISTHEADER}
+							{if $smarty.foreach.listviewforeach.iteration eq $key+1 }
+								<td class="listview {$header.align} {$key}" >
+									{if $data|is_array eq true &&  $data.label neq ''}
+										{$data.label}
+									{else}
+										{$data}
+									{/if}
+								</td>
+							{/if}
+						{/foreach}
+					{/if}
+				{/foreach} 
+				</tr> 
+			{/foreach}
+
+				</tbody>
+		</table>
+	</div>
+
+	<div  class="bjui-pageFooter" {if $RUNTIME neq ''}title="响应时间:{$RUNTIME}s"{/if}>
+		<div class="pages">
+			<span>每页&nbsp;</span>
+			<div class="selectPagesize">
+				<select data-toggle="selectpicker" data-toggle-change="changepagesize">
+					<option value="15" {if $fNUMPERPAGE eq '15'}selected{/if}>15</option>
+					<option value="20" {if $NUMPERPAGE eq '20'}selected{/if}>20</option>
+					<option value="50" {if $NUMPERPAGE eq '50'}selected{/if}>50</option>
+					<option value="100" {if $NUMPERPAGE eq '100'}selected{/if}>100</option>
+					<option value="200" {if $NUMPERPAGE eq '200'}selected{/if}>200</option>
+				</select>
+			</div>
+			<span>&nbsp;条，共 {$NOOFROWS} 条</span>
+		</div>
+		<!--{if $RUNTIME neq ''}
+		<div class="pages" style="float:right"><span>{$RUNTIME}s</span></div>
+	{/if}-->
+		<div class="pagination-box" data-toggle="pagination" data-total="{$NOOFROWS}" data-page-size="{$NUMPERPAGE}" data-page-current="{$PAGENUM}">
+		</div>

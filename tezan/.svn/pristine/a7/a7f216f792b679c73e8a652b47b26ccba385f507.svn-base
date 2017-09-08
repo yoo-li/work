@@ -1,0 +1,26 @@
+<?php 
+$mod_strings = Array(
+	'LBL_BASE_INFORMATION' => '基本信息',
+    'Supplier' => '企业',
+	'Mall_OfficialAuthorizeEvents No' => '授权事件编号',
+	'AuthorizationRelationshipID' => '关系',
+	'AuthorizationTitle' => '授权标题',
+	'AuthorizationType' => '授权类型',
+	'StartDate' => '有效期起',
+	'EndDate' => '有效期止',
+	'Status' => '有效标志',
+	'Authorized Type' => '授权用途',
+	'Decider' => '决定人',
+	'Opinion' => '关注人',
+	'IsAuthorityDelegation' => '是否可转授权',
+	'AuthorizationDescription' => '授权内容描述',
+	'Mall_OfficialAuthorizeEvents Status' => '状态', 
+	'Authorize DimensionID'=>'授权模板',
+	'AuthorizedPerson'=>'授权人',
+	'PID'=>'父授权',
+	'Applicant'=>'业务申请人',
+	'AuthorizeEventsDimensions'=>'授权维度',
+	'Submit'=>'已经上线',
+	'AuthorizeTimes'=>'授权次数',
+);
+?>

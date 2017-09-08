@@ -1,0 +1,26 @@
+<?php 
+$mod_strings = Array(
+	'LBL_MEMBERS_INFORMATION' => '基本信息',  
+	'ProfileID' => '绑定账号',
+	'Localuser Type' => '员工类型',
+	'Account' => '员工账号',
+	'Default PassWord' => '默认密码',
+	'Email' => '邮箱', 
+	'Supplier_Users Status' => '状态', 
+	'Agree' => '上线', 
+	'Status' => '启用', 
+	'Supplier' => '商家', 
+	'SupplierUser Type' => '用户类型',
+    'ERR_ENTER_NEW_PASSWORD'=>'新密码',
+    'ERR_ENTER_CONFIRMATION_PASSWORD'=>'确认密码',
+	'boss' => '负责人',
+	'vendor' => '供应商',
+	'Departments' => '所属部门',
+	'Access id' => '权限',
+	'WX openid' => '微信ID',
+	'WX unionid' => '微信联合ID',
+	'WX nickname' => '微信昵称',
+	'WX headimgurl' => '头像',
+	'Parent Superiors'     => '直接上级',
+);
+?>

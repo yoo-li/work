@@ -1,0 +1,106 @@
+<?php
+	/*+********************************************************************************
+	 * The contents of this file are subject to the 361CRM Public License Version 1.0
+	 * ("License"); You may not use this file except in compliance with the License
+	 * The Original Code is:  361CRM Open Source
+	 * The Initial Developer of the Original Code is vtiger.
+	 * Portions created by vtiger are Copyright (C) vtiger.
+	 * All Rights Reserved.
+	 ********************************************************************************/
+	require_once('Smarty_setup.php');
+	require_once('include/utils/utils.php');
+	global $currentModule;
+	require_once('modules/'.$currentModule.'/'.$currentModule.'.php');
+
+	global $app_strings, $mod_strings, $theme;
+
+	$focus  = CRMEntity::getInstance($currentModule);
+	$smarty = new vtigerCRM_Smarty();
+
+	global $hasapprovals, $approvalstatus, $readOnly, $reply_text;
+
+	$focus->retrieve_entity_info($_REQUEST['record'], $currentModule);
+
+	$smarty->assign("HASAPPROVALS", $hasapprovals);
+	$smarty->assign("APPROVALSTATUS", $approvalstatus);
+
+	global $current_user;
+	if (check_authorize('authorizeadmin') || is_admin($current_user))
+	{
+		$readOnly = 'false';
+	}
+	else
+	{
+		$readOnly = 'true';
+	}
+ 
+
+	$smarty->assign("READONLY", $readOnly);
+
+	smarty_approvals($smarty, $currentModule, $focus);
+
+	if (empty($_REQUEST['record']) && $focus->mode != 'edit')
+	{
+		setObjectValuesFromRequest($focus);
+	}
+
+	$disp_view = getView($focus->mode); 
+	
+	global $copyrights;
+	if ($copyrights['program'] == 'ma')
+	{
+		$editview_hidden_fields = array("roleid","givename","reports_to_id");
+	}
+    
+	$blocks = getBlocks($currentModule, $disp_view, $focus->mode, $focus->column_fields);
+	
+ 
+	$smarty->assign("BLOCKS", $blocks);
+	$smarty->assign("OP_MODE", $disp_view);
+
+	$smarty->assign("MODULE", $currentModule);
+	$smarty->assign("SINGLE_MOD", $currentModule);
+	$smarty->assign("MOD", $mod_strings);
+	$smarty->assign("APP", $app_strings);
+
+	$smarty->assign("ID", $focus->id);
+
+	if ($focus->mode == 'edit')
+	{
+		$smarty->assign("MODE", $focus->mode);
+		$smarty->assign("OLDPERSONMAN", $focus->column_fields['personman']);
+		$smarty->assign("UPDATEINFO", updateEditViewInfo($currentModule, $focus));
+	}
+	else
+	{
+		$smarty->assign("MODE", 'create');
+	}
+
+	$tabid = getTabid($currentModule);
+
+	$check_button = Button_Check($module);
+	$smarty->assign("CHECK", $check_button);
+
+	$editview_check_button = EditView_Button_Check($module, $focus);
+
+	$smarty->assign("EDITVIEW_CHECK_BUTTON", $editview_check_button);
+
+	$ajax_panel_check = Ajax_Panel_Check($module);
+
+	$smarty->assign("AJAX_PANEL_CHECK", $ajax_panel_check);
+
+	$smarty->assign("MOD_SEQ_ID", getModuleModentityNum($focus, $module));
+
+	$smarty->assign("CURRENT_USERID", $current_user->id);
+	$smarty->assign("CREATEUSER", getPersonmanFromFocus($focus));
+	$smarty->assign("CREATEDATE", $focus->column_fields['published']);
+	$smarty->assign("CURRENTRECORDNUM", getRecordNum($focus, $module));
+
+	$smarty->assign("APPLICATOR_CREATOR", get_applicator_creator());
+
+	global $startTime;
+	$endTime = microtime();
+	$smarty->assign("RUNTIME", round(microtime_diff($startTime, $endTime), 2));
+
+	$smarty->display("salesEditView.tpl");
+?>

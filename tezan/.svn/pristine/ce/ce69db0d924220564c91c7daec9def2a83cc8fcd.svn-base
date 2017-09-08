@@ -1,0 +1,57 @@
+<?php
+
+global  $supplierid,$supplierusertype;
+
+if(isset($_SESSION['supplierid']) && $_SESSION['supplierid'] !='')
+{
+    $supplierid = $_SESSION['supplierid'];
+    $supplierusertype = $_SESSION['supplierusertype'];
+}
+else
+{
+    $supplier_users = XN_Query::create ( 'Content' ) ->tag('supplier_users')
+        ->filter ( 'type', 'eic', 'supplier_users')
+        ->filter ( 'my.deleted', '=', '0' )
+        ->filter ( 'my.profileid', '=' ,XN_Profile::$VIEWER)
+        ->execute();
+    if (count($supplier_users) > 0)
+    {
+        $supplier_users_info = $supplier_users[0];
+        $supplierid = $supplier_users_info->my->supplierid;
+        $supplierusertype = $supplier_users_info->my->supplierusertype;
+
+        $_SESSION['supplierid'] = $supplierid;
+        $_SESSION['supplierusertype'] = $supplierusertype;
+    }
+    else
+    {
+        $supplierid = '0';
+        $supplierusertype = '';
+    }
+}
+
+
+if(isset($_SESSION['supplierid']) && $_SESSION['supplierid'] != '' && $_SESSION['supplierid'] != '0')
+{
+    $supplierid = $_SESSION['supplierid'];
+    $mall_vendors = XN_Query::create ( 'Content' ) ->tag('mall_vendors')
+        ->filter ( 'type', 'eic', 'mall_vendors')
+        ->filter ( 'my.deleted', '=', '0' )
+		->filter ( 'my.supplierid', '=' ,$supplierid)
+        ->filter ( 'my.profileid', '=' ,XN_Profile::$VIEWER)
+        ->execute();
+    if (count($mall_vendors) > 0)
+    {
+		$mall_vendor_info = $mall_vendors[0];
+		$_SESSION['vendorid'] = $mall_vendor_info->id;
+	}
+	else
+	{
+		$_SESSION['vendorid'] = "";
+	}
+}
+else
+{
+   $_SESSION['vendorid'] = "";
+}
+?>

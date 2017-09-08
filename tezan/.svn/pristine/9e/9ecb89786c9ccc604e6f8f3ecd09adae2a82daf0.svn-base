@@ -1,0 +1,68 @@
+<?php
+require_once('Smarty_setup.php');
+require_once('include/utils/utils.php');
+
+
+global  $currentModule,$supplierid;
+
+if (isset($_REQUEST['record']) && $_REQUEST['record'] != "" &&
+    isset($_REQUEST['type']) && $_REQUEST['type'] == "submit" )
+{
+    try {
+        $binds = $_REQUEST['record']; 
+
+        $binds = str_replace(";",",",$binds);
+        $binds = explode(",",trim($binds,','));
+        array_unique($binds);
+		if (count($binds) > 0)
+		{
+			$loadcontents = XN_Content::loadMany($binds,"mall_smkreimburses_".$supplierid,7);
+	        foreach($loadcontents as $reimburses_info)
+	        {  
+				if ($reimburses_info->my->mall_smkreimbursestatus == "待退款")
+				{
+					$supplierid = $reimburses_info->my->supplierid;
+					$profileid = $reimburses_info->my->profileid; 
+					$orderid = $reimburses_info->my->orderid;
+					$returnedgoodsapplyid = $reimburses_info->my->returnedgoodsapplyid;
+					$reimburses_info->my->mall_smkreimbursestatus = '已退款';
+					$reimburses_info->my->returngoodsdate = date("Y-m-d H:i");
+					$reimburses_info->save("mall_smkreimburses,mall_smkreimburses_".$profileid.",mall_smkreimburses_".$supplierid);
+					
+					$loadcontent = XN_Content::load($orderid,"mall_orders_".$supplierid,7);
+					$loadcontent->my->order_status = '已退款';
+					$loadcontent->save("mall_orders,mall_orders_".$profileid.",mall_orders_".$supplierid);
+					
+					$returnedgoodsapply = XN_Content::load($returnedgoodsapplyid,"mall_returnedgoodsapplys_".$supplierid,7);
+					$returnedgoodsapply->my->mall_returnedgoodsapplysstatus = '已退款';
+					$returnedgoodsapply->save("mall_returnedgoodsapplys,mall_returnedgoodsapplys_".$profileid.",mall_returnedgoodsapplys_".$supplierid);
+ 				} 
+	        } 
+		} 
+        echo '{"statusCode":"200","message":null,"tabid":"'.$currentModule.'","closeCurrent":true,"forward":null}';
+    } catch ( XN_Exception $e )
+    {
+        echo '{"statusCode":"300","message":"'.$e->getMessage().'"}';
+    }
+    die();
+}
+else{ 
+	$msg = '<div style="width:100%;text-align:center;"><br><br><font color="red" size="2">你确定款项已经退返给会员？</font></div>';  
+		
+}
+
+$smarty = new vtigerCRM_Smarty;
+global $mod_strings;
+global $app_strings;
+global $app_list_strings;
+$smarty->assign("APP", $app_strings);
+$smarty->assign("CMOD", $mod_strings);
+$smarty->assign("MSG", $msg);
+$smarty->assign("OKBUTTON", "确定款项已经退返");
+$smarty->assign("RECORD",$_REQUEST['ids']);
+$smarty->assign("SUBMODULE", "Mall_SmkReimburses");
+$smarty->assign("SUBACTION", "ModifyReimburse");
+
+$smarty->display("MessageBox.tpl");
+
+?>

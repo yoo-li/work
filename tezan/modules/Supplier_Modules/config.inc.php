@@ -1,0 +1,1 @@
+<?php$Create = false;$Delete = false;$MassEdit = false;$CustomMassDelete = false;$ExportExcel = false;$actionmapping = array (	array('actionname' => 'UserInfo','securitycheck' => '1','type'=>'ajax','location'=>'bottom'),);

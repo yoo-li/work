@@ -1,0 +1,212 @@
+<?php
+ 
+session_start();
+header("Content-type:text/html;charset=utf-8");
+require_once (dirname(__FILE__) . "/../include/config.inc.php");
+require_once (dirname(__FILE__) . "/../include/config.common.php");
+require_once (dirname(__FILE__) . "/../include/utils.php");
+ 
+ 
+if(isset($_SESSION['profileid']) && $_SESSION['profileid'] !='')
+{ 
+	$profileid = $_SESSION["profileid"];
+}
+else
+{
+	messagebox("错误", '检测不到必需的请求参数！');
+	die();
+} 
+
+
+global $supplierid;
+if(isset($_SESSION['supplierid']) && $_SESSION['supplierid'] !='')
+{ 
+	$supplierid = $_SESSION["supplierid"]; 
+}
+else
+{
+	messagebox("错误", '检测不到必需的请求参数！');
+	die();
+} 
+
+$officialtreat = array();
+if(isset($_REQUEST['record']) && $_REQUEST['record'] != '')
+{   
+		$record = $_REQUEST['record'];
+	    $loadcontent = XN_Content::load($record,"mall_officialtreats_".$supplierid); 
+		
+		$authorizeevent = $loadcontent->my->authorizeevent;
+		
+	   	$officialtreat['treatid'] = $loadcontent->id;
+	   	$officialtreat['treatobject'] = $loadcontent->my->treatobject;
+		$officialtreat['authorizeevent'] = $authorizeevent;
+		$officialtreat['participants'] = $loadcontent->my->participants;
+		$officialtreat['treatdatetime'] = $loadcontent->my->treatdatetime;
+		$officialtreat['address'] = $loadcontent->my->address;
+		$officialtreat['estimatedcost'] = $loadcontent->my->estimatedcost;
+		$officialtreat['percapita'] = $loadcontent->my->percapita;
+		$officialtreat['treatreason'] = $loadcontent->my->treatreason;
+		$officialtreat['approvalstatus'] = $loadcontent->my->approvalstatus;
+		$officialtreat['treatpayment'] = $loadcontent->my->treatpayment;
+		$mall_officialtreatsstatus = $loadcontent->my->mall_officialtreatsstatus; 
+		$officialtreat['mall_officialtreatsstatus'] = getTranslatedString($mall_officialtreatsstatus,"Mall_OfficialTreats");   
+ 	
+	    if (isset($authorizeevent) && $authorizeevent != "")
+		{
+			$authorizeevent_info = XN_Content::load($authorizeevent,"mall_officialauthorizeevents_".$supplierid); 
+			$officialtreat['authorizeevent_text'] = $authorizeevent_info->my->authorizationtitle;
+		}
+		else
+		{
+			$officialtreat['authorizeevent_text'] = '';
+		}
+		
+		$authorizedperson = $loadcontent->my->authorizedperson;
+		$decider = $loadcontent->my->decider;
+		$opinion = $loadcontent->my->opinion;
+		
+		$officialtreat['authorizedperson'] = $authorizedperson;
+		$officialtreat['decider'] = $decider;
+		$officialtreat['opinion'] = $opinion;
+		if (isset($opinion) && $opinion != "")
+		{
+			$officialtreat['opinion_givennames'] = getProfilesByids($opinion);
+		}
+		else
+		{
+			$officialtreat['opinion_givennames'] = array();
+		} 
+		
+		$mall_officialopinions = XN_Query::create ( 'Content' )->tag ( 'mall_officialopinions_'.$supplierid )
+			->filter ( 'type', 'eic', 'mall_officialopinions' ) 
+			->filter ( 'my.deleted', '=', '0' ) 
+			->filter ( 'my.opinioned', '=', '1' ) 
+			->filter ( 'my.record', '=', $record )  
+			->order('published',XN_Order::DESC) 
+			->end(-1)
+			->execute ();
+		$officialopinions = array();
+		foreach($mall_officialopinions as $mall_officialopinion_info)
+		{
+			$officialopinionid = $mall_officialopinion_info->id;
+			$officialopinions[$officialopinionid]['opinion'] = $mall_officialopinion_info->my->opinion; 
+			$officialopinions[$officialopinionid]['profile'] = getProfile_info($mall_officialopinion_info->my->profileid);
+			$officialopinions[$officialopinionid]['submitdatetime'] = $mall_officialopinion_info->my->submitdatetime;
+			
+		}
+		$officialtreat['officialopinions'] = $officialopinions;
+		
+		$officialtreat_approvals = XN_Query::create ( 'Content' )->tag ( 'approvals' )
+			->filter ( 'type', 'eic', 'approvals' )
+			->filter ( 'my.finished', '=', 'true' )
+			->filter ( 'my.deleted', '=', '0' )
+			->filter ( 'my.record', '=', $record ) 
+			->order('my.submitapprovalreplydatetime',XN_Order::ASC) 
+			->end(-1)
+			->execute ();
+		
+		$approvals = array();
+		$approval_info = array();
+		$published = $loadcontent->published; 
+		$approval_info['pos'] = 'start';
+		$approval_info['date'] = date("Y-m-d",strtotime($published));   
+		$approval_info['time'] = date("H:i",strtotime($published)); 
+		$profileid = $loadcontent->my->profileid;
+		
+		$approval_info['route'] = getGivenName($profileid).'创建了宴请。';
+		$approvals[] = $approval_info;
+		
+		
+		$submitapproval = $loadcontent->my->submitapproval;  
+		$submitdatetime = $loadcontent->my->submitdatetime;
+		if (isset($submitapproval) && $submitapproval != "" &&
+			isset($submitdatetime) && $submitdatetime != "" )
+		{
+			$approval_info = array(); 
+			$approval_info['pos'] = '';
+			$approval_info['date'] = date("Y-m-d",strtotime($submitdatetime));   
+			$approval_info['time'] = date("H:i",strtotime($submitdatetime));  
+			$approval_info['route'] = getGivenName($submitapproval).'通过了宴请申请，开始进入审批流程。';
+			$approvals[] = $approval_info;
+		}
+		
+		
+		foreach($officialtreat_approvals as $officialtreat_approval_info)
+		{ 
+			$approval_info = array();
+			$published = $officialtreat_approval_info->my->submitapprovalreplydatetime;
+			$userid = $officialtreat_approval_info->my->userid; 
+			$approval_info['pos'] = '';
+			$approval_info['date'] = date("Y-m-d",strtotime($published));   
+			$approval_info['time'] = date("H:i",strtotime($published)); 
+			$reply = $officialtreat_approval_info->my->reply;
+			$reply_text = $officialtreat_approval_info->my->reply_text;
+			
+			if ($reply == "Agree")
+			{ 
+				if (isset($reply_text) && $reply_text != "")
+				{
+					$approval_info['route'] = getGivenName($userid).'审批同意【'.$reply_text.'】';
+				}
+				else
+				{
+					$approval_info['route'] = getGivenName($userid).'审批同意';
+				} 
+			}
+			else
+			{
+				if (isset($reply_text) && $reply_text != "")
+				{
+					$approval_info['route'] = getGivenName($userid).'审批不同意【'.$reply_text.'】';
+				}
+				else
+				{
+					$approval_info['route'] = getGivenName($userid).'审批不同意';
+				} 
+			}  
+			$approvals[] = $approval_info;
+		}
+		
+	    $officialtreat['approvals'] = $approvals;
+
+}
+else
+{
+	messagebox("错误", '检测不到必需的请求参数！');
+	die();
+}  
+
+
+require_once('Smarty_setup.php');  
+$smarty = new platform_Smarty;  
+ 
+
+$smarty->assign("officialtreat",$officialtreat);  
+
+$smarty->assign("supplier_info",get_supplier_info()); 
+
+ 
+try{     
+ 
+	 
+}
+catch(XN_Exception $e)
+{
+	$msg = $e->getMessage();	
+	messagebox('错误',$msg);
+	die(); 
+}   
+
+$smarty->assign("officialauthorizeevents",$officialauthorizeevents);	
+
+$smarty->assign("officialauthorizeevents_encode",raw_json_encode($officialauthorizeevents));
+
+$smarty->assign("theme_info",get_system_theme_info());	 
+
+$smarty->assign("copyrights",get_copyright_info());	
+	
+$action = strtolower(basename(__FILE__, ".php"));
+
+$smarty->display($action . '.tpl');  
+
+?>

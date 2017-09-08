@@ -1,0 +1,80 @@
+@font-face {
+  font-family: 'icon';  /* project id 264504 */
+  src: url('http://at.alicdn.com/t/font_ks41cbjdqdhuayvi.eot');
+  src: url('http://at.alicdn.com/t/font_ks41cbjdqdhuayvi.eot?#iefix') format('embedded-opentype'),
+  url('http://at.alicdn.com/t/font_ks41cbjdqdhuayvi.woff') format('woff'),
+  url('http://at.alicdn.com/t/font_ks41cbjdqdhuayvi.ttf') format('truetype'),
+  url('http://at.alicdn.com/t/font_ks41cbjdqdhuayvi.svg#iconfont') format('svg');
+}
+div, p{
+    margin: 0;
+}
+.icon{
+    font-family: 'icon';
+}
+header{
+    text-align: center;
+    color: #232326;
+    line-height: 44px;
+}
+.mui-off-canvas-wrap .mui-bar{
+    border-bottom: 1px solid #e4e0e0; 
+}
+body{
+    background: #fff;
+    width: 6.4rem;
+    margin: 0 auto;
+}
+.mui-content{
+    background: #fff;
+}
+.bg-white{
+    background: #fff;
+}
+.mui-bar-nav.mui-bar .mui-icon {
+    color: #232326;
+}
+/*激活码*/
+.code-container{
+    margin-top: 15px;
+    padding: .2rem;
+    border-top: 1px solid #e4e0e0;
+    border-bottom: 1px solid #e4e0e0;
+}
+.code-container h4{
+    font-size: .28rem;
+    color: #232326;
+    font-weight: 400;
+}
+.code-container input{
+    margin-top: 10px;
+    margin-bottom: 0;
+    border-radius: 12px;
+    font-size: .26rem;
+}
+.mui-btn-danger{
+    margin: 10px auto;
+    padding: .2rem 20px;
+    display: block;
+    width: 6rem;
+    font-size: .3rem;
+    border: 1px solid #fb3e21;
+    background-color: #fb3e21;
+}
+.mui-btn-danger:active{
+    background-color: #ec472e;
+}
+.clear:after{
+    content: '';
+    display: block;
+    clear: both;
+}
+.h50{
+    height: 50px;
+}
+.red{
+    color: #fb3e21;
+}
+.gray{
+    color: #827f7f;
+}

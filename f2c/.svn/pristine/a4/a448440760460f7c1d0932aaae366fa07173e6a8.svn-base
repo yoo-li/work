@@ -1,0 +1,270 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
+    <title>惠民商城 </title>
+    <script src="public/js/mui.min.js"></script>
+    <!--<script type="text/javascript" src="public/js/jweixin.js"></script>-->
+    <!--<script src="public/js/zepto.min.js" type="text/javascript" charset="utf-8"></script>-->
+    <!--<script src="public/js/utils.js" type="text/javascript" charset="utf-8"></script>-->
+    <!--<script type="text/javascript" src="public/js/jweixin.js"></script>-->
+    <link href="public/css/mui.min.css" rel="stylesheet"/>
+    <link href="public/css/public.css" rel="stylesheet" />
+    <link href="public/css/reset.css" rel="stylesheet"/>
+    <link href="public/css/center.css" rel="stylesheet"/>
+    <link href="public/css/iconfont.css" rel="stylesheet" />
+    <script type="text/javascript" charset="utf-8">
+        {literal}
+        mui.init({
+            pullRefresh: {
+                container: '#pullrefresh'
+            }
+        });
+        mui.ready(function() {
+            mui('.mui-inner-wrap').on('tap','a',function(e){
+                mui.openWindow({
+                    url: this.getAttribute('href'),
+                    id: 'info'
+                });
+            });
+            mui('#pullrefresh').scroll({
+                scrollY: true, //是否竖向滚动
+                scrollX: false, //是否横向滚动
+                startX: 0, //初始化时滚动至x
+                startY: 0, //初始化时滚动至y
+                indicators: true, //是否显示滚动条
+                deceleration:0.0006, //阻尼系数,系数越小滑动越灵敏
+                bounce: false //是否启用回弹
+            });
+        });
+        {/literal}
+    </script>
+    <script type="text/javascript">
+        {literal}
+        !function(){function a(){document.documentElement.style.fontSize=document.documentElement.clientWidth/6.4+"px";if(document.documentElement.clientWidth>=640)document.documentElement.style.fontSize='100px';}var b=null;window.addEventListener("resize",function(){clearTimeout(b),b=setTimeout(a,300)},!1),a()}(window);
+        {/literal}
+    </script>
+    <style>
+        {literal}
+        .mui-bar-tab~.mui-content{ background: #f9f9f9; }
+        .mui-table-view-cell span{ color:#000 }
+        header{
+            color: #232326;;
+            font-size: 17px;
+        }
+        .mui-off-canvas-wrap .mui-bar.mui-bar-nav {
+            background-color: #f9f9f9;
+        }
+        .mui-off-canvas-wrap .mui-bar.mui-bar-nav{
+            color: #232326;
+            font-size: 17px;
+        }
+        .card p {
+            margin-top: .05rem;
+            color: #000;
+        }
+        .img-responsive {
+            display: inline-block;
+            height: auto;
+            max-width: 100%;
+        }
+        .tab.mui-segmented-control{
+            border:none;
+        }
+        .tab.mui-segmented-control .mui-control-item{
+            color: #000;
+            border:2px solid transparent;
+            background-color:#fff;
+        }
+        .tab.mui-segmented-control .mui-control-item.mui-active{
+            border:2px solid transparent;
+            border-bottom:2px solid #f00;
+            color: #f00;
+        }
+        {/literal}
+    </style>
+</head>
+<body>
+<div class="mui-off-canvas-wrap mui-draggable">
+    <!-- 主页面容器 -->
+    <div class="mui-inner-wrap">
+        <!-- 菜单容器 -->
+        <aside class="mui-off-canvas-left" id="offCanvasSide">
+            <style>
+                <!--
+                .user-info .mui-ellipsis .iconfont {ldelim}width:18px;color: #fff; {rdelim}
+                -->
+            </style>
+            <div class="mui-scroll-wrapper">
+                <div class="mui-scroll">
+                    <!-- 菜单具体展示内容 -->
+                    <div class="user-info">
+                        {if $profile_info.profileid neq 'anonymous'}
+                            {if $profile_info.givenname neq ''}
+                                <a href="javascript:;">
+                                    <img class="mui-media-object mui-pull-left" src="{$profile_info.headimgurl}">
+                                    <div class="mui-media-body">
+                                        {$profile_info.givenname}，您好！
+                                        <p class='mui-ellipsis' >等级：{include file='profilerank.tpl'}</p>
+
+                                    </div>
+                                </a>
+
+                            {else}
+                                <a href="javascript:;">
+                                    <img class="mui-media-object mui-pull-left" src="{if $supplier_info.logo neq ''}{$supplier_info.logo}{else}images/logo.png{/if}">
+                                    <div class="mui-media-body">
+                                        尊敬的客人，您好！<br>
+                                        <p class='mui-ellipsis'>关注之后内容更精彩!</p>
+                                    </div>
+                                </a>
+                            {/if}
+
+                        {else}
+                            <a href="javascript:;">
+                                <img class="mui-media-object mui-pull-left" src="{if $businesse_info.logo neq ''}{$businesse_info.logo}{else}images/logo.png{/if}">
+                                <div class="mui-media-body">
+                                    {$businesse_info.businessename}
+                                    <p class='mui-ellipsis'>注册之后内容更精彩!</p>
+                                </div>
+                            </a>
+                            <p>{$businesse_info.share_description}</p>
+                            <p style="text-align: center;">
+                                <a href="login.php" class="mui-btn mui-btn-outlined mui-btn-primary">登陆 </a>
+                                <a href="register.php" class="mui-btn mui-btn-outlined mui-btn-primary">注册 </a>
+                            </p>
+                        {/if}
+                    </div>
+                    <ul class="mui-table-view mui-table-view-chevron mui-table-view-inverted">
+                        <li class="mui-table-view-cell">
+                            <a href="index.php" class="mui-navigate-right mui-ellipsis"><span class="mui-icon iconfont icon-mainpage"></span> 店铺首页 </a>
+                        </li>
+                        {assign var="badges" value=$share_info.badges}
+
+                        <li class="mui-table-view-cell">
+                            <a href="orders_receipt.php" class="mui-navigate-right mui-ellipsis">
+                                <span class="mui-icon iconfont icon-daichulidingdan"></span> 我的待处理订单{if $badges.new_order eq 'yes'}<span style="font-size: 20px;padding: 1px 3px;" class="mui-badge mui-badge-danger iconfont icon-newbadge"></span>{/if}
+                                <span class="left-desc"></span>
+                            </a>
+                        </li>
+                        <li class="mui-table-view-cell">
+                            <a href="orders_payment.php" class="mui-navigate-right mui-ellipsis">
+                                <span class="mui-icon iconfont icon-dingdan"></span> 全部已付款订单
+                                <span class="left-desc"></span>
+                            </a>
+                        </li>
+                        {if $supplier_info.allowtakecash eq '1'}
+                            <li class="mui-table-view-cell">
+                                <a href="takecashs.php" class="mui-navigate-right mui-ellipsis">
+                                    <span class="mui-icon iconfont icon-money"></span> 提现申请
+                                    <span class="left-desc"></span>
+                                </a>
+                            </li>
+                        {/if}
+                        <li class="mui-table-view-cell">
+                            <a href="mycollections.php" class="mui-navigate-right mui-ellipsis">
+                                <span class="mui-icon iconfont icon-shoucang"></span> 我的收藏
+                                <span class="left-desc"></span>
+                            </a>
+                        </li>
+                        {if $supplier_info.showfubisi eq '0'}
+                            <li class="mui-table-view-cell">
+                                <a href="fubusi.php" class="mui-navigate-right mui-ellipsis">
+                                    <span class="mui-icon iconfont icon-fubushi"></span> 福布斯榜
+                                    <span class="left-desc"></span>
+                                </a>
+                            </li>
+                        {/if}
+                        <li class="mui-table-view-cell">
+                            <a href="contactus.php" class="mui-navigate-right mui-ellipsis">
+                                <span class="mui-icon iconfont icon-lianxiwomen"></span> 联系我们
+                                <span class="left-desc"></span>
+                            </a>
+                        </li>
+                        {if $sysinfo.http_user_agent eq 'tezan'}
+                            {assign var="copyrights" value=$supplier_info.copyrights}
+                            <script type="text/javascript" charset="utf-8" src="/public/js/cordova.js"></script>
+                            <li class="mui-table-view-cell">
+                                <a id="back_tezan" class="mui-navigate-right mui-ellipsis">
+                                    <span class="mui-icon iconfont icon-logo"></span> 返回{$copyrights.trademark}
+                                    <span class="left-desc"></span>
+                                </a>
+                            </li>
+                            <script type="text/javascript">
+                                {literal}
+                                mui.ready(function() {
+                                    document.getElementById('back_tezan').addEventListener('tap', function() {
+                                        Cordova.exec(null, null, "PhoneGapPlugin", "PluginFunction", [{"type":"historyback"}]);
+                                    });
+                                });
+                                {/literal}
+                            </script>
+                        {/if}
+                    </ul>
+                </div>
+            </div>
+        </aside>
+        <!-- 主页面标题 -->
+        <header class="mui-bar mui-bar-nav mui-row" style="background-color:#F4F4F4;">
+            <a class="mui-icon mui-action-menu mui-icon-bars mui-pull-left" href="#offCanvasSide" style="color:#232326"></a>
+            我的惠民商城卡
+        </header>
+        <!-- 主页面内容容器 -->
+        <!--<div class="mui-content mui-scroll-wrapper">-->
+        <div class="mui-content mui-scroll-wrapper" id="pullrefresh" style="padding-top:44px;background-color: #fff;">
+            <div class="mui-scroll" style="background-color: #fff;">
+                <div class="tab mui-segmented-control">
+                    <a class="mui-control-item mui-active" href="#success">已激活({$smkcount})</a>
+                    <a class="mui-control-item" href="#failure">已失效({$endsmkcount})</a>
+                </div>
+                <br>
+
+                <div id="success" class="mui-control-content mui-active">
+                    {if $smkList eq ''}
+                    <br>
+                    <img src="public/images/sck_no.png" alt="" style="display:block;margin-right: auto; margin-left: auto;">
+                    <br>
+                    <p style="text-align:center;">您暂无商城卡可以使用</p>
+                    <br><br>
+                    {else}
+                        <div style="margin-bottom: -3px;"></div>
+                        {foreach item="smkList"  from=$smkList}
+                            <div style="list-style-type:none;margin:3px 10px;position: relative">
+                                <img class="img-responsive" src="public/images/sck_active.png" alt="">
+                                <p style="position: absolute;left:8%;top:8%;color:#fff;font-size:1.1em">惠民商城卡：{$smkList.card}</p>
+                                <p style="position: absolute;left:34%;top:32%;color:#fff;">余额&nbsp;<span style="font-size: 1.1em">￥<span style="font-size: 1.5em">{$smkList.account}</span></span></p>
+                                <p style="position: absolute;left:8%;top:70%;color:#fff;font-size:0.9em">总额：{$smkList.money}元</p>
+                                <p style="position: absolute;left:8%;top:80%;color:#fff;font-size:0.9em">有效期：{$smkList.addtime}-{$smkList.endtime}</p>
+                            </div>
+                        {/foreach}
+                    <p style="text-align: right;color:#111;font-size: 16px;padding-right: 15px;">总金额：<span style="color:red;font-size: 16px;">￥{$totle_account}</span></p>
+                    <br>
+                    <hr>
+                    <br>
+                    {/if}
+                    <div style="width:100%;padding:0px 5px;">
+                        <a href="smk_bindcard.php" type="button" class="mui-btn mui-btn-danger" style="border-radius: 0px;width:100%;">绑定新卡</a>
+                    </div>
+                    <a href="smk_sckagreement.php" style="display:block;text-align:center;text-decoration: underline;color:#333;margin-top: 5px;">帮助说明</a>
+
+                </div>
+                <div id="failure" class="mui-control-content">
+                    {foreach item="endsmkList"  from=$endsmkList}
+                    <div style="list-style-type:none;margin:-4px 3px;position: relative">
+                    <img class="img-responsive" src="public/images/sck_notactive.png" alt="">
+                    <p style="position: absolute;left:10%;top:10%;color:#fff;font-size:1.1em">惠民商城卡：{$endsmkList.card}</p>
+                    <p style="position: absolute;left:35%;top:33%;color:#fff;">余额&nbsp;<span style="font-size: 1.1em">￥<span style="font-size: 1.5em">0.00</span></span></p>
+                    <p style="position: absolute;left:10%;top:68%;color:#fff;font-size:0.9em">总额：{$endsmkList.money}元</p>
+                    <p style="position: absolute;left:10%;top:78%;color:#fff;font-size:0.9em">有效期：{$endsmkList.addtime}-{$smkList.endtime}</p>
+                    </div>
+                    {/foreach}
+                </div>
+                <br><br>
+            </div>
+            <!--</div>-->
+        </div>
+    </div>
+</div>
+</body>
+</html>

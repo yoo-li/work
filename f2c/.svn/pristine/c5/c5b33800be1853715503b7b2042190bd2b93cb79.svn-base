@@ -1,0 +1,110 @@
+body{
+    background: #eee
+}
+header{
+    text-align: center;
+    color: #232326;
+    line-height: 44px;
+}
+.mui-off-canvas-wrap .mui-bar.mui-bar-nav{
+    background-color: #f9f9f9;
+}
+.mui-bar-tab~.mui-content,
+.mui-grid-view.mui-grid-9{
+    background-color: #fff;
+    border: 0;
+}
+.mui-bar-nav.mui-bar .mui-icon{
+    color: #232326;
+}
+.personal-info{
+    position: relative;
+    margin-top: 44px;
+    padding-top: .2rem;
+    width: 100%;
+    height: 2.67rem;
+    text-align: center;
+    background: url(../images/bg.jpg) no-repeat center center;
+    background-size: cover;
+    box-sizing: border-box;
+}
+.personal-info p{
+    margin: 5px;
+    font-size: .26rem;
+    color: #fff;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+.setting{
+    position: absolute;
+    top: .2rem;
+    right: .4rem;
+    width: .4rem;
+    height: .4rem;
+}
+.mui-grid-view.mui-grid-9 .mui-table-view-cell{
+    padding: 11px 5px 0 5px;
+}
+.mui-grid-view.mui-grid-9 .mui-table-view-cell.w20{
+    width: 20%;
+}
+.mui-grid-view.mui-grid-9 .mui-table-view-cell.w20 a{
+    position: relative;
+}
+.mui-grid-view.mui-grid-9 .mui-media.w20 .mui-icon{
+    position: absolute;
+    top: 0;
+    margin: 0;
+    right: 15px;
+}
+.mui-table-view-cell img{
+    width: .44rem;
+    height: .44rem;
+}
+.avator{
+    margin: 0 auto;
+    width: 1.34rem;
+    height: 1.34rem;
+    display: block;
+    border: 2px solid #fff;
+    border-radius: 100%;
+}
+.banner-title{
+    color: #4f4f50;
+    padding: 10px 10px 5px 10px;
+    font-size: .24rem;
+    color: #4f4f50;
+    background: #fff;
+    border-bottom: 2px solid #f9f9f9;
+}
+.banner-title span{
+    font-size: .24rem;
+}
+.banner-title a:active,
+.banner-title a:active span{
+    color: #fb3e21;
+}
+.banner-title .text-right,
+.banner-title .mui-icon{
+    color: #8b8b8d;
+    font-size: .24rem;
+}
+.mui-grid-view.mui-grid-9{
+    border-bottom: 2px solid #f9f9f9;
+}
+.info.mui-grid-view.mui-grid-9 .mui-table-view-cell{
+    margin-bottom: 1px;
+    border-right:1px solid #f9f9f9;
+    border-bottom:1px solid #f9f9f9;
+}
+.card{
+    padding-top: .1rem;
+}
+.card .mui-table-view-cell span{
+    font-size: .26rem;
+    color: #fb3e21;
+}
+.card p{
+    margin-top: .3rem;
+}

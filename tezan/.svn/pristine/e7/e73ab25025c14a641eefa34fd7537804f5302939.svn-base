@@ -1,0 +1,255 @@
+<html>
+<head>
+    <meta charset="utf-8"/>
+    <script src="/Public/js/vue.min.js"></script>
+    <script src="http://unpkg.com/vue/dist/vue.js"></script>
+    <script src="https://cdn.jsdelivr.net/vue.resource/1.0.3/vue-resource.min.js"></script>
+    <script type="text/javascript" src="/Public/js/jquery-1.11.3.min.js"></script>
+    <script type="text/javascript">
+        var json_data={'acc_status':{0:"关",1:"开"},
+            'location_status':{0:"未定位",1:"定位"},
+            'order_status':{0:"待租",1:"已租车"},
+            'incharge_status':{0:"未充电",1:"充电中"},
+            'relay_status':{0:"断开供电",1:"供电导通"},
+            'rs_status':{00:"空车",01:"半载",11:"满载"},
+            'electric_status':{0:"正常",1:"断开"},
+            'doorlock_status':{0:"车门解锁",1:"车门加锁"},
+            'dooropen_status':{0:"关",1:"开"},
+            'centerdoor_status':{0:"关",1:"开"},
+            'taildoor_status':{0:"关",1:"开"},
+            'frontdoor_status':{0:"关",1:"开"},
+            'trunk_status':{0:"关",1:"开"},
+            'brake_status':{0:"未刹车",1:"刹车"},
+            'istimeout_status':{0:"正常状态",1:"租车超时"},
+            'swipcard_status':{0:"等待客户刷卡",1:"客户刷卡取车状态"},
+            'timegt24_status':{0:"租车开始没有到24小时",1:"租车时间达到24小时"},
+            'leftturnlamp_status':{0:"关",1:"亮"},
+            'rightturnlamp_status':{0:"关",1:"亮"},
+            'remotelamp_status':{0:"关",1:"亮"},
+            'nearlamp_status':{0:"关",1:"亮"},
+            'clearancelamp_status':{0:"关",1:"亮"},
+            'iskeyin_status':{0:"在",1:"不在"},
+
+            'emergency_alarm':{0:"否",1:"是"},
+            'overspeed_alarm':{0:"否",1:"是 "},
+            'fatiguedriving_alarm':{0:"否",1:"是 "},
+            'dangeralarm_alarm':{0:"否",1:"是 "},
+            'GNSSmodule_alarm':{0:"否",1:"是"},
+            'GNSSwire_alarm':{0:"否",1:"是"},
+            'GNSSshort_alarm':{0:"否",1:"是 "},
+            'lowervolt_alarm':{0:"否",1:"是"},
+            'novolt_alarm':{0:"否",1:"是"},
+            'LED_alarm':{0:"否",1:"是 "},
+            'TTSmodule_alarm':{0:"否",1:"是"},
+            'camera_alarm':{0:"否",1:"是"},
+            'IDcard_alarm':{0:"否",1:"是"},
+            'preoverspeed_alarm':{0:"否",1:"是"},
+            'prefatiguedriving_alarm':{0:"否",1:"是"},
+            'OBD_alarm':{0:"否",1:"是"},
+            'fatiguetoday_alarm':{0:"否",1:"是"},
+            'timeoutstop_alarm':{0:"否",1:"是"},
+            'linetimeerror_alarm':{0:"否",1:"是"},
+            'lineerror_alarm':{0:"否",1:"是"},
+            'VSS_alarm':{0:"否",1:"是"},
+            'electric_alarm':{0:"否",1:"是"},
+            'bestolen_alarm':{0:"否",1:"是"},
+            'illegalfire_alarm':{0:"否",1:"是"},
+            'illegalmove_alarm':{0:"否",1:"是"},
+            'collision_alarm':{0:"否",1:"是"},
+            'cartwheeled_alarm':{0:"否",1:"是"},
+            'illegalopen_alarm':{0:"否",1:"是"}
+        };
+        $(function() {
+            var vm_control = new Vue({
+                el:'#controlcar',
+                methods:{
+                    getcontrol:function(carId,cmd,type){
+                        //发送post请求
+                        this.$http.post(
+                            'beginrequest.php',
+                            {carId:carId,cmd:cmd,type:type},
+                            {emulateJSON:true}
+                        )
+                        .then(function(res){
+                            eval("var data="+res.body);
+                            alert("请求返回："+data.message);
+                        });
+                    }
+                }
+            });
+
+
+            var vm_status = new Vue({
+                el:'#statusQuery',
+                data:{
+                    msg:'点击查询获取车机最新状态',
+                    status_data:''
+                },
+                methods:{
+                    getstatus:function(carId,cmd){
+                        /*
+                        //jquery ajax方式请求
+                        var _self = this;
+                        $.ajax({
+                            type: 'POST',
+                            url:'beginrequest.php',
+                            data: {carId:carId,cmd:cmd},
+                            success:function(data) {
+                                eval("var json="+data);
+                                if(json.statusCode==300){
+                                    _self.msg = json.message;
+                                }
+                                else{
+                                    _self.msg='查询成功';
+                                    _self.status_data = json;
+                                }
+                            }
+                        });
+                        */
+                        //vue ajax发送post请求
+                         this.$http.post(
+                             'beginrequest.php',
+                             {carId:carId,cmd:cmd},
+                             {emulateJSON:true}
+                         )
+                         .then(function(res){
+                             eval("var json="+res.body);
+                             if(json.statusCode==300)
+                             {
+                                this.msg = json.message;
+                             }
+                             else
+                             {
+                                this.msg='查询成功';
+                                this.status_data = json;
+                             }
+                        });
+                    }
+                },
+                filters: {
+                    init_status_alarm: function (value,type) {
+                        return json_data[type][value];
+                    }
+                }
+            });
+        })
+
+
+    </script>
+    <style>
+        #controlcar,#statusQuery{
+            text-align: center;
+        }
+        .btn{
+            text-align: center;
+            font-size: 26px;
+            font-weight: bold;
+            width:30%;
+            height:80px;
+            margin:30px 20px;
+        }
+        #statusQuery,#statusQuery table{
+            text-align: center;
+            width:100%;
+        }
+        #statusQuery table tr td:nth-child(1){
+            font-size: 30px;
+            font-weight: bold;
+            width:40%;
+            text-align: right;
+            height:35px;
+        }
+        #statusQuery table tr td:nth-child(2){
+            font-size: 30px;
+            width:60%;
+            text-align: left;
+            padding-left:15%;
+            height:50px;
+        }
+    </style>
+</head>
+<body>
+<div id="controlcar">
+    <input type="button" @click="getcontrol('170302240000','doorControl','1')" class="btn btn-default" value="开锁"/>
+    <input type="button" @click="getcontrol('170302240000','doorControl','2')" class="btn btn-default" value="锁车"/></br>
+    <input type="button" @click="getcontrol('170302240000','findCar','1')" class="btn btn-default" value="鸣笛"/>
+    <input type="button" @click="getcontrol('170302240000','findCar','2')" class="btn btn-default" value="闪灯"/></br>
+    <input type="button" @click="getcontrol('170302240000','findCar','3')" class="btn btn-default" value="鸣笛+闪灯"/></br>
+    <input type="button" @click="getcontrol('170302240000','doorControl','7')" class="btn btn-default" value="开锁通电" />
+    <input type="button" @click="getcontrol('170302240000','doorControl','8')" class="btn btn-default" value="锁车断电"/>
+</div>
+<div id="statusQuery">
+    <input type="button" @click="getstatus('170302240000','statusQuery')" class="btn btn-default" value="查询属性"/>
+    <table>
+        <tr><td colspan="2" width="100%" style="text-align: center;">{{ msg }}</td></tr>
+        <tr><td colspan="2" width="100%" style="text-align: center;border-bottom:1px solid #cdcdcd;"></td></tr>
+        <tr><td>纬度</td><td>{{status_data.latitude}}</td></tr>
+        <tr><td>经度</td><td>{{status_data.longitude}}</td></tr>
+        <tr><td>海拔</td><td>{{status_data.elevation}}(m)</td></tr>
+        <tr><td>速度</td><td>{{status_data.speed}}(km/h)</td></tr>
+        <tr><td>方向</td><td>{{status_data.direction}}(0—359,正北为0，顺时针)</td></tr>
+        <tr><td>当前时间 </td><td>{{status_data.hour}}</td></tr>
+        <tr><td>剩余电量百分比</td><td>{{status_data.surplusPercent}}%</td></tr>
+        <tr><td>剩余续航里程</td><td>{{status_data.surplusDistance}}(km)</td></tr>
+        <tr><td>总行驶里程</td><td>{{status_data.distance}}(km)</td></tr>
+        <tr><td>小电瓶电压</td><td>{{status_data.voltage}}(v)</td></tr>
+        <tr><td>区域 id</td><td>{{status_data.areaId}}</td></tr>
+        <tr><td>信号强度</td><td>{{status_data.rssi}}(1-31)</td></tr>
+        <tr><td>油量</td><td>{{status_data.surplusOil}}(L)</td></tr>
+
+        <tr><td colspan="2" width="100%" style="text-align: center;border-bottom:1px solid #cdcdcd;"></td></tr>
+        <tr><td>ACC开关</td><td>{{status_data.acc_status | init_status_alarm('acc_status') }}</td></tr>
+        <tr><td>是否被定位</td><td>{{status_data.location_status | init_status_alarm('location_status') }}</td></tr>
+        <tr><td>租车状态</td><td>{{status_data.order_status | init_status_alarm('order_status') }}</td></tr>
+        <tr><td>充电状态</td><td>{{status_data.incharge_status | init_status_alarm('incharge_status')}}</td></tr>
+        <tr><td>继电器状态</td><td>{{status_data.relay_status | init_status_alarm('relay_status')}}</td></tr>
+        <tr><td>电路状态</td><td>{{status_data.electric_status | init_status_alarm('electric_status')}}</td></tr>
+        <tr><td>车锁状态</td><td>{{status_data.doorlock_status | init_status_alarm('doorlock_status')}}</td></tr>
+        <tr><td>车门是否有打开</td><td>{{status_data.dooropen_status | init_status_alarm('dooropen_status')}}</td></tr>
+        <tr><td>前门是否有打开</td><td>{{status_data.frontdoor_status | init_status_alarm('frontdoor_status')}}</td></tr>
+        <tr><td>中门是否有打开</td><td>{{status_data.centerdoor_status | init_status_alarm('centerdoor_status')}}</td></tr>
+        <tr><td>后门是否有打开</td><td>{{status_data.taildoor_status | init_status_alarm('taildoor_status')}}</td></tr>
+        <tr><td>后备箱是否有打开</td><td>{{status_data.trunk_status | init_status_alarm('trunk_status')}}</td></tr>
+        <tr><td>刹车状态</td><td>{{status_data.brake_status | init_status_alarm('brake_status')}}</td></tr>
+        <tr><td>租车是否超时</td><td>{{status_data.istimeout_status | init_status_alarm('istimeout_status')}}</td></tr>
+        <tr><td>等待客户刷卡状态</td><td>{{status_data.swipcard_status | init_status_alarm('swipcard_status')}}</td></tr>
+        <tr><td>左转灯状态</td><td>{{status_data.leftturnlamp_status | init_status_alarm('leftturnlamp_status')}}</td></tr>
+        <tr><td>右转灯状态</td><td>{{status_data.rightturnlamp_status | init_status_alarm('rightturnlamp_status')}}</td></tr>
+        <tr><td>远光灯状态</td><td>{{status_data.remotelamp_status | init_status_alarm('remotelamp_status')}}</td></tr>
+        <tr><td>近光灯状态</td><td>{{status_data.nearlamp_status | init_status_alarm('nearlamp_status')}}</td></tr>
+        <tr><td>示廓灯状态</td><td>{{status_data.clearancelamp_status | init_status_alarm('clearancelamp_status')}}</td></tr>
+        <tr><td>钥匙不在车上？</td><td>{{status_data.iskeyin_status | init_status_alarm('iskeyin_status')}}</td></tr>
+
+        <tr><td colspan="2" width="100%" style="text-align: center;border-bottom:1px solid #cdcdcd;"></td></tr>
+        <tr><td>紧急报警</td><td>{{status_data.emergency_alarm | init_status_alarm('emergency_alarm')}}</td></tr>
+        <tr><td>超速报警</td><td>{{status_data.overspeed_alarm | init_status_alarm('overspeed_alarm')}}</td></tr>
+        <tr><td>疲劳驾驶</td><td>{{status_data.fatiguedriving_alarm | init_status_alarm('fatiguedriving_alarm')}}</td></tr>
+        <tr><td>危险报警</td><td>{{status_data.dangeralarm_alarm | init_status_alarm('dangeralarm_alarm')}}</td></tr>
+        <tr><td>GNSS模块发生故障</td><td>{{status_data.GNSSmodule_alarm | init_status_alarm('GNSSmodule_alarm')}}</td></tr>
+        <tr><td>GNSS天线未接或被剪掉</td><td>{{status_data.GNSSwire_alarm | init_status_alarm('GNSSwire_alarm')}}</td></tr>
+        <tr><td>GNSS天线短路</td><td>{{status_data.GNSSshort_alarm | init_status_alarm('GNSSshort_alarm')}}</td></tr>
+        <tr><td>终端主电源欠压</td><td>{{status_data.lowervolt_alarm | init_status_alarm('lowervolt_alarm')}}</td></tr>
+        <tr><td>终端主电源掉电</td><td>{{status_data.novolt_alarm | init_status_alarm('novolt_alarm')}}</td></tr>
+        <tr><td>终端LCD或显示器故障 </td><td>{{status_data.LED_alarm | init_status_alarm('LED_alarm')}}</td></tr>
+        <tr><td>TTS模块故障</td><td>{{status_data.TTSmodule_alarm | init_status_alarm('TTSmodule_alarm')}}</td></tr>
+        <tr><td>摄像头故障</td><td>{{status_data.camera_alarm | init_status_alarm('camera_alarm')}}</td></tr>
+        <tr><td>身份证模块故障</td><td>{{status_data.IDcard_alarm | init_status_alarm('IDcard_alarm')}}</td></tr>
+        <tr><td>超速预警</td><td>{{status_data.preoverspeed_alarm | init_status_alarm('preoverspeed_alarm')}}</td></tr>
+        <tr><td>疲劳驾驶预警</td><td>{{status_data.prefatiguedriving_alarm | init_status_alarm('prefatiguedriving_alarm')}}</td></tr>
+        <tr><td>OBD模块故障</td><td>{{status_data.OBD_alarm | init_status_alarm('OBD_alarm')}}</td></tr>
+        <tr><td>当天累计驾驶超时</td><td>{{status_data.fatiguetoday_alarm | init_status_alarm('fatiguetoday_alarm')}}</td></tr>
+        <tr><td>超时停车</td><td>{{status_data.timeoutstop_alarm | init_status_alarm('timeoutstop_alarm')}}</td></tr>
+        <tr><td>路段行驶时间不足、过长</td><td>{{status_data.linetimeerror_alarm | init_status_alarm('linetimeerror_alarm')}}</td></tr>
+        <tr><td>路线偏离报警</td><td>{{status_data.lineerror_alarm | init_status_alarm('lineerror_alarm')}}</td></tr>
+        <tr><td>车辆VSS故障</td><td>{{status_data.VSS_alarm | init_status_alarm('VSS_alarm')}}</td></tr>
+        <tr><td>车辆电量异常</td><td>{{status_data.electric_alarm | init_status_alarm('electric_alarm')}}</td></tr>
+        <tr><td>车辆被盗</td><td>{{status_data.bestolen_alarm | init_status_alarm('bestolen_alarm')}}</td></tr>
+        <tr><td>车辆非法点火 </td><td>{{status_data.illegalfire_alarm | init_status_alarm('illegalfire_alarm')}}</td></tr>
+        <tr><td>车辆非法位移</td><td>{{status_data.illegalmove_alarm | init_status_alarm('illegalmove_alarm')}}</td></tr>
+        <tr><td>碰撞预警</td><td>{{status_data.collision_alarm | init_status_alarm('collision_alarm')}}</td></tr>
+        <tr><td>侧翻预警</td><td>{{status_data.cartwheeled_alarm | init_status_alarm('cartwheeled_alarm')}}</td></tr>
+        <tr><td>非法开门报警</td><td>{{status_data.illegalopen_alarm | init_status_alarm('illegalopen_alarm')}}</td></tr>
+    </table>
+</div>
+</body>
+</html>

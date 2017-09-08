@@ -1,0 +1,86 @@
+<?php
+/**
+ * Created by JetBrains PhpStorm.
+ * User: Lihongfei
+ * Date: 15-2-2
+ * Time: 上午10:41
+ * To change this template use File | Settings | File Templates.
+ */
+require_once (dirname(__FILE__) . "/config.inc.php");
+require_once (dirname(__FILE__) . "/util.php");
+session_start();
+$profileid = $_SESSION['profileid'];
+$productid = $_REQUEST['productid'];
+$record=$_REQUEST['record'];
+$salesactivityid = $_REQUEST['salesactivityid'];
+// 根据 活动ID 和商品ID 查询
+
+$activity_product=XN_Content::load($record,'Mall_RobSingles_details');
+$amount=$activity_product->my->activitynumber;
+$stime=$activity_product->my->begindate;
+$etime=$activity_product->my->enddate;
+
+if($stime<=date("Y-m-d H:i:s") && $etime>=date("Y-m-d H:i:s") ){
+    try{
+        $result=XN_Rob::rob($record,$profileid);
+//        var_dump($result);die;
+        if(!empty($result) && is_array($result)){
+            $robproduct_query=XN_Query::create("Content_Count")
+                ->tag("Mall_RobSingles_details")
+                ->filter("type","eic","Mall_RobSingles_details")
+                ->filter("my.productid","=",$activity_product->my->id)
+//                ->filter("my.activity_product_id","=",$_REQUEST['record'])
+//                ->filter("my.sn","=",$result['sn'])
+                ->filter("my.profileid","=",$profileid)
+                ->rollup();
+            $robproduct_query->execute();
+            $count=$robproduct_query->getTotalCount();
+            if(!$count){
+                $content=XN_Content::create("robproducts","",false);
+                $content->my->profileid=$profileid;
+                $content->my->productid=$_REQUEST['productid'];
+                $content->my->suppliers=$activity_product->my->suppliers;
+                $content->my->deleted='0';
+                $content->my->price=$activity_product->my->rob_price;
+                $content->my->singletime=$result['datetime'];
+                $content->my->sn=$result['sn'];
+                $content->my->paymenttime="";
+                $content->my->robpaymentstatus="未支付";
+                $content->my->createnew="0";
+                $content->my->activityid=$activity_product->my->activityid;
+                $content->my->activity_product_id=$_REQUEST['record'];
+                $content->save("robproducts,robproducts_".$profileid);
+
+                $count_robproduct_query=XN_Query::create("Content_Count")
+                    ->tag("robproducts")
+                    ->filter("type","eic","robproducts")
+                    ->filter("my.productid","=",$activity_product->my->products)
+                    ->rollup();
+                $count_robproduct_query->execute();
+                $count_robnum=$count_robproduct_query->getTotalCount();
+                if($count_robnum>=$activity_product->my->num){
+                    $activity_product->my->robstatus='2';
+                    $activity_product->save("activity_product");
+                }
+                echo '{"status":"1","robproductsid":"'.$content->id.'","num":"3","msg":"抢购成功！"}';
+
+            }
+            else
+            {
+                echo '{"status":"1","robproductsid":"'.$content->id.'","num":"3","msg":"抢购成功！"}';
+            }
+        }else{
+            echo '{"status":"2","msg":"场面火爆，人山人海，继续努力抢哦！"}';
+            die();
+        }
+    }catch(XN_Exception $e){
+        echo '{"status":"0","msg":'.$e->getMessage().'}';
+        die();
+    }
+}else{
+    echo '{"status":"0","msg":"亲，活动还没开始哦！"}';
+    die();
+}
+
+
+

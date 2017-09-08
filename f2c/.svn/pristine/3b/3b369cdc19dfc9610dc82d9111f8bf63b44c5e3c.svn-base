@@ -1,0 +1,332 @@
+<?php
+  
+ 
+class JD {    
+	public static $ACCESS_TOKEN = null;   
+	public static $USERNAME  = "thjtk2017";
+	public static $PASSWORD  = "jd123456";
+	public static $APPKEY  = "82cc6d91aa974af994b9a28a9f5e81be";
+	public static $APPSECRET  = "e773503804df45f9a7a02530ed7f1764";
+	
+	public static function flushaccesstoken() 
+	{ 
+		$md5_password = md5(self::$PASSWORD);
+	    $url = sprintf('https://kploauth.jd.com/oauth/token?grant_type=refresh_token&app_key=%s&app_secret=%s&state=xxx&username=%s&password=%s',self::$APPKEY,self::$APPSECRET,self::$USERNAME,$md5_password);
+		$body = self::get($url);  
+		$json = json_decode($body); 
+		if (!is_null($json->access_token))
+		{
+			self::$ACCESS_TOKEN = $json->access_token; 
+			XN_MemCache::put($json->access_token,"jd_access_token","3600");
+		} 
+	}
+
+    public static function initaccesstoken() 
+	{ 
+		try
+		{
+			if (self::$ACCESS_TOKEN == null)
+			{
+				$access_token = XN_MemCache::get("jd_access_token"); 
+				if ($access_token == "")
+				{
+				     throw new XN_Exception("empty jd_access_token!"); 
+				}
+				self::$ACCESS_TOKEN = $access_token;
+			} 
+		} 
+		catch (XN_Exception $e) 
+		{ 
+			$md5_password = md5(self::$PASSWORD);  
+		    $url = sprintf('https://kploauth.jd.com/oauth/token?grant_type=password&app_key=%s&app_secret=%s&state=0&username=%s&password=%s',self::$APPKEY,self::$APPSECRET,self::$USERNAME,$md5_password);
+			
+		    $body = self::get($url);  
+			$json = json_decode($body); 
+			if (!is_null($json->access_token))
+			{
+				self::$ACCESS_TOKEN = $json->access_token;  
+				XN_MemCache::put($json->access_token,"jd_access_token","3600");
+			} 
+		}  
+	} 
+    public static function get_api_router($apiname,$params)
+	{
+		self::initaccesstoken();  
+		$timestamp = date("Y-m-dH:i:s");
+	    $url = sprintf('https://router.jd.com/api?method=%s&app_key=%s&access_token=%s&timestamp=%s&v=1.0&format=json&param_json=%s',$apiname,self::$APPKEY,self::$ACCESS_TOKEN,$timestamp,$params); 
+		$body = self::get($url);  
+		$json = json_decode($body); 
+		$responsekey = str_replace(".","_",$apiname)."_response"; 
+		if (!is_null($json->$responsekey))
+		{
+			return $json->$responsekey;
+		}
+		return "";
+	} 
+	public static function post_api_router($apiname,$params)
+	{
+		self::initaccesstoken();  
+		$timestamp = date("Y-m-dH:i:s");
+	    $url = sprintf('https://router.jd.com/api?method=%s&app_key=%s&access_token=%s&timestamp=%s&v=1.0&format=json&param_json=%s',$apiname,self::$APPKEY,self::$ACCESS_TOKEN,$timestamp,$params);  
+	    echo $url."\n\n\n";
+		$body = self::post($url,"");   
+		$json = json_decode($body);  
+		$responsekey = str_replace(".","_",$apiname)."_response"; 
+		if (!is_null($json->$responsekey))
+		{
+			return $json->$responsekey;
+		}
+		return "";
+	} 
+	 
+    public static function getsellprice($skuids)
+	{
+	  	$apiname = "biz.price.sellPrice.get";
+	  	$params = '{"sku":"' . join($skuids,',') . '"}';
+		$json = self::get_api_router($apiname,$params);
+		$sellprices = array();
+		if ($json->success == '1')
+		{
+			foreach($json->result as $json_info)
+			{
+				$price = $json_info->price;
+                $skuId = $json_info->skuId;
+                $jdPrice = $json_info->jdPrice;
+				$sellprices[$skuId] = array("price" => $price,"jdPrice" => $jdPrice);
+			} 
+		}  
+		return $sellprices;
+	}
+	 public static function getallprovinces()
+	{
+	  	$apiname = "biz.address.allProvinces.query";
+	  	$params = '{}';
+		$json = self::get_api_router($apiname,$params);
+		$allprovinces = array();
+		if ($json->success == '1')
+		{  	
+			foreach($json->result as $province => $code)
+			{
+				$allprovinces[$province] = $code;
+			} 
+		}  
+		return $allprovinces;
+	}
+	 public static function getcitysbyprovinceid($provinceid)
+	{
+	  	$apiname = "biz.address.citysByProvinceId.query";
+	  	$params = '{"id":'.$provinceid.'}';
+		$json = self::get_api_router($apiname,$params);
+		$allcitys = array();
+		if ($json->success == '1')
+		{  	
+			foreach($json->result as $city => $code)
+			{
+				$allcitys[$city] = $code;
+			} 
+		}  
+		return $allcitys;
+	}
+	public static function getcountysbycityId($cityid)
+	{
+	  	$apiname = "biz.address.countysByCityId.query";
+	  	$params = '{"id":'.$cityid.'}';
+		$json = self::get_api_router($apiname,$params);
+		$countys = array();
+		if ($json->success == '1')
+		{  	
+			foreach($json->result as $city => $code)
+			{
+				$countys[$city] = $code;
+			} 
+		}  
+		return $countys;
+	}
+	public static function gettownsbycountyid($countyid)
+	{
+	  	$apiname = "biz.address.townsByCountyId.query";
+	  	$params = '{"id":'.$countyid.'}';
+		$json = self::get_api_router($apiname,$params);
+		$towns = array();
+		if ($json->success == '1')
+		{  	
+			foreach($json->result as $town => $code)
+			{
+				$towns[$town] = $code;
+			} 
+		}  
+		return $towns;
+	}
+	public static function submitorder($params)
+	{
+	  	$apiname = "biz.order.unite.submit";  
+		$json = self::post_api_router($apiname,urlencode($params)); 
+		return $json;
+	}
+	
+	public static function getordertracks($jdorderid)
+	{ 
+	  	$apiname = "biz.order.orderTrack.query";
+	  	$params = '{"jdOrderId":' . $jdorderid. '}'; 
+		$json = self::get_api_router($apiname,$params); 
+		$ordertracks = array();
+		if ($json->success == '1')
+		{ 
+			foreach($json->result->orderTrack as $orderTrack_info)
+			{
+				$msgTime = $orderTrack_info->msgTime;
+                $content = $orderTrack_info->content;
+                $operator = $orderTrack_info->operator; 
+				$ordertracks[] = array("msgTime" => $msgTime,"content" => $content,"operator" => $operator); 
+			} 
+		}  
+		return $ordertracks;
+	}
+
+    public static function getrefuseorders()
+	{ 
+		$today = strtotime("today");    
+	    $dates[] = date("Y-m-d", $today);
+	    $dates[] = date("Y-m-d",strtotime('-1 days', $today)); 
+	    $dates[] = date("Y-m-d",strtotime('-2 days', $today));
+	    $dates[] = date("Y-m-d",strtotime('-3 days', $today));
+	    $dates[] = date("Y-m-d",strtotime('-4 days', $today));
+	    $dates[] = date("Y-m-d",strtotime('-5 days', $today));
+	    $dates[] = date("Y-m-d",strtotime('-6 days', $today));
+	    
+	    $refuseorders = array();
+	    foreach($dates as $date)
+	    {
+		    $page = 1;
+		    $date_refuseorders = self::checkrefuseorder($date,$page);
+		    //echo '____'.$date.'________<br>';
+		    if (isset($date_refuseorders) && $date_refuseorders != "")
+		    {
+			     $total = $date_refuseorders->total;
+			     $curPage = $date_refuseorders->curPage;
+			     $orders = $date_refuseorders->orders;
+			     $totalPage = $date_refuseorders->totalPage; 
+			     foreach($orders as $order_info)
+				 {
+					 $time = $order_info->time;
+					 $invoiceState = $order_info->invoiceState;
+					 $jdOrderId = $order_info->jdOrderId;
+					 $state = $order_info->state;
+					 $hangUpState = $order_info->hangUpState;
+					 $orderPrice = $order_info->orderPrice;
+					 $refuseorders[] = array("jdOrderId"=>$jdOrderId,
+					 						 "time"=>$time,
+					 						 "invoiceState"=>$invoiceState,
+					 						 "state"=>$state,
+					 						 "hangUpState"=>$hangUpState,);
+				 }
+			     
+			    // print_r($orders);
+		    }
+		   
+	    } 
+	    return $refuseorders;
+	}
+
+	public static function checkrefuseorder($date,$page)
+	{ 
+	  	$apiname = "biz.order.checkRefuseOrder.query";
+	  	$params = '{"date":"' . $date. '","page":'.$page.'}'; 
+		$json = self::get_api_router($apiname,$params);  		 
+		if ($json->success == '1')
+		{ 
+			return $json->result;  
+		}  
+		return "";
+	}
+	
+	 	
+    
+    public static function getstocks($skuids)
+	{
+		//"江苏":12,"无锡市":984
+	  	$apiname = "biz.stock.forList.batget";
+	  	$params = '{"sku":"' . join($skuids,',') . '","area":"12_984_0"}';
+		$json = self::get_api_router($apiname,$params);
+		$stocks = array();
+		if ($json->success == '1')
+		{ 
+			foreach($json->result as $json_info)
+			{
+				$state = $json_info->state;
+                $sku = $json_info->sku;
+                $desc = $json_info->desc; 
+				$stocks[$sku] = array("state" => $state,"desc" => $desc); 
+			} 
+		}  
+		return $stocks;
+	}
+	
+	
+		
+	 public static function get($url) 
+	{  
+		 $curlObj = curl_init();
+		 curl_setopt($curlObj, CURLOPT_URL, $url); // 设置访问的url
+		 curl_setopt($curlObj, CURLOPT_RETURNTRANSFER, 1); //curl_exec将结果返回,而不是执行
+		 curl_setopt($curlObj, CURLOPT_HTTPHEADER, array());
+         curl_setopt($curlObj, CURLOPT_URL, $url);
+		 curl_setopt($curlObj, CURLOPT_SSL_VERIFYPEER, FALSE);
+		 curl_setopt($curlObj, CURLOPT_SSL_VERIFYHOST, FALSE);
+         curl_setopt($curlObj, CURLOPT_SSLVERSION, CURL_SSLVERSION_TLSv1);
+	  
+         curl_setopt($curlObj, CURLOPT_CUSTOMREQUEST, 'GET');
+         curl_setopt($curlObj, CURLOPT_HTTPGET, true);
+
+		 curl_setopt($curlObj, CURLOPT_ENCODING, 'gzip');
+		 $res = @curl_exec($curlObj);  
+		 if ($res === false) {
+            $errno = curl_errno($curlObj);
+            if ($errno == CURLE_OPERATION_TIMEOUTED) {
+                $msg = "Request Timeout: " . self::getRequestTimeout() . " seconds exceeded";
+            } else {
+                $msg = curl_error($curlObj); 
+            }
+			curl_close($curlObj); 
+            $e = new XN_TimeoutException($msg);           
+            throw $e;
+        } 
+		 curl_close($curlObj);
+		 return $res;
+	} 
+	 public static function post($url,$body) 
+	{ 
+		 $curlObj = curl_init();
+		 curl_setopt($curlObj, CURLOPT_URL, $url); // 设置访问的url
+		 curl_setopt($curlObj, CURLOPT_RETURNTRANSFER, 1); //curl_exec将结果返回,而不是执行
+		 curl_setopt($curlObj, CURLOPT_HTTPHEADER, array()); 
+		 curl_setopt($curlObj, CURLOPT_SSL_VERIFYPEER, FALSE);
+		 curl_setopt($curlObj, CURLOPT_SSL_VERIFYHOST, FALSE);
+		 curl_setopt($curlObj, CURLOPT_SSLVERSION, CURL_SSLVERSION_TLSv1);
+		
+         curl_setopt($curlObj, CURLOPT_CUSTOMREQUEST, 'POST');      
+		
+		 curl_setopt($curlObj, CURLOPT_POST, true);
+         curl_setopt($curlObj, CURLOPT_POSTFIELDS, $body);       
+		 curl_setopt($curlObj, CURLOPT_ENCODING, 'gzip');
+
+		 $res = @curl_exec($curlObj);  
+
+		 if ($res === false) {
+            $errno = curl_errno($curlObj);
+            if ($errno == CURLE_OPERATION_TIMEOUTED) {
+                $msg = "Request Timeout: " . self::getRequestTimeout() . " seconds exceeded";
+            } else {
+                $msg = curl_error($curlObj);
+            }
+			curl_close($curlObj);
+            $e = new XN_TimeoutException($msg);           
+            throw $e;
+        } 
+		curl_close($curlObj);
+		return $res;
+	} 
+	 
+}
+
+

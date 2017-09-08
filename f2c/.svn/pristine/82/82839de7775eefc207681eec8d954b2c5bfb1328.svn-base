@@ -1,0 +1,290 @@
+@font-face {
+    font-family: 'icon';
+    /* project id 264504 */
+    src: url('http://at.alicdn.com/t/font_ks41cbjdqdhuayvi.eot');
+    src: url('http://at.alicdn.com/t/font_ks41cbjdqdhuayvi.eot?#iefix') format('embedded-opentype'), url('http://at.alicdn.com/t/font_ks41cbjdqdhuayvi.woff') format('woff'), url('http://at.alicdn.com/t/font_ks41cbjdqdhuayvi.ttf') format('truetype'), url('http://at.alicdn.com/t/font_ks41cbjdqdhuayvi.svg#iconfont') format('svg');
+}
+
+.icon {
+    font-family: 'icon';
+}
+
+.myorder_header {
+    background: black;
+    top: 0 !important;
+}
+
+.myorder_header p {
+    color: #fff;
+    font-size: 0.30rem;
+}
+
+.myorder_header a {
+    color: #fff;
+}
+
+.myorder_list {
+    background: #f9f9f9;
+}
+
+.myorder_list_hd {
+    top: 0 !important;
+}
+
+.myorder_list_hd a {
+    font-size: 0.26rem;
+    padding-top: 5px;
+}
+
+.myorder_list_hd .mui-active {
+    color: #fb3e21 !important;
+    border-bottom: 2px solid #fb3e21 !important;
+}
+
+.myorder_nav .mui-active {
+    color: #fb3e21 !important;
+}
+
+.myorder_ul ul li {
+    background: #fff;
+    margin-bottom: 0.2rem;
+}
+
+.myorder_list_hd {
+    background: #fff;
+}
+
+.myorder_list .myorder_list_border {
+    border: 0 !important;
+}
+
+.myorder_list ul {
+    background: none;
+}
+
+.myorder_list ul li {
+    padding: 0;
+    margin-top: 0.2rem;
+    background: #fff;
+}
+
+.myorder_list_body {
+    background: #f0f2f5;
+    padding: 0.3rem 10px;
+}
+
+.myorder_list_border .mui-content-padded p {
+    font-size: 0.26rem;
+    color: #232326;
+}
+
+.myorder_list_border .mui-content-padded p .sh {
+    color: #fb3e21;
+    margin-left: 0.08rem;
+}
+
+.myorder_list_body .img {
+    width: 1.4rem;
+    height: 1.4rem;
+}
+
+.myorder_list_body .img img {
+    width: 100%;
+}
+
+.myorder_list_body .mui-media-body p {
+    font-size: .26rem;
+    line-height: .3rem;
+    color: #3d4245;
+    white-space: normal;
+    text-overflow: ellipsis;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+    overflow: hidden;
+    padding-left: 0.05rem;
+}
+
+.myorder_list_body .mui-media-body span {
+    font-size: 0.3rem;
+    color: #fb3e21;
+    margin-top: 0.3rem;
+    display: inline-block;
+}
+
+.myorder_list_hj {
+    padding: 0.3rem 10px;
+    border-bottom: #f9f9f9 2px solid;
+}
+
+.myorder_list_hj p {
+    text-align: right;
+    color: #232326;
+    font-size: 0.24rem;
+    line-height: 0.3rem;
+    margin-bottom: -5px;
+}
+
+.myorder_list_btn {
+    padding: 0.3rem 10px;
+    text-align: right;
+}
+
+.myorder_list_btn button {
+    color: #232326;
+    font-size: 0.28rem;
+    margin-left: 0.24rem;
+}
+
+.myorder_list_btn .red {
+    background: #fb3e21;
+    color: #fff;
+}
+
+.mui-table-view-cell:after {
+    left: 0;
+}
+
+.mysure>.mui-table-view:first-child {
+    margin-top: 0;
+}
+
+.mysure .mui-table-view:after {
+    height: 0;
+}
+
+.mysure .mui-table-view::before {
+    height: 0;
+}
+
+.mysure .mysure_list {
+    position: relative;
+}
+
+.mysure_list .line {
+    position: absolute;
+    right: 0;
+    bottom: 0;
+    width: 100%;
+}
+
+.mysure {
+    width: 100%;
+    height: 100%;
+    background: #f9f9f9;
+    width: 100;
+}
+
+.mui-table-view {
+    background-color: #f9f9f9;
+}
+
+.mysure ul li {
+    background: #fff;
+    font-size: 0.26rem;
+}
+
+.mysure .mysure_list .mui-media-object {
+    margin-top: 0.4rem;
+}
+
+.mysure .mysure_list .mui-media-body p {
+    line-height: 0.4rem;
+    color: #232326;
+    padding: 0.08rem 0;
+}
+
+.mysure .mysure_list .mui-media-body p:first-child {
+    font-size: 0.28rem;
+    font-weight: bold;
+}
+
+.mysure .mysure_list .mui-media-body p:first-child span {
+    margin-left: 0.1rem;
+}
+
+.mysure .mysure_list .mui-media-body p:last-child {
+    font-size: 0.26rem;
+}
+
+.mysure_top {
+    margin-top: 0.1rem;
+}
+
+.mysure_top .img {
+    width: 1.4rem;
+}
+
+.mysure_top .img img {
+    width: 100%;
+}
+
+.mysure_top .mui-media-body {
+    position: relative;
+}
+
+.mysure_top .mui-media-body p {
+    font-size: .26rem;
+    line-height: .3rem;
+    color: #3d4245;
+    white-space: normal;
+    text-overflow: ellipsis;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+    overflow: hidden;
+    padding-left: 0.05rem;
+}
+
+.mysure_top .mui-media-body span {
+    display: block;
+    margin-top: 0.4rem;
+    color: #fb3e21;
+    font-size: 0.28rem;
+}
+
+.mysure_hd {
+    background: black;
+    color: #fff;
+    font-size: 0.3rem;
+}
+
+.mysure_hd p {
+    color: #fff;
+    font-size: 0.3rem;
+}
+
+.mysure_hd a {
+    color: #fff;
+    font-size: 0.3rem;
+}
+
+.mysure_input {
+    position: absolute;
+    top: 2px;
+    border: 0 !important;
+    font-size: 0.24rem !important;
+    width: 80% !important;
+}
+
+input::-webkit-input-placeholder {
+    white-space: normal;
+    text-overflow: ellipsis;
+    overflow: hidden;
+}
+
+.mysure_bottom {
+    line-height: 50px;
+    text-align: right;
+    font-size: 0.28rem;
+}
+
+.mysure_bottom button {
+    top: 0 !important;
+    padding: 0 0.5rem !important;
+    line-height: 50px;
+    font-size: 0.3rem;
+    background-color: #fb3e21;
+    color: #fff;
+    margin-left: 10px;
+}

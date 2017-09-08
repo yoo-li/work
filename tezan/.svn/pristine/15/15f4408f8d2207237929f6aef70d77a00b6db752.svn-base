@@ -1,0 +1,51 @@
+<?php
+include_once('config.php');
+require_once('include/utils/utils.php'); 
+
+class Supplier_WxFirstMeets extends CRMEntity {
+	
+	public $table_name = 'supplier_wxfirstmeets';
+	public $table_index= 'id';
+	public $tab_name = Array('supplier_wxfirstmeets');
+	public $tab_name_index = Array('supplier_wxfirstmeets'=>'id');
+	public $customFieldTable = Array('supplier_wxfirstmeets', 'id');
+	public $column_fields = Array();
+	public $sortby_fields = Array('wxid','profileid','channelname','wxchanneltype','wxexpiredays','qrid','todaysubscribe','todayunsubscribe','subscribe','unsubscribe','published');
+	public $list_link_field= 'supplier_wxfirstmeets_no';
+	public $default_order_by = 'published';
+	public $default_sort_order = 'DESC';
+	public $search_fields = Array(
+	);
+	public $search_fields_name = Array(
+	);
+	public $mandatory_fields = Array('supplier_wxfirstmeets_no');
+    public $special_search_fields = array(
+      
+    );
+
+    function Supplier_WxFirstMeets() {
+		
+		$this->column_fields = getColumnFields('Supplier_WxFirstMeets');
+	}
+
+	function save_module($module){}
+
+	function getSortOrder() {
+		
+		if(isset($_REQUEST['sorder']))
+			$sorder = $_REQUEST['sorder'];
+		else
+			$sorder = (($_SESSION['SUPPLIER_WXFIRSTMEETS_SORT_ORDER'] != '')?($_SESSION['SUPPLIER_WXFIRSTMEETS_SORT_ORDER']):($this->default_sort_order));
+		return $sorder;
+	}
+	
+	function getOrderBy() {
+		
+		$use_default_order_by = $this->default_order_by;
+		if (isset($_REQUEST['order_by']))
+			$order_by = $_REQUEST['order_by'];
+		else
+			$order_by = (($_SESSION['SUPPLIER_WXFIRSTMEETS_ORDER_BY'] != '')?($_SESSION['SUPPLIER_WXFIRSTMEETS_ORDER_BY']):($use_default_order_by));
+		return $order_by;
+	}
+}?>

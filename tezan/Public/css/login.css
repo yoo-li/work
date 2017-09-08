@@ -1,0 +1,109 @@
+﻿@charset "utf-8";
+*, *::before, *::after {
+    box-sizing: content-box;
+}
+body, div, p, ul, li, ol, dl, dt, dd, form, h1, h2, h3, h4, h5, h6, input, fieldset, legend, optgroup, select, table, textarea {margin:0;padding:0;}
+body{height:100%;font:12px/20px "Microsoft YaHei"; background-color: #ffffff;min-width:1200px;}
+input,select{font:12px/20px "Microsoft YaHei";}
+a img,img{border:0;vertical-align:middle;}
+a {text-decoration:none;color:#666;}
+a:hover {color:#e8404d;}
+a:focus {outline-style:none;}
+a,area { blr:expression(this.onFocus=this.blur());}
+ul li {list-style:none;}
+table {border-collapse:collapse;}
+input, select {vertical-align:middle;}
+the {white-space:nowrap;}
+td {word-break:break-all;}
+em {font-style: normal;}
+
+/*公共控件样式 begin*/
+.input-common{height: 18px;line-height: 18px; border: 1px solid #ccc;color: #ccc;-webkit-border-radius:1px;-moz-border-radius:1px;-o-border-radius:1px; border-radius:1px; padding: 10px 30px 10px 45px;width: 173px;overflow: hidden;}
+.input-validate{height: 18px; border: 1px solid #ccc;color: #ccc;-webkit-border-radius:1px;-moz-border-radius:1px;-o-border-radius:1px; border-radius:1px; width: 90px;background: #fff;padding:10px 0 10px 45px; }
+.input-focus{color: #333;border-color: #fdbaba;font-size: 14px;}
+.input-finish{color: #333;border-color: #ccc;}
+.send-code{display:inline-block;height: 40px;border: 1px solid #d9d8d8;color: #666;background:#e1e1e1;-webkit-border-radius:1px;-moz-border-radius:1px;-o-border-radius:1px; border-radius:1px;margin-left: 5px;width: 111px;text-align: center;vertical-align: middle;cursor:pointer;}
+.send-code.ontime{background: #d5d4d4;border-color:#cbc9c9;cursor:default;}
+.no-code{display:inline-block;margin-top: 5px;color: #666;font-size: 12px;}
+.btn-common{display: inline-block;width: 252px;height: 40px;line-height:40px;background: #e8404d;font-size: 16px;color: #fff;text-align: center;letter-spacing: 3px;-webkit-border-radius:3px;-moz-border-radius:3px;-o-border-radius:3px; border-radius:3px;border: 0 none;}
+.btn-common:hover{background: #db3542;color: #fff;}
+ 
+
+/*公共控件样式 end*/
+/*头部 begin*/
+.header-bg{background-color: #fff;}
+.header{width: 1200px;height: 64px;margin: 0 auto;clear: both;overflow: hidden;}
+.header .logo{height: 64px;width: 400px;display: inline-block;background:url(../images/logo_login.png) no-repeat center center;float: left;}
+.header .red-line{display: inline-block;width: 10px;height: 34px;float: left;border-right: #f1737c solid 2px;margin:15px 8px 15px 0;}
+.header .wel{color: #666;font-size: 18px;float: left;line-height: 64px;padding-left:15px;}
+
+.red{color:#e8404d;}
+/*头部 end*/
+
+/*尾部*/
+.footer{background-color:#fff;}
+.footer-p{margin-top:32px;clear:both;text-align:center;}
+.footer-p a{font-size:14px;color:#333333;}
+.footer-p a:hover{color:#e53639;}
+.footer-p span{font-size:14px;color:#d0d0d0;margin:0 10px;}
+.footer-bq{margin-top:5px;font-size:12px;line-height:22px;color:#333333;text-align:center;}
+
+/*尾部结束*/
+
+ 
+.common-error{color:#666;margin-left: 5px;color: red; font-size: 11px; display: inline;}
+.common-error .icon{display: inline-block;width: 15px;height: 15px;vertical-align: middle;background: url(../images/icons.png) no-repeat -32px 0px;margin-right: 5px;}
+
+.m {cursor: pointer;}
+
+/*登录部分 begin*/
+.main-bg{height: 520px;background-color: #dc4140;overflow: hidden;}
+.main{width:960px;height:376px;margin:70px auto 0px;position: relative;}
+.main-left{width:540px;height:376px;display:block;float:left;}
+.main .right{width: 310px;float: right;background-color: #fff;border: #ccc solid 1px;border-top: none;position: relative;box-shadow:0 0 10px #666;}
+.main .right .con-01{height:45px;border-top: #fa4242 solid 2px;}
+.main .right .login-type{display: inline-block;width: 156px;height:43px;line-height: 43px;font-size: 14px;color: #666;text-align: center;}
+.main .right .login-type.on{font-weight: bold;border-top: #fa4242 solid 2px;}
+.main .right .login-type.noton{border: #ccc solid 1px;width: 155px;}
+.main .right .login-type.a-01{position: absolute;top: 0px;left: -1px;}
+.main .right .login-type.a-02{position: absolute;top: 0px;left: 154px;}
+.main .right .login-type.on-02{width: 155px;left: 156px;}
+.main .right .con-02{padding:13px 0px 17px 30px; position: relative;}
+.main .right .con-02 .div-01{margin-top: 20px;clear: both;}
+.main .right .con-02 .telphone{background:url(../images/username.png) no-repeat left center;}
+.main .right .con-02 .validate-code{margin-top: 28px;width: 127px;}
+.main .right .con-02 .to-register{color: #0066cc;background: #fff;font-size: 12px;letter-spacing: 0px;display: inline-block;padding: 11px 0 0 95px;}
+.error.to-top{top:-7px;}
+
+
+
+
+/*账户登录*/
+.email-div .valid .dt-code{text-align:center;}
+.email-div .valid{margin-top: 20px;}
+.email-div .valid img{margin: 0 10px;}
+.email-div .valid a{color:#0071d2;}
+.email-div .valid span{margin-right: 15px;}
+.email-div .valid .pwd-valid{text-align:center;}
+.main .right .con-02 .password{background:url(../images/password.png) no-repeat left center;}
+.main .right .con-02 .account{background:url(../images/username.png) no-repeat left center;}
+.main .right .con-02 .checkcode{background:url(../images/checkcode.png) no-repeat left center;}
+.main .right .con-02 .enter-psw{color:#ccc;position: absolute;top:84px;left: 74px;}
+.error.pwd{top:73px;left: 28px;}
+.main .right .con-02 .forget-pwd{margin-top: 20px;}
+.main .right .con-02 .forget-pwd .span-01{display: inline-block;width: 16px;height: 16px;background: url(../images/icons.png) no-repeat 0px 0px;margin-right: 3px;vertical-align: middle;}
+.main .right .con-02 .forget-pwd .span-01.unchecked{background: url(../images/icons.png) no-repeat -16px 0px;}
+.main .right .con-02 .forget-pwd .a-01{color:#e8404d;}
+.go-validate-email{color: #0066cc;}
+.main .right .con-02 .enter-verifycode{color:#ccc;position: absolute;margin-top:10px;left: 74px;} 
+.main .error-msg {position: absolute;/*left: 35px;top: 50px;*/}
+/*.main .username-msg {  top: 50px; }
+.main .password-msg {  top: 110px; }
+.main .checkcode-msg {  top: 170px; }*/
+/*登录部分 end*/ 
+
+
+.remind { position: absolute;left: 25px;top: -8px;}
+ 
+
+

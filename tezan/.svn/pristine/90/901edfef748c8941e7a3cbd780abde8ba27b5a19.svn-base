@@ -1,0 +1,59 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd"
+>
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<meta http-equiv="X-UA-Compatible" content="IE=EmulateIE7" />
+ <link href="css/global.css" rel="stylesheet" type="text/css" />
+ <link rel="stylesheet" type="text/css" href="css/ext-all.css" />
+ <link rel="stylesheet" type="text/css" href="css/multiselect.css"/>
+ <link rel="stylesheet" type="text/css" href="css/loading.css" />
+ <link rel="stylesheet" type="text/css" href="css/ext-patch.css" />
+ <link rel="stylesheet" type="text/css" href="css/jbpm4.css" />
+ <script type='text/javascript' src='js/engine.js'> </script>
+ <script type='text/javascript' src='js/util.js'> </script>
+ <script type="text/javascript" src="js/ext-base.js"></script>
+ <script type="text/javascript" src="js/ext-all.js"></script>
+ <script type="text/javascript" src="js/ColumnNodeUI.js"></script>
+ <script type="text/javascript" src="js/jquery_last.js"></script>
+ <script type='text/javascript' src='js/CwfService.js'> </script>
+ <script type="text/javascript" src="js/commonUse.js"></script>
+	<!--<script type="text/javascript" src="Public/gef/js/showDetail.js"></script>-->
+ <script type="text/javascript" src="js/editJpdl.js" charset="UTF-8"></script>
+	<!--<script type="text/javascript" src="Public/gef/js/svgef.js" charset="UTF-8"></script>-->
+	<!--<script type="text/javascript" src="Public/gef/js/FlowEditor.js" charset="UTF-8"></script>-->
+ <script type="text/javascript">
+	Ext.BLANK_IMAGE_URL = 'http://180.167.8.251:81/itsm/cwf/scripts/ext-2.2/resources/images/default/s.gif';
+	Gef.IMAGE_ROOT = 'http://180.167.8.251:81/itsm/cwf/scripts/gef/images/activities/48/';
+//	SVGEF.on("test", function (obj)
+//	{
+//		alert(obj);
+//	})
+//
+//	 SVGEF.fire("test","测试1","测试2","测试3")
+//	 var test = new FlowEditor("sss");
+//	 test.on("sss", function(obj){
+//		 alert(obj)
+//	 })
+//	 test.trigger("sss","测试1");
+//	 var test1 = new FlowEditor("sss");
+//	 test1.trigger("sss","测试2");
+ </script>
+  <style type="text/css">
+    ul#topnav li a.cai_wid{*width:82px;}
+    .tuichi_c_bmc{*width:250px;}
+    .top_bmc_right0{*width:100px;}
+ 	<!--ext右键菜单在ie浏览器下，图片会覆盖文字，需要以下样式20120117 mdm-->
+ 	.ext-ie .x-menu-item-icon {left: -24px; top: 0px;}
+ 	.ext-strict .x-menu-item-icon {left: 3px; top: 3px;}
+ 	.ext-ie6 .x-menu-item-icon {left: -24px; top: 0px;}
+ </style>
+</head>
+<body>
+<input id="processTypeId_hidden" type="hidden" value="1">
+<input id="processStatus" type="hidden" value="1">
+<input id="processKey_hidden" type="hidden" value="INC">
+<input id="processVersion_hidden" type="hidden" value="INC.1">
+<div id="cwfJpdlDisplayPosition"></div>    
+</body>
+</html>

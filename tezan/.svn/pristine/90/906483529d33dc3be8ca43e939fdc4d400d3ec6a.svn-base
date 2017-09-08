@@ -1,0 +1,276 @@
+<?php
+include_once('config.func.php');
+include_once('payment.func.php');
+require_once('include/utils/utils.php');
+
+class Mall_OfficialOrders extends CRMEntity {
+	
+	public $table_name = 'mall_officialorders';
+	public $table_index= 'id';
+	public $tab_name = Array('mall_officialorders');
+	public $tab_name_index = Array('mall_officialorders'=>'id');
+	public $customFieldTable = Array('mall_officialorders', 'id');
+	public $column_fields = Array();
+	public $sortby_fields = Array('activityname','display_type','begindate','enddate','status','sequence','mall_officialordersstatus');
+	public $list_link_field= 'activityname';
+	public $default_order_by = 'published';
+	public $default_sort_order = 'DESC';
+	public $search_fields = Array(
+	); 
+	
+	var $popup_fields = Array('activityname','display_type','begindate','enddate','status','sequence','mall_officialordersstatus');
+	var $filter_fields = Array('activityname');
+	
+	public $search_fields_name = Array(
+	);
+	public $mandatory_fields = Array('activityname');
+    public $special_search_fields = array(
+        'status' => array(
+			'' => array('value'=>'','label'=>'全部','operator'=>'='),
+            '0' => array('value'=>'0','label'=>'启用','operator'=>'='),
+            '1' => array('value'=>'1','label'=>'停用','operator'=>'='),
+        ),
+    );
+	var $sortby_number_fields = Array('submitdatetime','mall_officialordersstatus','published');
+	
+    function Mall_OfficialOrders() {
+		
+		$this->column_fields = getColumnFields('Mall_OfficialOrders');
+	}
+	
+	public function returnedgood($order_id,$description) 
+	{ 
+	    $order_info=XN_Content::load($order_id,"mall_orders");
+	    $profileid = $order_info->my->profileid;
+	    $orders_no = $order_info->my->mall_orders_no;
+	    $returnedgoodsapplys = XN_Query::create ( 'Content' )->tag("mall_returnedgoodsapplys_".$order_id)
+	        ->filter ( 'type', 'eic', 'mall_returnedgoodsapplys' )
+	        ->filter (  'my.deleted', '=', '0' )
+	        ->filter (  'my.orderid', '=', $order_id )
+	        ->execute ();
+	    if (count($returnedgoodsapplys) > 0)
+	    {
+	        errorprint('错误','订单ID（'.$orders_no.'）已经提交了退货申请,不能重复提交退货申请！');
+	        die();
+	    }
+	    $supplierid = $order_info->my->supplierid;
+	    $consignee = $order_info->my->consignee;
+	    $mobile = $order_info->my->mobile;
+
+	    $orders_products = XN_Query::create ( 'Content' )->tag("mall_orders_product")
+	        ->filter ( 'type', 'eic', 'mall_orders_product' )
+	        ->filter (  'my.deleted', '=', '0' )
+	        ->filter (  'my.ordersid', '=', $order_id)
+	        ->execute ();
+	    $products = array();
+	    if (count($orders_products) > 0)
+	    {
+	        foreach($orders_products as $orders_product_info)
+	        {
+	            $productid = $orders_product_info->my->products;
+	            $products[] = $productid;
+	        }
+	    }
+	    if ($order_info->my->returnedgoodsapply != "true")
+	    {
+	        $order_info->my->returnedgoodsapply = 'true';
+	        $old_order_status = $order_info->my->order_status;
+	        $order_info->my->order_status = "退货中";
+	        $order_info->my->old_order_status = $old_order_status;
+	        $order_info->my->submitapplydatetime =  date("Y-m-d H:i");
+	        $order_info->save('mall_orders');
+	    }
+	    $viewer = XN_Profile::load($profileid,"id","profile_".$profileid);
+		 
+        $bank = '';
+        $cardnum = '';
+        $bankname = ''; 
+
+	    $headimgurl =  $viewer->link;
+	    $orders_products = XN_Query::create ( 'Content' )->tag("mall_orders_product")
+	        ->filter ( 'type', 'eic', 'mall_orders_product' )
+	        ->filter (  'my.deleted', '=', '0' )
+	        ->filter (  'my.ordersid', '=', $order_id)
+	        ->execute ();
+	    $products = array();
+	    if (count($orders_products) > 0)
+	    {
+	        foreach($orders_products as $orders_product_info)
+	        {
+	            $productid = $orders_product_info->my->products;
+	            $products[] = $productid;
+	        }
+	    }
+
+	    $supplierContent=XN_Content::load($supplierid,"suppliers");
+	    $newcontent = XN_Content::create('mall_returnedgoodsapplys','',false);
+	    $newcontent->my->deleted = '0';
+	    $newcontent->my->profileid = $profileid;
+	    $newcontent->my->orderid = $order_id;
+	    $newcontent->my->productid = $products;
+	    $newcontent->my->supplierid = $supplierid;
+	    $newcontent->my->consignee = $consignee;
+	    $newcontent->my->mobile = $mobile;
+	    $newcontent->my->bank = $bank;
+	    $newcontent->my->bankname = $bankname;
+	    $newcontent->my->bankaccount = $cardnum;
+	    $newcontent->my->returnedgoodsapplysstatus = '待处理';
+	    $newcontent->my->returnedgoodsapplystype = '1';
+	    $newcontent->my->lastdatetime = '';
+	    $newcontent->my->execute = '';
+	    $newcontent->my->description = $description;
+	    $newcontent->save("mall_returnedgoodsapplys,mall_returnedgoodsapplys_".$order_id);
+	    $applyid = $newcontent->id;
+
+	    foreach($orders_products as $orders_product_info)
+	    {
+	        $orders_product_id = $orders_product_info->id;
+	        $productid = $orders_product_info->my->products;
+	        $returnamount = $orders_product_info->my->amount;
+	        $newcontent = XN_Content::create('mall_returnedgoodsapplys_products','',false);
+	        $newcontent->my->deleted = '0';
+	        $newcontent->my->orderid = $order_id;
+	        $newcontent->my->applyid = $applyid;
+	        $newcontent->my->orders_product = $orders_product_id;
+	        $newcontent->my->productid = $productid;
+	        $newcontent->my->amount = $orders_product_info->my->amount;
+	        $newcontent->my->price = $orders_product_info->my->price;
+	        $newcontent->my->subtotal = $orders_product_info->my->subtotal;
+	        $newcontent->my->returnamount = $returnamount ;
+	        $newcontent->my->propertyid = $orders_product_info->my->propertyid;
+	        $newcontent->save("mall_returnedgoodsapplys_products,mall_returnedgoodsapplys_products_".$order_id);
+	    }
+
+	    $newcontent = XN_Content::create('mall_returnedgoodsapplys_details','',false);
+	    $newcontent->my->profileid = XN_Profile::$VIEWER;
+	    $newcontent->my->deleted = '0';
+	    $newcontent->my->orderid = $order_id;
+	    $newcontent->my->applyid = $applyid;
+	    $newcontent->my->productid = $products;
+	    $newcontent->my->supplierid = $supplierid;
+	    $newcontent->my->content = $description;
+	    $newcontent->my->identity = '买家';
+	    $newcontent->my->headimgurl = $headimgurl;
+	    $newcontent->my->step = '退货申请';
+	    $newcontent->save("mall_returnedgoodsapplys_details,mall_returnedgoodsapplys_details_".$order_id);
+	}
+
+
+    public function approval_check($id,$event)
+    {
+
+
+    }
+
+
+
+	public function approval_event($id,$event) 
+	{
+        $officialorder_info=XN_Content::load($id,"mall_officialorders");
+        $supplierid=$officialorder_info->my->supplierid;
+        $orderid=$officialorder_info->my->orderid;
+        $profileid=$officialorder_info->my->profileid;
+        $order_info = XN_Content::load($orderid,"mall_orders_".$profileid,7);
+        $paymentamount=$order_info->my->paymentamount;
+        $amount=$paymentamount*100;
+
+        if ($id > 0 && $event == 'Agree')
+		{
+            official_notify($order_info,round(floatval($amount)/100, 2));//与mall_orders订单相关的支付成功回调操作
+            //与事务官相关的支付成功回调操作
+            $supplier_profile = XN_Query::create('MainContent')->tag("supplier_profile_" . $profileid)
+                ->filter('type', 'eic', 'supplier_profile')
+                ->filter('my.deleted', '=', '0')
+                ->filter('my.official', '=', '0')
+                ->filter('my.profileid', '=', $profileid)
+                ->end(1)
+                ->execute();
+            if (count($supplier_profile) > 0) {
+                $supplier_profile_info = $supplier_profile[0];
+                $official_supplierid = $supplier_profile_info->my->supplierid;
+                $mall_officialenterprisecurrencysauthorizes = XN_Query::create('MainContent')->tag("mall_officialenterprisecurrencysauthorizes")
+                    ->filter('type', 'eic', 'mall_officialenterprisecurrencysauthorizes')
+                    ->filter('my.deleted', '=', '0')
+                    ->filter('my.status', '=', '0')
+                    ->filter('my.approvalstatus', '=', '2')
+                    ->filter('my.supplierid', '=', $official_supplierid)
+                    ->filter('my.profileid', '=', $profileid)
+                    ->end(1)
+                    ->execute();
+                if (count($mall_officialenterprisecurrencysauthorizes) > 0)
+                {
+                    $mall_officialenterprisecurrencysauthorize_info = $mall_officialenterprisecurrencysauthorizes[0];
+                    $authorizedenterprisecurrency = $mall_officialenterprisecurrencysauthorize_info->my->authorizedenterprisecurrency;
+                    $currentcumulativeamount = $mall_officialenterprisecurrencysauthorize_info->my->currentcumulativeamount;
+                    $enterprisecurrencyid = $mall_officialenterprisecurrencysauthorize_info->my->enterprisecurrencyid;
+
+                    $mall_officialenterprisecurrency_info = XN_Content::load($enterprisecurrencyid, 'mall_officialenterprisecurrencys');
+
+                    $enterprisecurrency = $mall_officialenterprisecurrency_info->my->enterprisecurrency;
+                    $exchangerate = $mall_officialenterprisecurrency_info->my->exchangerate;
+
+                    $cost = round(floatval($amount) / 100 / floatval($exchangerate), 2);
+
+                    $new_authorizedenterprisecurrency = floatval($authorizedenterprisecurrency) - floatval($cost);
+
+                    $new_currentcumulativeamount = floatval($currentcumulativeamount) + floatval($cost);
+                    $mall_officialenterprisecurrencysauthorize_info->my->authorizedenterprisecurrency = $new_authorizedenterprisecurrency;
+                    $mall_officialenterprisecurrencysauthorize_info->my->currentcumulativeamount = $new_currentcumulativeamount;
+                    $mall_officialenterprisecurrencysauthorize_info->save('mall_officialenterprisecurrencysauthorizes,mall_officialenterprisecurrencysauthorizes_' . $profileid . ',mall_officialenterprisecurrencysauthorizes_' . $official_supplierid);
+
+                    //企业币日志
+                    $newcontent = XN_Content::create('mall_officialenterprisecurrencylogs', '', false, 8);
+                    $newcontent->my->deleted = '0';
+                    $newcontent->my->profileid = $profileid;
+                    $newcontent->my->supplierid = $official_supplierid;
+                    $newcontent->my->operator = $profileid;
+                    $newcontent->my->enterprisecurrencyid = $enterprisecurrencyid;
+                    $newcontent->my->enterprisecurrencytype = 'consumption';
+                    $newcontent->my->orderid = $order_info->id;
+                    $newcontent->my->money = number_format($new_authorizedenterprisecurrency, 2, ".", "");
+                    $newcontent->my->amount = number_format($cost, 2, ".", "");
+                    $newcontent->my->submitdatetime = date('Y-m-d H:i:s');
+                    $newcontent->save('mall_officialenterprisecurrencylogs,mall_officialenterprisecurrencylogs_' . $profileid . ',mall_officialenterprisecurrencylogs_' . $official_supplierid);
+                }
+            }
+		}
+		else if ($id > 0 && $event == 'Disagree')  
+		{
+            $supplier_wxsettings = XN_Query::create('MainContent')->tag('supplier_wxsettings')
+                ->filter('type', 'eic', 'supplier_wxsettings')
+                ->filter('my.deleted', '=', '0')
+                ->filter('my.supplierid', '=', $supplierid)
+                ->end(1)
+                ->execute();
+            if (count($supplier_wxsettings) > 0)
+            {
+                $supplier_wxsetting_info = $supplier_wxsettings[0];
+                $appid = $supplier_wxsetting_info->my->appid;
+                require_once(XN_INCLUDE_PREFIX . "/XN/Message.php");
+                XN_Message::sendmessage($profileid, '您的订单' . $order_info->my->mall_orders_no . '提交成功，请耐心等待审批!', $appid);
+            }
+
+		}
+	}
+
+	function save_module($module){} 
+
+	function getSortOrder() {
+		
+		if(isset($_REQUEST['sorder']))
+			$sorder = $_REQUEST['sorder'];
+		else
+			$sorder = (($_SESSION['MALL_OFFICIALORDERS_SORT_ORDER'] != '')?($_SESSION['MALL_OFFICIALORDERS_SORT_ORDER']):($this->default_sort_order));
+		return $sorder;
+	}
+	
+	function getOrderBy() {
+		
+		$use_default_order_by = $this->default_order_by;
+		if (isset($_REQUEST['order_by']))
+			$order_by = $_REQUEST['order_by'];
+		else
+			$order_by = (($_SESSION['MALL_OFFICIALORDERS_ORDER_BY'] != '')?($_SESSION['MALL_OFFICIALORDERS_ORDER_BY']):($use_default_order_by));
+		return $order_by;
+	}
+}?>

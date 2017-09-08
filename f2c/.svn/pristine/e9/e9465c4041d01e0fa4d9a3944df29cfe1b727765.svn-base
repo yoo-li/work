@@ -1,0 +1,200 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <link href="public/css/mui.min.css" rel="stylesheet" />
+    <link rel="stylesheet" href="public/css/smk_order.css">
+    <link href="public/css/public.css" rel="stylesheet"/>
+    <link href="public/css/iconfont.css" rel="stylesheet"/>
+    <link href="public/css/mui.picker.css" rel="stylesheet"/>
+    <link href="public/css/mui.listpicker.css" rel="stylesheet"/>
+    <link href="public/css/mui.dtpicker.css" rel="stylesheet"/>
+    <link href="public/css/sweetalert.css" rel="stylesheet"/>
+    <script src="public/js/mui.min.js" type="text/javascript" charset="utf-8"></script>
+    <script type="text/javascript" src="public/js/jweixin.js"></script>
+    <script src="public/js/zepto.min.js" type="text/javascript" charset="utf-8"></script>
+    <script src="public/js/mui.picker.js"></script>
+    <script src="public/js/mui.listpicker.js"></script>
+    <script src="public/js/mui.dtpicker.js"></script>
+    <script src="public/js/utils.js" type="text/javascript" charset="utf-8"></script>
+    <script type="text/javascript" src="public/js/sweetalert.min.js"></script>
+    <title>确认订单</title>
+</head>
+<style>
+    {literal}
+
+    .mysure_top .mui-media-body span {
+        color: #fe4401;
+    }
+
+    {/literal}
+
+</style>
+<body>
+<header id="header" class="mui-bar mui-bar-nav mysure_hd">
+    <p class="mui-title">确认订单</p>
+    <a class="mui-action-back mui-icon mui-icon-left-nav mui-pull-left"></a>
+</header>
+<div class="mui-content mysure" id="pullrefresh">
+    <form method="post" name="frm" action="/confirmpayment.php">
+    <input name="token" value="{$token}" type="hidden">
+    <input name="record" value="{$orderid}" type="hidden">
+    <input id="sumorderstotal" value="{$total_money}" type="hidden">
+    <input id="deliveraddress_count" value="{$deliveraddress|@count}" type="hidden">
+    <ul class="mui-table-view">
+        {if $deliveraddress|@count eq 0}
+            <li class="mui-table-view-cell mui-media mysure_list">
+                <a href="/deliveraddress.php" >
+                    <div class="mui-media-body">
+                        <p class="mysure_user"> 您还没有收货地址，赶快去创建吧！</span></p>
+                    </div>
+                </a>
+        {else}
+        <li class="mui-table-view-cell mui-media mysure_list">
+            <div class="mui-media-body">
+                <p class="mysure_user">{$deliveraddress.consignee}<span>{$deliveraddress.mobile}</span></p>
+                {if $tradestatus eq 'pretrade'}
+                        <p>{$deliveraddress.province}{$deliveraddress.city}{$deliveraddress.district}</p>
+                        <p>{$deliveraddress.shortaddress}
+                    </div>
+                {else}
+                    <a href="deliveraddress.php?orderid={$orderid}" >
+                        <p>{$deliveraddress.province}{$deliveraddress.city}{$deliveraddress.district}</p>
+                        <p>{$deliveraddress.shortaddress}
+                        </p>
+                    </a>
+                {/if}
+            </div>
+            <img src="public/images/line.png" class="line">
+        </li>
+        {/if}
+        <li class="mui-table-view-cell mysure_top">
+
+            <div class="mui-media-body">
+                <ul class="mui-table-view mui-table-view-chevron" style="color: #333;">
+                    {foreach name="shoppingcarts" item=shoppingcart_info  from=$shoppingcarts}
+                        <li class="mui-table-view-cell mui-left" style="min-height:104px;height: auto;  padding-right: 5px;">
+                            <img class="mui-media-object mui-pull-left" src="{$shoppingcart_info.productthumbnail}">
+                            <div class="mui-media-body">
+                                <p class='mui-ellipsis' style="color:#333">{$shoppingcart_info.productname}</p>
+                                {if $shoppingcart_info.propertydesc neq ""}
+                                    <p class='mui-ellipsis'>属性：{$shoppingcart_info.propertydesc}</p>
+                                {/if}
+                                <p class='mui-ellipsis'>数量：{$shoppingcart_info.quantity}件</p>
+                                <p class='mui-ellipsis'>{if $shoppingcart_info.zhekou neq ''}{if $shoppingcart_info.activitymode eq '1'}底价{else}活动价{/if}：
+                                        <span class="price">¥{$shoppingcart_info.shop_price}</span>
+                                        <span style="color:#878787;margin-left:5px;text-decoration:line-through;">
+                                        ¥{$shoppingcart_info.old_shop_price}</span>{else}单价：<span class="price">
+                                        ¥{$shoppingcart_info.shop_price}</span>{/if}</p>
+                                {if $shoppingcart_info.activitymode eq '1'}
+                                    <p class='mui-ellipsis'>
+                                        砍价：{if $shoppingcart_info.bargains_count eq 0}还没有好友帮忙砍价{else}已有 {$shoppingcart_info.bargains_count}位好友帮忙砍价{/if}
+                                    </p>
+                                {/if}
+                                {if $shoppingcart_info.postage|@floatval gt 0 && ($shoppingcart_info.includepost|@intval eq 0 || $shoppingcart_info.includepost|@intval gt $shoppingcart_info.productallcount|@intval) && ($supplier_info.totalpricefreeshipping|@floatval eq 0 || $supplier_info.totalpricefreeshipping|@floatval gt $total_money) && ($supplier_info.totalquantityfreeshipping|@intval eq 0 || $supplier_info.totalquantityfreeshipping|@intval gt $total_quantity)}
+                                    <p class='mui-ellipsis'>
+                                        邮费：
+                                        <span class="price">
+													¥{if $shoppingcart_info.mergepostage|@intval eq 1}{$shoppingcart_info.postage}{else}{$shoppingcart_info.postage*$shoppingcart_info.quantity|string_format:"%0.2f"}{/if}
+												</span>
+                                        {if $shoppingcart_info.includepost|@intval gt 0}
+                                            <span style="color:#878787;margin-left:10px;">({$shoppingcart_info.includepost}
+                                                件包邮)</span>
+                                        {/if}
+                                    </p>
+                                {/if}
+                                <p class='mui-ellipsis'>
+                                    小计：<span id="total_price_{$shoppingcart_info.id}" class="price">¥{$shoppingcart_info.total_price}</span>
+                                </p>
+                            </div>
+                        </li>
+                    {/foreach}
+                </ul>
+            </div>
+        </li>
+        <li class="mui-table-view-cell">卖家留言<input id="buyermemo" name="buyermemo" class="mui-pull-right mysure_input" type="text" placeholder="选填：对本次交易的说明" style="font-size:0.24rem"></li>
+        <li class="mui-table-view-cell" style="text-align:right;" id="total_quantity">共{$total_quantity}件商品&nbsp;&nbsp;&nbsp;小计：<span style="color:#fb3e21" id="total_money">￥{$total_money}</span></li>
+    </ul>
+</form>
+<nav class="mui-bar mui-bar-tab mysure_bottom">
+    合计&nbsp;&nbsp;<span style="color:#fb3e21">￥{$total_money}</span>
+    <button type="button" class="mui-btn confirmpayment ">确认</button>
+</nav>
+</div>
+</body>
+
+<script type="text/javascript">
+    {literal}
+    ! function() {
+        function a() {
+            document.documentElement.style.fontSize = document.documentElement.clientWidth / 6.4 + "px";
+            if (document.documentElement.clientWidth >= 640) document.documentElement.style.fontSize = '100px';
+        }
+        var b = null;
+        window.addEventListener("resize", function() {
+            clearTimeout(b), b = setTimeout(a, 300)
+        }, !1), a()
+    }(window);
+    mui('body').on('tap','a',function(){document.location.href=this.href;});
+
+    mui.init({
+        pullRefresh: {
+            container: '#pullrefresh'
+        },
+    });
+    mui.ready(function ()
+    {
+        mui('#pullrefresh').scroll();
+
+        mui('.msgbody').on('tap', 'a', function (e)
+        {
+            mui.openWindow({
+                url: this.getAttribute('href'),
+                id: 'info'
+            });
+        });
+
+        mui('.mui-table-view').on('tap', 'a.deliveraddress', function (e)
+        {
+            mui.openWindow({
+                url: this.getAttribute('href'),
+                id: 'info'
+            });
+        });
+        mui('.mui-table-view').on('tap', 'a.fapiao', function (e)
+        {
+            mui.openWindow({
+                url: this.getAttribute('href'),
+                id: 'info'
+            });
+        });
+        mui('.mui-bar').on('tap', 'button.confirmpayment', function (e)
+        {
+            var deliveraddress_count = $("#deliveraddress_count").val();
+            if (deliveraddress_count != "0")
+            {
+                document.frm.submit();
+            }
+            else
+            {
+                sweetAlert("警告", "请先创建收货地址，谢谢！", "error");
+            }
+
+        });
+        mui('header.mui-bar').on('tap', 'a.mui-icon-back', function (e)
+        {
+            mui.openWindow({
+                url: this.getAttribute('href'),
+                id: 'info'
+            });
+        });
+
+    });
+
+    {/literal}
+</script>
+
+</html>

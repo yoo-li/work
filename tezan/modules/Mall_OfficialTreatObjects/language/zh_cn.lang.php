@@ -1,0 +1,19 @@
+<?php 
+$mod_strings = Array(
+	'LBL_BASE_INFORMATION' => '基本信息', 
+    'Supplier Name'=>'宴请商户名称', 
+    'Supplier Digest'=>'商户类别',
+	'Exchange Rate'=>'汇率',
+	'Submit'=>'已经上线', 
+	'Status'=>'启用状态', 
+	'Mobile' => '联系电话',
+	'Bank name' => '开户行',
+	'Account name' => '开户名',
+	'Bank account' => '银行帐号',
+    'Province'=>'省',
+    'City'=>'市', 
+	 'Contact'=>'联系人',
+	 'Company Address'=>'商户地址',
+	'Mall_OfficialTreatObjects Status'=>'状态', 
+);
+?>

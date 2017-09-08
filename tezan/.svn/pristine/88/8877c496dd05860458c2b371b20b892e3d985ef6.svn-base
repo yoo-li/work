@@ -1,0 +1,1 @@
+<?php$Create = false;$Delete = true;$MassEdit = false;$CustomMassDelete = true;global $supplierid;$actionmapping = array (     );

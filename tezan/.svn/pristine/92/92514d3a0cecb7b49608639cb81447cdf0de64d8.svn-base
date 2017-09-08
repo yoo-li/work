@@ -1,0 +1,401 @@
+<?php
+$starttime = $_REQUEST['starttime'];
+$endtime = $_REQUEST['endtime'];
+echo '<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />';
+if( empty($starttime) || empty($endtime) ){
+    echo  '请选择时间~！';die;
+}
+$preview = $_REQUEST['preview'];
+if($preview != 1) {
+    header("Content-type:application/vnd.ms-excel");
+    header("Content-Disposition:filename=" . '供应商结算明细表' . "$starttime" . '，' . "$endtime" . ".xls");
+}
+echo '供应商结算明细表 '."&nbsp;"."&nbsp;"."&nbsp;"."&nbsp;"."&nbsp;"."&nbsp;"."&nbsp;"."&nbsp;"."&nbsp;";
+echo '时间：';
+echo "$starttime".'~'."$endtime";
+
+$starttime2 = strtotime($starttime . "-1 day ");
+$starttime2 = date('Y-m-d',$starttime2);
+
+$results2 = XN_Query::create('YearContent')->tag('mall_orders')
+    ->filter ( 'type', 'eic','mall_orders' )
+    ->filter ('my.deliverytime', '>',$starttime2)
+    ->filter ('my.deliverytime', '<',$starttime)
+    ->filter ('my.confirmreceipt_time', '>',$starttime)
+    ->filter("my.deleted","=",'0')
+    ->execute();
+
+$currentModule = 'Mall_orders';
+$endtimes = strtotime($endtime . "+2 day ");
+$endtimes = date('Y-m-d',$endtimes);
+//var_dump($endtimes);die();
+$result = XN_Query::create('YearContent')->tag('mall_orders')
+    ->filter ( 'type', 'eic','mall_orders' )
+    ->filter("my.mall_orders_no","!=",'ORD170407019')
+    ->filter("my.deliverytime",">=",$starttime)    //时间限制
+    ->filter("my.deliverytime","<=",$endtime)    //时间限制
+    //    ->filter ( XN_Filter::all(XN_Filter ('my.deliverytime', '>',$starttimes ),XN_Filter( 'my.confirmreceipt_time', '<',$endtimes)))
+    ->filter ( XN_Filter::any(XN_Filter ('my.submitreturnedgoodsdatetime', '=',null),XN_Filter( 'my.submitreturnedgoodsdatetime', '>=',$endtime),XN_Filter( 'my.order_status', '>=','确认收货')))
+    ->filter("my.deleted","=",'0')
+//    ->end(1)
+    ->execute();
+
+$results = XN_Query::create('YearContent')->tag('mall_orders')
+    ->filter ( 'type', 'eic','mall_orders' )
+    ->filter ( XN_Filter::all(XN_Filter ('my.deliverytime', '>',$endtime ),XN_Filter( 'my.confirmreceipt_time', '<',$endtimes)))
+    ->filter("my.deleted","=",'0')
+    ->execute();
+
+foreach ($result as $k =>$v){
+    $order_ids=$v->id;
+    $ids.=$v->id.',';
+}
+foreach ($results as $k1 =>$v1){
+    $order_ids1=$v1->id;
+    $ids1.=$v1->id.',';
+}
+foreach ($results2 as $k2=>$v2){
+    $order_ids2=$v2->id;
+    $ids2.=$v2->id.',';
+}
+
+
+$ids = explode(",",trim($ids,','));
+array_unique($ids);
+$ids = array_filter($ids);
+
+$ids1 = explode(",",trim($ids1,','));
+array_unique($ids1);
+$ids1 = array_filter($ids1);
+
+$ids2 = explode(",",trim($ids2,','));
+array_unique($ids2);
+$ids2 = array_filter($ids2);
+
+$ids = array_merge($ids,$ids1,$ids2);
+//var_dump($ids);
+$config_fields= array   (
+    '订单号'=>'mall_orders_no',
+    '购货人'=>'consignee',
+    '商品金额'=>'orderstotal',
+    '邮费'=>'postage',
+    '卡券'=>'vipcardid',
+    '订单金额'=>'sumorderstotal',
+    '余额支付'=>'usemoney',
+    '实际支付'=>'paymentamount',
+    '商品总计'=>'productcount',
+    '状态'=>'order_status',
+    '支付方式'=>'payment',
+    '下单时间'=>'singletime',
+    '付款时间'=>'paymenttime',
+    '发货时间'=>'deliverytime',
+    '确认收货'=>'confirmreceipt_time',
+);
+$order_detail_header= array(
+    '商品名称'=>'productname',
+    '属性'=>'property',
+    '数量'=>'quantity',
+    '销售价格'=>'shop_price',
+    '价格'=>'profit',
+    '退货数量'=>'returnamount',
+);
+
+$jd_config_fields= array(
+    '京东订单号'=>'jdorderid',
+    '京东订单金额'=>'orderprice',
+    '运费'=>'freight',
+//    '订单总价'=>'freight',
+    '订单裸价'=>'ordernakedprice',
+);
+
+$jd_order_detail_header= array(
+    '京东ID'=>'skuid',
+    '京东名称'=>'name',
+    '税种'=>'tax',
+    '京东税额'=>'taxprice',
+    '不含税价'=>'nakedprice',
+    '结算价'=>'vendor_price',
+    '总价'=>'total_price',
+);
+
+//$list_result = XN_Query::create('YearContent')->tag(strtolower($currentModule))
+//    ->filter ( 'type', 'eic', strtolower($currentModule) )
+//    ->filter ( 'id', 'in', $ids)
+//    ->begin(0)->end(-1)->execute();
+//===================
+//var_dump(1);die();
+$list_result = XN_Query::create('YearContent')->tag('mall_orders')
+    ->filter ( 'type', 'eic','mall_orders' )
+    ->filter ( 'id', 'in', $ids)
+    ->begin(0)->end(-1)->execute();
+//=============
+//var_dump($list_result);die();
+$table = '<table border="1" cellspacing="0" cellpadding="0">';
+$table .= '<tr>';
+foreach($config_fields as $k=>$v) {
+    $table .= '<td colspan="" rowspan="">';
+    $table .= $k;
+
+    $table .= '</td>';
+}
+$table .= '<td colspan="" rowspan="">';
+$table .= '退货时间';
+$table .= '</td>';
+$table .= '<td colspan="" rowspan="">';
+$table .= '退款时间';
+$table .= '</td>';
+
+
+
+foreach($order_detail_header as $k=>$v) {
+    $table .= '<td colspan="" rowspan="">';
+    $table .= $k;
+    $table .= '</td>';
+}
+$table .= '<td colspan="" rowspan="">';
+$table .= '总价';
+$table .= '</td>';
+$table .= '<td colspan="" rowspan="">';
+$table .= '商城税额';
+$table .= '</td>';
+$table .= '<td colspan="" rowspan="">';
+$table .= '不含税价';
+$table .= '</td>';
+$table .= '<td colspan="" rowspan="">';
+$table .= '税额总计';
+$table .= '</td>';
+$table .= '<td colspan="" rowspan="">';
+$table .= '不含税总计';
+$table .= '</td>';
+
+foreach($jd_config_fields as $k=>$v) {
+    $table .= '<td colspan="" rowspan="">';
+    $table .= $k;
+    $table .= '</td>';
+}
+$table .= '<td colspan="" rowspan="">';
+$table .= '订单总价';
+$table .= '</td>';
+
+foreach($jd_order_detail_header as $k=>$v) {
+    $table .= '<td colspan="" rowspan="">';
+    $table .= $k;
+    $table .= '</td>';
+}
+$table .= '<td colspan="" rowspan="">';
+$table .= '京东税额总计';
+$table .= '</td>';
+$table .= '<td colspan="" rowspan="">';
+$table .= '京东不含税总计';
+$table .= '</td>';
+$table .= '<td colspan="" rowspan="">';
+$table .= '京东结算总计';
+$table .= '</td>';
+
+$table .= '</tr>';
+
+foreach($list_result as $k=>$v) {
+//    echo abcdefg;
+    $order_ids=$v->id;
+
+    $total_orderstotal += $v->my->orderstotal;
+    $total_postage += $v->my->postage;
+    $total_vipcardid += $v->my->vipcardid;
+    $total_sumorderstotal += $v->my->sumorderstotal;
+    $total_usemoney += $v->my->usemoney;
+    $total_paymentamount += $v->my->paymentamount;
+    $total_productcount += $v->my->productcount;
+
+
+    $orders_products=XN_Query::create("YearContent")
+    ->tag("mall_orders_products")
+        ->filter("type","eic","mall_orders_products")
+        ->filter("my.orderid",'=',$order_ids)
+        ->filter("my.deleted","=",'0')
+        ->end(-1)
+        ->execute();
+
+    $jd_orders_products=XN_Query::create("YearContent")
+    ->tag("mall_jdorders")
+        ->filter("type","eic","mall_jdorders")
+        ->filter("my.orderid",'=',$order_ids)
+        ->filter("my.deleted","=",'0')
+        ->end(-1)
+        ->execute();
+//    var_dump($jd_orders_products);die();
+//    $jd_orders_skus=XN_Query::create("YearContent")
+//        ->tag("mall_jdorder_skus")
+//        ->filter("type","eic","mall_jdorder_skus")
+//        ->filter("my.orderid",'=',$order_ids)
+//        ->filter("my.deleted","=",'0')
+//        ->end(-1)
+//        ->execute();
+
+    $table .= '<tr>';
+    foreach($config_fields as $k01=>$v01) {
+        $table .= '<td colspan="" rowspan='.(count($orders_products)).'>';
+        $table .= $v->my->$config_fields[$k01];
+        $table .= '</td>';
+    }
+//    echo $table;
+//var_dump($table);die();
+    $mall_reimburses=XN_Query::create("YearContent")
+        ->tag("mall_reimburses")
+        ->filter("type","eic","mall_reimburses")
+        ->filter("my.orderid",'=',$order_ids)
+        ->filter("my.deleted","=",'0')
+        ->end(1)
+        ->execute();
+//    var_dump($mall_reimburses);die();
+    $table .= '<td colspan="" rowspan='.(count($orders_products)).'>';
+    $table .= $mall_reimburses[0]->published;
+    $table .= '</td>';
+    $table .= '<td colspan="" rowspan='.(count($orders_products)).'>';
+    $table .= $mall_reimburses[0]->my->returngoodsdate;
+    $table .= '</td>';
+//echo $table;die;
+
+    foreach($orders_products as $k01=>$v01) {
+        if($k01 > 0){
+            $table .= '<tr>';
+        }
+        foreach($order_detail_header as $k02=>$v02) {
+            $table .= '<td colspan="" rowspan="">';
+            $table .= $v01->my->$order_detail_header[$k02];
+            $table .= '</td>';
+        }
+        $total_shop_price += $v01->my->shop_price;
+        $total_profit += $v01->my->profit;
+        
+        $jd_orders_skus=XN_Query::create("YearContent")
+            ->tag("mall_jdorder_skus")
+            ->filter("type","eic","mall_jdorder_skus")
+            ->filter("my.orderid",'=',$v01->my->orderid)
+            ->filter("my.productid",'=',$v01->my->productid)
+            ->filter("my.deleted","=",'0')
+            ->end(1)
+            ->execute();
+
+        $quantity = $v01->my->quantity;
+        $shop_price = $v01->my->shop_price;
+        $tax  = $jd_orders_skus[0]->my->tax;
+
+        $table .= '<td colspan="" rowspan="">';
+        $table .= $shop_price * $quantity;
+        $total_sq += ($shop_price * $quantity);
+        $table .= '</td>';
+        $table .= '<td colspan="" rowspan="">';
+        $table .= round(($shop_price/(100+$tax)) * $tax,2);
+        $total_rsqt += (round(($shop_price/(100+$tax)) * $tax,2));
+        $table .= '</td>';
+        $table .= '<td colspan="" rowspan="">';
+        $table .= $shop_price - round(($shop_price/(100+$tax)) * $tax,2);
+        $total_srsqt += ($shop_price - round(($shop_price/(100+$tax)) * $tax,2));
+        $table .= '</td>';
+        $table .= '<td colspan="" rowspan="">';
+        $table .= round(($shop_price/(100+$tax)) * $tax,2)*$quantity;
+        $total_rsttq += (round(($shop_price/(100+$tax)) * $tax,2)*$quantity);
+        $table .= '</td>';
+        $table .= '<td colspan="" rowspan="">';
+        $table .= ($shop_price - round(($shop_price/(100+$tax)) * $tax,2))*$quantity;
+        $total_srspttq += (($shop_price - round(($shop_price/(100+$tax)) * $tax,2))*$quantity);
+        $table .= '</td>';
+
+        if($k01 == 0){
+            foreach($jd_config_fields as $k01=>$v01) {
+                $table .= '<td colspan="" rowspan='.(count($orders_products)).'>';
+                $table .= $jd_orders_products[0]->my->$jd_config_fields[$k01];
+                $table .= '</td>';
+            }
+
+            $total_orderprice += $jd_orders_products[0]->my->orderprice;
+            $total_freight += $jd_orders_products[0]->my->freight;
+            $total_ordernakedprice += $jd_orders_products[0]->my->ordernakedprice;
+
+            $orderprice = $jd_orders_products[0]->my->orderprice;
+            $freight = $jd_orders_products[0]->my->freight;
+            $table .= '<td colspan="" rowspan='.(count($orders_products)).'>';
+            $table .= $orderprice + $freight;
+            $total_of += $orderprice + $freight;
+            $table .= '</td>';
+        }
+
+        foreach($jd_order_detail_header as $k02=>$v02) {
+            $table .= '<td colspan="" rowspan="">';
+            $table .= $jd_orders_skus[0]->my->$jd_order_detail_header[$k02];
+            $table .= '</td>';
+        }
+
+        $total_taxprice += $jd_orders_skus[0]->my->taxprice;
+        $total_nakedprice += $jd_orders_skus[0]->my->nakedprice;
+        $total_vendor_price += $jd_orders_skus[0]->my->vendor_price;
+        $total_total_price += $jd_orders_skus[0]->my->total_price;
+
+        $taxprice = $jd_orders_skus[0]->my->taxprice;
+        $vendor_price = $jd_orders_skus[0]->my->vendor_price;
+        $nakedprice = $jd_orders_skus[0]->my->nakedprice;
+
+        $table .= '<td colspan="" rowspan="">';
+        $table .= $taxprice * $quantity;
+        $total_tq += ($taxprice * $quantity);
+        $table .= '</td>';
+        $table .= '<td colspan="" rowspan="">';
+        $table .= $nakedprice * $quantity;
+        $total_nq += ($nakedprice * $quantity);
+        $table .= '</td>';
+        $table .= '<td colspan="" rowspan="">';
+        $table .= ($nakedprice+$taxprice) * $quantity;
+        $total_ntq += (($nakedprice+$taxprice) * $quantity);
+        $table .= '</td>';
+
+        $table .= '</tr>';
+    }
+}
+$table .= '<tr>';
+$table .= '<td>合计</td>';
+$table .= '<td></td>';
+$table .= '<td>'.$total_orderstotal.'</td>';
+$table .= '<td>'.$total_postage.'</td>';
+$table .= '<td>'.$total_vipcardid.'</td>';
+$table .= '<td>'.$total_sumorderstotal.'</td>';
+$table .= '<td>'.$total_usemoney.'</td>';
+$table .= '<td>'.$total_paymentamount.'</td>';
+$table .= '<td>'.$total_productcount.'</td>';
+$table .= '<td></td>';
+$table .= '<td></td>';
+$table .= '<td></td>';
+$table .= '<td></td>';
+$table .= '<td></td>';
+$table .= '<td></td>';
+$table .= '<td></td>';
+$table .= '<td></td>';
+$table .= '<td></td>';
+$table .= '<td></td>';
+$table .= '<td>'.$total_productcount.'</td>';
+$table .= '<td>'.$total_shop_price.'</td>';
+$table .= '<td>'.$total_profit.'</td>';
+$table .= '<td></td>';
+$table .= '<td>'.$total_sq.'</td>';
+$table .= '<td>'.$total_rsqt.'</td>';
+$table .= '<td>'.$total_srsqt.'</td>';
+$table .= '<td>'.$total_rsttq.'</td>';
+$table .= '<td>'.$total_srspttq.'</td>';
+$table .= '<td></td>';
+$table .= '<td>'.$total_orderprice.'</td>';
+$table .= '<td>'.$total_freight.'</td>';
+$table .= '<td>'.$total_ordernakedprice.'</td>';
+$table .= '<td>'.$total_of.'</td>';
+$table .= '<td></td>';
+$table .= '<td></td>';
+$table .= '<td></td>';
+$table .= '<td>'.$total_taxprice.'</td>';
+$table .= '<td>'.$total_nakedprice.'</td>';
+$table .= '<td>'.$total_vendor_price.'</td>';
+$table .= '<td>'.$total_total_price.'</td>';
+$table .= '<td>'.$total_tq.'</td>';
+$table .= '<td>'.$total_nq.'</td>';
+$table .= '<td>'.$total_ntq.'</td>';
+$table .= '</tr>';
+$table .= '</table>';
+
+echo $table;

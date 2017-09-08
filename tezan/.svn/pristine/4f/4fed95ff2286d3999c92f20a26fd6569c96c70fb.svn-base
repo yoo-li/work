@@ -1,0 +1,57 @@
+<?php
+//if(isset($_REQUEST['init']) && $_REQUEST['init'] == 'cache'){
+////	$rolesdata_file = $_SERVER['DOCUMENT_ROOT'].'/cache/'.XN_Application::$CURRENT_URL.'/system.php';
+////	if (@file_exists($rolesdata_file)) {
+////		unlink($rolesdata_file);
+////	}
+////	create_system_file();
+//}else{
+	ini_set('memory_limit','2048M');
+	set_time_limit(0);
+    header('Content-Type: text/html; charset=utf-8');
+    session_start();
+	
+	
+
+   // echo "此初始化程序，从此以后不能随便用，否则自行承担后果！！";exit();
+    /*
+    try{
+        $user_privileges_file=XN_MemCache::get("user_privileges_".XN_Application::$CURRENT_URL."_".XN_Profile::$VIEWER);
+    }catch(XN_Exception $e){
+        session_destroy();
+        header("Location: index.php?action=Login&module=Users");
+        die();
+    }
+
+    if(XN_Profile::$VIEWER == null || !isset($_SESSION["authenticated_user_id"]))
+    {
+        session_destroy();
+        header("Location: index.php?action=Login&module=Users");
+        die();
+    }
+    */
+
+	 require ($_SERVER['DOCUMENT_ROOT'].'/admin/initdata.php'); 
+     XN_MemCache::put("true","run_initapp_".XN_Application::$CURRENT_URL);
+	 if (isset($_REQUEST['a']) && $_REQUEST['a'] == "init"  )
+	 {
+		 $initmsg = re_initdata();
+	
+		// create_ExpressForm();
+		 // create_InvoicePrint();
+
+         XN_MemCache::delete("parent_tabdata_".XN_Application::$CURRENT_URL);
+         XN_MemCache::delete("tabdata_".XN_Application::$CURRENT_URL);
+         XN_MemCache::put("false","run_initapp_".XN_Application::$CURRENT_URL);
+		 echo $initmsg;
+	 }
+	 else
+	 {
+		 echo 'ok';
+	 }
+	 
+	 
+//}
+ 
+ 
+?>

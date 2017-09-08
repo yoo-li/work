@@ -1,0 +1,188 @@
+<?php
+	require_once('modules/Ma_Public/config.func.php');
+	if(isset($_REQUEST["exportmodule"]) && $_REQUEST["exportmodule"] != "" && isset($_REQUEST["template"]) && $_REQUEST["template"] != ""){
+		$modulepath = $_SERVER['DOCUMENT_ROOT']."/modules/".$_REQUEST["exportmodule"]."/config.excel.php";
+		$template = $_REQUEST["template"];
+		if (@file_exists($modulepath)){
+			include($modulepath);
+			if(isset($exceltemplate[$template]) && $exceltemplate[$template] != "" && is_array($exceltemplate[$template]) && count($exceltemplate[$template]) > 0) {
+				$fields = $exceltemplate[$template]["fields"];
+				if(isset($fields) && $fields != "" && is_array($fields) && count($fields) > 0)
+				{
+					$Related = array ();
+					foreach ($fields as $field)
+					{
+						if (isset($field["type"]) && $field["type"] != "")
+						{
+							if ($field["type"] == "reference" && isset($field["source"]) && $field["source"] != "" && isset($field["refield"]) && $field["refield"] != "")
+							{
+								$source = XN_Query::create("Content")->tag($field["source"])
+												  ->filter("type", "eic", $field["source"])
+												  ->filter("my.deleted", "=", "0");
+								if (isset($field["filter"]) && $field["filter"] != "" && is_array($field["filter"]) && count($field["filter"]) > 0)
+								{
+									foreach ($field["filter"] as $filter)
+									{
+										$source->filter($filter["field"], $filter["logic"], $filter["value"]);
+									}
+								}
+								$source = $source->execute();
+								foreach ($source as $item)
+								{
+									$Related["datasource"][$field["field"]][$item->id] = $item->my->$field["refield"];
+								}
+							}
+						}
+					}
+					require_once ($_SERVER['DOCUMENT_ROOT'].'/include/PHPExcel/PHPExcel.php');
+					require_once ($_SERVER['DOCUMENT_ROOT'].'/include/PHPExcel/PHPExcel/IOFactory.php');
+
+					$objPHPExcel = new PHPExcel();
+					$objPHPExcel->setActiveSheetIndex(0);
+					$objPHPExcel->getActiveSheet()->setTitle($exceltemplate[$template]["title"]);
+//					if(count($Related["datasource"]) > 0){
+//						$objPHPExcel->createSheet();
+//						$objPHPExcel->setActiveSheetIndex(1);
+//						$objPHPExcel->getActiveSheet()->setTitle('pick');
+//						$j = 0;
+//						foreach($Related["datasource"] as $key => $field){
+//							if(count($field))
+//							{
+//								$i = 1;
+//								$cell = chr(ord('A')+$j);
+//								foreach($field as $value){
+//									$objPHPExcel->getActiveSheet()->getCell($cell.$i)->setValue($value);
+//									$i++;
+//								}
+//								$Related["sourcelink"][$key] = 'pick!'.$cell.'1:'.$cell.($i-1);
+//								$j++;
+//							}
+//						}
+//						$objPHPExcel->getActiveSheet()->getProtection()->setPassword('tezan');
+//						$objPHPExcel->getActiveSheet()->getProtection()->setSheet(true);
+//						$objPHPExcel->getActiveSheet()->setSheetState(PHPExcel_Worksheet::SHEETSTATE_VERYHIDDEN);
+//						$objPHPExcel->setActiveSheetIndex(0);
+//					}
+					$objPHPExcel->getActiveSheet()->getProtection()->setPassword('tezan');
+					$objPHPExcel->getActiveSheet()->getProtection()->setSheet(true);
+					$objPHPExcel->getActiveSheet()->getProtection()->setAutoFilter(true);
+					$objPHPExcel->getActiveSheet()->getProtection()->setDeleteColumns(true);
+					$objPHPExcel->getActiveSheet()->getProtection()->setDeleteRows(true);
+					$objPHPExcel->getActiveSheet()->getProtection()->setFormatCells(true);
+					$objPHPExcel->getActiveSheet()->getProtection()->setFormatColumns(true);
+					$objPHPExcel->getActiveSheet()->getProtection()->setFormatRows(true);
+					$objPHPExcel->getActiveSheet()->getProtection()->setInsertColumns(true);
+					$objPHPExcel->getActiveSheet()->getProtection()->setInsertHyperlinks(true);
+					$objPHPExcel->getActiveSheet()->getProtection()->setInsertRows(true);
+					$objPHPExcel->getActiveSheet()->getProtection()->setSort(true);
+					$objPHPExcel->getActiveSheet()->getProtection()->setObjects(true);
+					$objPHPExcel->getActiveSheet()->getProtection()->setPivotTables(true);
+					$objPHPExcel->getActiveSheet()->getProtection()->setScenarios(true);
+					$objPHPExcel->getActiveSheet()->getRowDimension(1)->setRowHeight(50);
+					$objPHPExcel->getActiveSheet()->getDefaultRowDimension()->setRowHeight(30);
+					$objPHPExcel->getActiveSheet()->getRowDimension(2)->setRowHeight(30);
+					$objPHPExcel->getDefaultStyle()->getAlignment()->setHorizontal(PHPExcel_Style_Alignment::HORIZONTAL_CENTER);
+					$objPHPExcel->getDefaultStyle()->getAlignment()->setVertical(PHPExcel_Style_Alignment::VERTICAL_CENTER);
+					$objPHPExcel->getDefaultStyle()->getFont()->setName("微软雅黑");
+					$objPHPExcel->getDefaultStyle()->getFont()->setSize(16);
+					$objPHPExcel->getDefaultStyle()->getProtection()->setLocked(PHPExcel_Style_Protection::PROTECTION_UNPROTECTED);
+					//设置合并表头
+					if(count($fields) > 26){
+						$cell = chr(ord('A') + (count($fields) / 26 - 1)) . chr(ord('A') + (count($fields) % 26 - 1));
+					}else
+					{
+						$cell = chr(ord('A')+count($fields)-1);
+					}
+
+
+//					$objPHPExcel->getActiveSheet()->getStyle('A3:'.$cell.'10000')->getProtection()->setLocked(PHPExcel_Style_Protection::PROTECTION_UNPROTECTED);
+					$objPHPExcel->getActiveSheet()->getStyle('A1:'.$cell.'2')->getProtection()->setLocked(PHPExcel_Style_Protection::PROTECTION_PROTECTED);
+					$objPHPExcel->getActiveSheet()->getCell('A1')->setValue($exceltemplate[$template]["title"]);
+					$objPHPExcel->getActiveSheet()->getStyle('A1')->getFont()->setBold(true);		// 加粗
+					$objPHPExcel->getActiveSheet()->getStyle('A1')->getFont()->setSize(20);			// 字体大小
+					$objPHPExcel->getActiveSheet()->mergeCells('A1:'.$cell.'1');
+					//设置固定列
+					if(isset($exceltemplate[$template]["fixedcolumn"]) && $exceltemplate[$template]["fixedcolumn"] != "" && intval($exceltemplate[$template]["fixedcolumn"]) > 0){
+						$cell = chr(ord('A')+intval($exceltemplate[$template]["fixedcolumn"]));
+						$objPHPExcel->getActiveSheet()->getStyle('A1:'.$cell.'1')->getFill()->setFillType(PHPExcel_Style_Fill::FILL_SOLID);
+						$objPHPExcel->getActiveSheet()->getStyle('A1:'.$cell.'1')->getFill()->getStartColor()->setARGB('00DDD9C3');			// 底纹
+					}
+
+					$i = 0;
+					foreach($fields as $field){
+						if($i > 26){
+							$cell = chr(ord('A') + ($i / 26 - 1)) . chr(ord('A') + $i % 26);
+						}else
+						{
+							$cell = chr(ord('A') + $i);
+						}
+						//设置列宽
+						$objPHPExcel->getActiveSheet()->getColumnDimension($cell)->setWidth(intval($field["width"]));
+						//设置表头属性
+						$objPHPExcel->getActiveSheet()->getCellByColumnAndRow($i,2)->setValue($field["label"]);
+						$objPHPExcel->getActiveSheet()->getStyleByColumnAndRow($i,2)->getFill()->setFillType(PHPExcel_Style_Fill::FILL_SOLID);
+						$objPHPExcel->getActiveSheet()->getStyleByColumnAndRow($i,2)->getFill()->getStartColor()->setARGB('00D8D8D8');
+						$objPHPExcel->getActiveSheet()->getStyleByColumnAndRow($i,2)->getBorders()->getAllBorders()->setBorderStyle(PHPExcel_Style_Border::BORDER_THIN);
+						//设置下列表属性
+						if($field["type"] == "reference" && isset($Related["sourcelink"][$field["field"]]) && $Related["sourcelink"][$field["field"]] != ""){
+							$objValidation = new PHPExcel_Cell_DataValidation();
+							$objValidation->setType( PHPExcel_Cell_DataValidation::TYPE_LIST );
+							$objValidation->setErrorStyle( PHPExcel_Cell_DataValidation::STYLE_STOP );
+							$objValidation->setAllowBlank(false);
+							$objValidation->setShowInputMessage(false);
+							$objValidation->setShowErrorMessage(true);
+							$objValidation->setShowDropDown(true);
+							$objValidation->setErrorTitle('输入值错误');
+							$objValidation->setError('所输入的值不在列表中，请选择一个正确的数据项');
+							$formula = $Related["sourcelink"][$field["field"]];
+							$objValidation->setFormula1($formula);	// Make sure to put the list items between " and "  !!!
+//							$objPHPExcel->getActiveSheet()->setDataValidation("$".$cell."4:$".$cell.'100',$objValidation);
+							for($t=3;$t <= 10000; $t++){
+								$objPHPExcel->getActiveSheet()->setDataValidation("$".$cell.$t,$objValidation);
+							}
+						}elseif($field["type"] == "digital"){
+							$objValidation = new PHPExcel_Cell_DataValidation();
+							$objValidation->setType( PHPExcel_Cell_DataValidation::TYPE_DECIMAL );
+							$objValidation->setOperator(PHPExcel_Cell_DataValidation::OPERATOR_GREATERTHAN);
+							$objValidation->setErrorStyle( PHPExcel_Cell_DataValidation::STYLE_STOP );
+							$objValidation->setAllowBlank(false);
+							$objValidation->setShowInputMessage(false);
+							$objValidation->setShowErrorMessage(true);
+							$objValidation->setErrorTitle('输入值错误');
+							$objValidation->setError('只能是数值类型');
+							$objValidation->setFormula1('-1');	// Make sure to put the list items between " and "  !!!
+							$objPHPExcel->getActiveSheet()->setDataValidation($cell."3:".$cell.'10000',$objValidation);
+						}elseif($field["type"] == "date"){
+							$objValidation = new PHPExcel_Cell_DataValidation();
+							$objValidation->setType( PHPExcel_Cell_DataValidation::TYPE_DATE );
+							$objValidation->setOperator(PHPExcel_Cell_DataValidation::OPERATOR_GREATERTHAN);
+							$objValidation->setErrorStyle( PHPExcel_Cell_DataValidation::STYLE_STOP );
+							$objValidation->setAllowBlank(false);
+							$objValidation->setShowInputMessage(false);
+							$objValidation->setShowErrorMessage(true);
+							$objValidation->setErrorTitle('输入值错误');
+							$objValidation->setError('只能是日期类型');
+							$objValidation->setFormula1('-1');	// Make sure to put the list items between " and "  !!!
+							$objPHPExcel->getActiveSheet()->setDataValidation($cell."3:".$cell.'10000',$objValidation);
+						}else{
+							$objPHPExcel->getActiveSheet()->getStyle($cell)->getNumberFormat()->setFormatCode(PHPExcel_Style_NumberFormat::FORMAT_TEXT);
+						}
+						$i++;
+					}
+
+					$objWriter = PHPExcel_IOFactory::createWriter($objPHPExcel, 'Excel5');
+
+					header("Content-Type: application/force-download");
+					header("Content-Type: application/octet-stream");
+					header("Content-Type: application/download");
+					header('Content-Disposition:inline;filename="'.nl2br(decode_html($exceltemplate[$template]["title"])).'.xls"');
+					header("Content-Transfer-Encoding: binary");
+					header("Expires: Mon, 26 Jul 1997 05:00:00 GMT");
+					header("Last-Modified: " . gmdate("D, d M Y H:i:s") . " GMT");
+					header('Cache-Control: must-revalidate, post-check=0, pre-check=0');
+					header("Pragma: no-cache");
+					$objWriter->save('php://output');
+				}
+			}
+		}
+	}

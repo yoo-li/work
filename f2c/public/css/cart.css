@@ -1,0 +1,148 @@
+.mui-scroll{
+    padding-top: 44px;
+}
+.mui-off-canvas-wrap .mui-bar.mui-bar-nav{
+    background-color: #f9f9f9;
+}
+.mui-bar-nav.mui-bar .mui-icon{
+    color: #232326;
+}
+.mui-bar-nav.mui-bar .mui-icon.mui-icon-chat{
+    padding: 12px 10px;
+    font-size: 20px;
+}
+.mui-content .mui-checkbox{
+    height: 1.8rem;
+}
+.mui-content .mui-checkbox label{
+    position: absolute;
+    top: 50%;
+    padding-right: 0; 
+    margin-top: -12px;
+}
+.mui-content .mui-checkbox input[type=checkbox]{
+    top: 50%;
+    margin-top: -12px;
+}
+.mui-checkbox input[type=checkbox]:before{
+    font-size: 24px;
+}
+.mui-checkbox input[type=checkbox]:checked:before{
+    color: #fb3e21;
+}
+.mui-checkbox.mui-left label{
+    width: auto;
+    height: 28px;
+}
+.goods-detail{
+    padding: 10px 0;
+    
+}
+.goods-detail img{
+    width: 1.68rem;
+    height: 1.68rem;
+}
+.list-right{
+    padding: 0 0 0 10px;
+    width: 3.5rem;
+}
+.list-right h4{
+    color: #232326;
+    font-size: .26rem;
+    font-weight: 400;
+    white-space: nowrap;
+    text-overflow: ellipsis;
+    overflow: hidden;
+}
+.bottom{
+    margin-top: .2rem;
+    height: .4rem;
+}
+.list-right span{
+    padding: 0 5px 0 0;
+    color: #fb3e21;
+}
+.list-right span.unit-price{
+    color: #8f8f94;
+}
+.mui-numbox{
+    float: right;
+    padding: 0;
+    width: 1.56rem;
+    height: .4rem;
+    border: solid 1px #ddd;
+    border-radius: 0;
+}
+.mui-numbox .mui-numbox-btn-plus,
+.mui-numbox .mui-numbox-btn-minus{
+    border-radius: 0;
+}
+.mui-btn:disabled,
+button:disabled{
+    opacity: 1
+}
+.mui-numbox .mui-numbox-input{
+    display: block;
+}
+.mui-numbox [class*=numbox-btn]{
+    width: .5rem;
+}
+.list-right span.delete{
+    float: right;
+    color: #81838e;
+    font-size: .24rem;
+    line-height: .6rem;
+}
+.list-right span.delete:active{
+    color: #fb3e21;
+}
+.clearfix:after{
+    content: '';
+    display: block;
+    clear: both;
+}
+.mui-bar-tab{
+    height: 50px;
+    background: #f9f9f9;
+}
+.mui-checkbox.mui-left input[type=checkbox]{
+    left: 10px;
+}
+.mui-bar .mui-checkbox{
+    margin-top: 10px;
+    padding-right: 15px;
+    font-size: .24rem;
+}
+.mui-bar .mui-checkbox.mui-left label{
+    padding-right: 15px;
+    padding-left: 40px;
+}
+.total{
+    float: left;
+    padding-top: 10px;
+}
+.total p{
+    color: #81838e;
+    font-size: .22rem;
+}
+.total p.total-price{
+    color: #232326;
+    font-size: .24rem;
+}
+.settle{
+    float: right;
+    display: block;
+    width: 2rem;
+    height: 52px;
+    line-height: 52px;
+    font-size: .26rem;
+    background: #fb3e21;
+    color: #fff;
+    text-align: center;
+}
+.settle:active{
+    background: #fa5e46;
+}
+.h50{
+    height: 50px;
+}

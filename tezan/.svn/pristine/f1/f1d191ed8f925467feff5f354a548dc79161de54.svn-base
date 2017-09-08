@@ -1,0 +1,14 @@
+<?php
+$wxmenus = XN_Query::create ( 'Content' )->tag('wxmenus')
+						->filter ( 'type', 'eic', 'wxmenus')
+						->filter ('my.tag_id','!=','vendors')
+						->end(-1)
+						->execute ();
+                        echo count($wxmenus);exit();
+foreach($wxmenus as $info){
+    if($info->my->tag_id!='')
+    $info->my->tag_id='all';
+}
+
+XN_Content::batchsave($wxmenus,"wxmenus");
+echo 'ok';

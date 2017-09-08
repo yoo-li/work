@@ -1,0 +1,85 @@
+<?php
+/*+**********************************************************************************
+ * The contents of this file are subject to the 361CRM Public License Version 1.0
+ * ("License"); You may not use this file except in compliance with the License
+ * The Original Code is:  361CRM Open Source
+ * The Initial Developer of the Original Code is vtiger.
+ * Portions created by vtiger are Copyright (C) vtiger.
+ * All Rights Reserved.
+ ************************************************************************************/
+
+
+session_start();
+
+require_once (dirname(__FILE__) . "/config.inc.php");
+require_once (dirname(__FILE__) . "/config.common.php");
+require_once (dirname(__FILE__) . "/util.php");
+
+
+if(isset($_SESSION['profileid']) && $_SESSION['profileid'] !='')
+{
+    $profileid = $_SESSION['profileid'];
+}
+elseif(isset($_SESSION['accessprofileid']) && $_SESSION['accessprofileid'] !='')
+{
+    $profileid = $_SESSION['accessprofileid'];
+}
+else
+{
+   $profileid = "anonymous";
+}
+if(isset($_SESSION['supplierid']) && $_SESSION['supplierid'] !='')
+{
+	$supplierid = $_SESSION['supplierid'];
+}
+else
+{
+	die();
+}
+
+
+try{
+
+    require_once (dirname(__FILE__) . "/wxsmk.func.php");
+    $amount = wxsmk_query_jsapi($wxsmk_cardno,$wxsmk_password);
+    if ($amount <= 0){
+        echo '201';
+        die();
+    }
+
+    $result = wxsmk_cost_jsapi($wxsmk_cardno,$wxsmk_password,$amount);
+    if ($result['payement'] != "ok")
+    {
+        echo '202';
+        die();
+    }
+
+//    $wxsmk_cardno = '867867869585648'; //卡号
+//    $wxsmk_password = '9489191';
+//    $amount='150';
+
+    $users = XN_Query::create ( 'Content' )->tag('Mall_SmkCardRecord')
+        ->filter ( 'type', 'eic', 'Mall_SmkCardRecord')
+        ->filter ( 'my.profileid', '=',$profileid)
+        ->execute();
+
+    $smk_list = XN_Content::create('Mall_SmkCardRecord');
+    $smk_list->my->profileid = $profileid; // 用户
+    $smk_list->my->addtime = strtotime(date("Y").$result['sendtime']); // 消费时间
+    $smk_list->my->money = $amount; // 金额
+    $smk_list->my->card = $wxsmk_cardno; // 卡号
+    $smk_list->my->seq = $result['seq']; // 交易号
+    $smk_list->my->orderid = ''; // 订单号
+    $smk_list->my->consumptiontype = '1'; // 类型 1充值2消费3退款
+    $smk_list->my->account = ($users[count($users)-1]->my->account + $amount); // 余额
+    $smk_list->save('Mall_SmkCardRecord');
+
+    echo '200';
+    die();
+
+}
+catch(XN_Exception $e)
+{
+    echo $e->getMessage();
+    die();
+}

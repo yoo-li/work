@@ -1,0 +1,28 @@
+<?php
+
+
+require_once (dirname(__FILE__) . "/config.common.php");	
+
+$APISERVERADDRESS  = 'http://api.tezan.cn';    
+
+
+$MAINDOMAIN  = 'http://admin.tezan.cn';   
+$MAINDOMAIN  = 'http://new.tezan.cc:7000';  //开发环境
+$MAINDOMAIN  = 'http://admin.ttzan.cn';  //开发环境
+
+XN_Application::$CURRENT_URL = "admin";
+//$_SERVER["HTTP_X_NING_LOCAL_API_HOST_PORT"]="124.232.138.107:8000"; 
+$_SERVER["HTTP_X_NING_LOCAL_API_HOST_PORT"]="127.0.0.1:8000";
+XN_REST::$LOCAL_API_HOST_PORT = $_SERVER['HTTP_X_NING_LOCAL_API_HOST_PORT'];
+
+
+ini_set('memory_limit','256M');
+
+$default_timezone = 'PRC';
+ 
+if(isset($default_timezone) && function_exists('date_default_timezone_set')) {
+	@date_default_timezone_set($default_timezone);
+}
+
+
+?>

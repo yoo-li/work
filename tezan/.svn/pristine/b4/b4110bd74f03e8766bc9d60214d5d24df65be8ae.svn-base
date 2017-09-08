@@ -1,0 +1,46 @@
+
+<script language="JavaScript" type="text/javascript" src="modules/{$MODULE}/FlowsFields.js"></script>
+<div style="float: right;margin: 4px 10px 4px">
+	<a href="javascript:void(0)" onclick="FlowFieldsAddNewBlockInfo('{$FLOWID}');" data-icon="plus" class="btn btn-default" > 新增字段区块</a>
+</div>
+{foreach name=blackeach item=block key=bid from=$BLOCKS}
+	<table class="table table-bordered table-hover table-striped" width="100%" cellspacing="0" cellpadding="0" border="0">
+		<tr>
+			<td>
+				<table width="100%" cellspacing="0" cellpadding="0" border="0">
+					<tr>
+						<td class="colHeader">
+							<select data-toggle="selectpicker" onChange="FlowFieldsChangeBlockShowstatus('{$bid}',this.value)">
+								<option value="show" {if $block.display eq '1'}selected{/if}>显示</option>
+								<option value="hide" {if $block.display eq '0'}selected{/if}>隐藏</option>
+							</select>
+							<SPAN style="margin-left: 10px;">{$block.label}</SPAN>
+						</td>
+						<td class="colHeader" width="100px;">
+							<a href="javascript:void(0)" onclick="FlowFieldsShowBlockInfo('{$bid}');" data-icon="edit" class="btn btn-default" > 区块信息</a>
+						</td>
+						<td class="colHeader" width="120px;">
+							<a href="javascript:void(0)" onclick="FlowFieldsDeleteBlockInfo('{$bid}','{$block.label}');" data-icon="trash-o" class="btn btn-default" > 删除区块信息</a>
+						</td>
+						<td class="colHeader" width="120px;">
+							<a href="javascript:void(0)" onclick="FlowFieldsShowhiddenFields('{$bid}');" data-icon="eye" class="btn btn-default" > 隐藏字段信息</a>
+						</td>
+						<td class="colHeader" width="120px;">
+							<a href="javascript:void(0)" onclick="FlowFieldsAddnewFieldinfo('{$bid}');" data-icon="plus-circle" class="btn btn-default" > 新增字段信息</a>
+						</td>
+						<td class="colHeader" width="20px;" align="center">
+							{if $BLOCKS|@count > 1 && $block.up eq 'true'}
+								<a style="cursor:pointer;text-decoration: none;font-size:20px;" title="上移" href="javascript:void(0)"  onclick="FlowFieldsBlockMoveupdown('{$bid}','up');"><i class="fa btn-default fa-arrow-circle-o-up"></i></a>
+							{/if}
+						</td>
+						<td class="colHeader" width="20px;" align="center">
+							{if $BLOCKS|@count > 1 && $block.down eq 'true'}
+								<a style="cursor:pointer;text-decoration: none;font-size:20px;" title="下移" href="javascript:void(0)"  onclick="FlowFieldsBlockMoveupdown('{$bid}','down');"><i class="fa btn-default fa-arrow-circle-o-down"></i></a>
+							{/if}
+						</td>
+					</tr>
+				</table>
+			</td>
+		</tr>
+	</table>
+{/foreach}

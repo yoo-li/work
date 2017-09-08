@@ -1,0 +1,134 @@
+<?php
+	header("Content-Type: text/html; charset=utf-8");
+//	require_once($_SERVER['DOCUMENT_ROOT'].'/modules/Ma_Categorys/utils.php');
+//	$excludedetails = XN_Query::create("Content")->tag("ma_products")->end(-1)
+//							  ->filter('type', 'eic', 'ma_products')
+//							  ->filter("my.ma_categorys", "!=", "")
+//							  ->filter(XN_Filter::any(XN_Filter("my.subcategorys", "=", ""), XN_Filter("my.subcategorys", "=", null)))
+//							  ->filter("my.deleted", "=", "0")
+//							  ->execute();
+//	$SaveConn       = array ();
+//	foreach ($excludedetails as $item)
+//	{
+//		$subc      = $item->my->ma_categorys;
+//		$parentids = getParentCategoryID($subc);
+//		if (is_array($parentids) && count($parentids) >= 2)
+//		{
+//			$item->my->ma_categorys = $parentids[1];
+//		}
+//		elseif (is_null($parentids) || count($parentids) == 0)
+//		{
+//			$item->my->ma_categorys = "";
+//			$subc                   = "";
+//		}
+//		else
+//		{
+//			$item->my->ma_categorys = $subc;
+//		}
+//		$item->my->subcategorys = $subc;
+//		$SaveConn[]             = $item;
+//	}
+//	if (count($SaveConn) > 0)
+//	{
+//		XN_Content::batchsave($SaveConn, 'ma_products');
+//	}
+//	$excludedetails = XN_Query::create("Content")->tag("ma_departments")->end(-1)
+//							  ->filter('type', 'eic', 'ma_departments')
+//		->filter('id','=','18906')
+//							  ->execute();
+//	XN_Content::delete($excludedetails,"ma_departments,ma_departments_18906");
+//	echo $_SERVER['DOCUMENT_ROOT'];
+//	require_once($_SERVER['DOCUMENT_ROOT']."/include/utils/CommonUtils.php");
+//	$header_array = getHeaderArray();
+//	print_r($header_array);
+//	echo "<br>";
+//	getAggregate($header_array,getSubHeaderArray());
+//	print_r($header_array);
+//	$acc = XN_Content::load("18982","ma_staffs");
+//	$acc->my->access_id = "18981";
+//	$acc->my->access_name = "超级管理员";
+//	$acc->save("ma_staffs");
+//	XN_MemCache::delete("employees_tabdata_2v08mwcc734");
+
+//	$query = XN_Query::create("Content")->tag("ma_staffs")->end(-1)
+//		->filter("type", "eic", "ma_staffs")
+//		->filter("my.supplierid", "=", "239831")
+//		->execute();
+//	foreach($query as $item){
+//		$excludedetails = XN_Query::create("Content")->tag("users")->end(-1)
+//			  ->filter('type', 'eic', 'users')
+//			  ->filter("my.profileid", "=", $item->my->profileid)
+//			  ->filter("my.deleted", "=", "0")
+//			  ->execute();
+//		foreach($excludedetails as $excludedetail){
+//			if($excludedetail->my->profilesid != '13474'){
+//				$excludedetail->my->profilesid = '13474';
+//				$excludedetail->save("users");
+//			}
+//		}
+//	}
+
+//	$customcategorys = XN_Query::create('Content')->tag('ma_clinicalcategorys')
+//							   ->filter('type', 'eic', 'ma_clinicalcategorys')
+//							   ->execute();
+//	if (count($customcategorys) > 0)
+//	{
+//		XN_Content::delete($customcategorys, "ma_clinicalcategorys");
+//	}
+
+//	$order = XN_Content::loadMany(array("242575","242745"),"rush_orders");
+//	foreach($order as $item)
+//	{
+//		$item->my->orderstatus  = '1';
+//		$item->my->technicianid = "";
+//		$item->save("rush_orders");
+//	}
+//	$customcategorys = XN_Query::create('Content')->tag('rush_payables')
+//							   ->filter('type', 'eic', 'rush_payables')
+//		->filter('my.deleted', '=', '1')
+//							   ->execute();
+//	foreach ($customcategorys as $item){
+//		$item->my->deleted = '0';
+//		$item->save("rush_payables");
+//	}
+//	ignore_user_abort(true);
+//	if(function_exists('fastcgi_finish_request')) {
+//		fastcgi_finish_request();
+//	} else {
+//		header('X-Accel-Buffering: no');
+//		header('Content-Length: '. strlen(ob_get_contents()));
+//		header("Connection: close");
+//		header("HTTP/1.1 200 OK");
+//		ob_end_flush();
+//		flush();
+//	}
+
+//	$query = XN_Query::create('Content')->tag('mall_products')
+//		->filter('type', 'eic', 'mall_products')
+//		->filter('my.deleted', '=', '0');
+//	$list_result = $query->execute();
+//	$noofrows = $query->getTotalCount();
+
+//	try
+//	{
+//		$order                       = XN_Content::load('4100482', "ma_inventoryputin");
+//		$order->my->check_supplierid = '239831';
+//		$order->my->ma_storagelist   = '467420';
+//		$order->my->keepor           = '463539';
+//		$order->save("ma_inventoryputin");
+//	}catch (XN_Exception $e){
+//		echo $e->getMessage();
+//	}
+
+	$query = XN_Query::create('YearContent')->tag('let_payments')
+					 ->filter('type', 'eic', 'let_payments')
+		->end(-1)->execute();
+	XN_Content::delete($query,"let_payments");
+
+	$query = XN_Query::create('Content')->tag('let_information')
+					 ->filter('type', 'eic', 'let_information')
+					->filter('my.profileid', '=', 'jrdnmctf8hj')
+					 ->end(-1)->execute();
+	XN_Content::delete($query,'let_information');
+
+	echo '<br>ok';

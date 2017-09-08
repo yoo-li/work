@@ -1,0 +1,42 @@
+/*条件匹配*/
+/*==========以下部分是"弹出选择层"必须的===========*/
+#condtiondiv{position: absolute;z-index: 80;filter:progid:DXImageTransform.Microsoft.gradient(enabled='true',startColorstr='#51000000', endColorstr='#51000000');
+-moz-box-shadow: 2px 2px 6px rgba(0, 0, 0, 0.25);-webkit-box-shadow: 2px 2px 6px rgba(0, 0, 0, 0.25);box-shadow: 2px 2px 6px rgba(0, 0, 0, 0.25);/**background-color:rgba(0,0,0,0.2);padding:3px;*/}
+#condtiondiv #msg{padding-left:10px;background: #ccc}
+#condtionhtml{background: #fafafa}
+#windows{border: 1px solid #81a3bc;background:#fefefe;}
+#windows a {font-size:12px; color:#000000; line-height:20px;text-decoration: none;outline: none}
+#windows a:hover {font-size:12px; color:#FF0000; line-height:20px;text-decoration: none;}
+#windows .xhx{margin:5px 4px;border-bottom: 1px solid #FFC210;height: 1px;overflow:hidden}
+#windows tr td{padding:5px;white-space: nowrap;}
+#windows tr td input[type='radio']{margin-right:5px}
+#windows tr td input[type='checkbox']{margin-right:5px}
+#windows .wint TABLE{/**table-layout: fixed;*/}
+#windows .wint label{height:20px;overflow: hidden;display:inline-block;line-height: 20px}
+#windows tr .bottom{border-bottom: 1px solid #4A9AFD;width: 200px}
+
+/*客源选择用途样式*/
+#windows .aw{width:66px;display:inline-block;line-height: 20px}
+#windows .vbh{visibility: hidden}
+#windows .au{margin-right:20px;font-size:14px;color:red;vertical-align: middle;}
+#windows .au:hover{margin-right:20px;font-size:14px;color:red;vertical-align: middle;}
+#windows .va{vertical-align:middle}
+#windows .tw{width:510px}
+#windows .uw{width:70px}
+#windows .wsn{ white-space:normal;}
+
+
+/**autocomplete**/
+.ac_results {padding: 0px;border: 1px solid #81a3bc;background-color: #fff;overflow: hidden;z-index: 99999;
+	zoom:1;
+	box-shadow: 2px 2px 6px rgba(0, 0, 0, 0.25);
+    -moz-box-shadow: 2px 2px 6px rgba(0, 0, 0, 0.25);
+    -webkit-box-shadow: 2px 2px 6px rgba(0, 0, 0, 0.25);
+}
+.ac_results ul {text-align:left;width: 100%;list-style-position: outside;list-style: none;padding: 0;margin: 0;}
+.ac_results li {text-align:left;margin: 0;padding: 0 5px;cursor: default;display: block;font-size: 12px;line-height: 20px;overflow: hidden;height:20px}
+.ac_results li span{margin-left:8px;}
+.ac_loading {/**background: white url('indicator.gif') right center no-repeat;**/}
+.ac_odd {background-color: #F5F5F5;}
+.ac_over {background-color: #0A246A;color: white;}
+.ac_over *{color: white;}

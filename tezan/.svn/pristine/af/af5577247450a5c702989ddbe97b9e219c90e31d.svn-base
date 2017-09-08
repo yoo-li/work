@@ -1,0 +1,153 @@
+<?php
+	global $supplierid, $currentModule;
+	global $app_strings, $mod_strings;
+
+	if(isset($_REQUEST["type"]) && $_REQUEST["type"] == "save"){
+		$categorys = $_REQUEST["categorys"];
+		$sequence = $_REQUEST["sequence"];
+		if(isset($categorys) && $categorys != "")
+		{
+			if (isset($_REQUEST["record"]) && $_REQUEST["record"] != "" && $_REQUEST["record"] > "0")
+			{
+				$record = $_REQUEST["record"];
+				try{
+					$content = XN_Content::load($record,"supplier_reportsettingscategorys");
+					$content->my->categorys = $categorys;
+					$content->my->sequence = $sequence;
+					$content->save("supplier_reportsettingscategorys,supplier_reportsettingscategorys_".$supplierid);
+					echo '{"statusCode":200,"forward":"index.php?module='.$currentModule.'&action=ManagerCategorys"}';
+					
+				}catch(XN_Exception $e){
+					echo '{"statusCode":"300","message":"'.$e->getMessage().'"}';
+					die();
+				}
+			}
+			else
+			{
+				$query = XN_Query::create("Content")->tag("supplier_reportsettingscategorys")->end(-1)
+									  ->filter("type", "eic", "supplier_reportsettingscategorys")
+									  ->filter("my.deleted", "=", "0")
+									  ->filter("my.supplierid", "=", $supplierid)
+									  ->filter("my.categorys", "=", $categorys)
+									  ->execute();
+				if (count($query) <= 0)
+				{
+
+					$newcontent                 = XN_Content::create("supplier_reportsettingscategorys", "", false);
+					$newcontent->my->deleted    = "0";
+					$newcontent->my->supplierid = $supplierid;
+					$newcontent->my->categorys  = $categorys;
+					$newcontent->my->sequence   = $sequence;
+					$newcontent->my->system     = "0";
+					$newcontent->save("supplier_reportsettingscategorys,supplier_reportsettingscategorys_".$supplierid);
+					echo '{"statusCode":200,"forward":"index.php?module='.$currentModule.'&action=ManagerCategorys"}';
+				}else{
+					echo '{"statusCode":300,"message":"分类已存在"}';
+				}
+			}
+		}else{
+			echo '{"statusCode":300,"message":"参数错误"}';
+		}
+		die();
+	}
+
+	if(isset($_REQUEST["type"]) && $_REQUEST["type"] == "deleted"){
+		if (isset($_REQUEST["record"]) && $_REQUEST["record"] != "" && $_REQUEST["record"] != "0" && isset($_REQUEST["movereporttype"]) && $_REQUEST["movereporttype"] != ""){
+			$record = $_REQUEST["record"];
+			$movereporttype = $_REQUEST["movereporttype"];
+			$query = XN_Query::create("Content")->tag("supplier_reportsettings")->end(-1)
+				->filter("type", "eic", "supplier_reportsettings")
+				->filter("my.reporttype", "=", $record)
+				->execute();
+			$savecontent = array();
+			foreach($query as $item){
+				$item->my->reporttype = $movereporttype;
+				$savecontent[] = $item;
+			}
+			if(count($savecontent) > 0){
+				XN_Content::batchsave($savecontent,"supplier_reportsettings");
+			}
+			try{
+				XN_Content::delete($record,"supplier_reportsettingscategorys");
+				echo '{"statusCode":200,"closeCurrent":true,"tabid":"edit"}';
+			}catch(XN_Exception $e){
+				echo '{"statusCode":"300","message":"'.$e->getMessage().'"}';
+			}
+		}else{
+			echo '{"statusCode":300,"message":"参数错误"}';
+		}
+		die();
+	}
+
+	$query   = XN_Query::create("Content")->tag("supplier_reportsettingscategorys")->end(-1)
+					   ->filter("type", "eic", "supplier_reportsettingscategorys")
+					   ->filter("my.deleted", "=", "0")
+					   ->filter("my.supplierid", "=", $supplierid)
+					   ->order("my.sequence", XN_Order::ASC_NUMBER)
+					   ->execute();
+	$categorysinfo = array();
+	foreach($query as $item){
+		$categorysinfo[$item->id] = array(
+			"categorys" => $item->my->categorys,
+			"sequence" => $item->my->sequence,
+			"system" => $item->my->system,
+		);
+	}
+
+	if(isset($_REQUEST["type"]) && $_REQUEST["type"] == "movesub"){
+		if (isset($_REQUEST["record"]) && $_REQUEST["record"] != "" && $_REQUEST["record"] != "0"){
+			$record = $_REQUEST["record"];
+			$reporttypeoption = '<option value="">==选择报表分类==</option>';
+			foreach($categorysinfo as $key => $item){
+				if($key != $record)
+				{
+					$reporttypeoption .= '<option value="'.$key.'">'.$item["categorys"].'</option>';
+				}
+			}
+			$html = '
+				<div class="bjui-pageContent">
+					<form id="CategorysManagerPagerForm" method="post" action="index.php" data-toggle="validate" data-validator-option="{focusCleanup:true,timely:false}" data-alertmsg="false">
+						<input type="hidden" value="'.$record.'" id="record" name="record">
+						<input type="hidden" value="Supplier_ReportSettings" name="module">
+						<input type="hidden" value="ManagerCategorys" id="action" name="action">
+						<input type="hidden" value="deleted" id="type" name="type">
+						<input type="hidden" value="f05447c821012018c16dec99264a7bdc_ea332f4bef78750abe1e93924eaf44f8" name="__hash__">
+
+						<div class="form-group">
+							<label class="control-label x120" for="rolename">要删除的分类：</label>
+							<input readonly id="categoryname" name="categoryname" value="'.$categorysinfo[$record]["categorys"].'" style="padding-right: 15px;" type="text" size="20">
+						</div>
+						<div class="form-group">
+							<label class="control-label x120" for="rolename">报表转移其它分类：</label>
+							<select id="movereporttype" name="movereporttype" data-width="200" data-toggle="selectpicker" class="required" data-rule="required;">
+							'.$reporttypeoption.'
+							</select>
+						</div>
+					</form>
+				</div>
+				<div class="bjui-pageFooter">
+					<ul>
+						<li><button type="button" class="btn-close" data-icon="close">关闭</button></li>
+						<li><button type="submit" class="btn-red" data-icon="trash-o">删除</button></li>
+					</ul>
+				</div>
+			';
+			echo $html;
+		}else{
+			echo '{"statusCode":300,"message":"参数错误"}';
+		}
+		die();
+	}
+
+	require_once('Smarty_setup.php');
+	$smarty = new vtigerCRM_Smarty();
+
+	$smarty->assign("CATEGORYSINFO", $categorysinfo);
+	$smarty->assign("MOD", $mod_strings);
+	$smarty->assign("APP", $app_strings);
+	$smarty->assign("MODULE", $currentModule);
+	$smarty->assign("CURRENT_USERID", $current_user->id);
+	$smarty->assign("CREATEUSER", getUserNameByProfileId($current_user->id));
+	$smarty->assign("CREATEDATE", date("Y-m-d"));
+	$smarty->assign("CURRENTRECORDNUM",getRecordNum($focus, $module));
+	$smarty->display($currentModule."/ManagerCategorys.tpl");

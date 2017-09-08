@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
+	<title>清凉一夏</title>
+	<link href="public/css/mui.css" rel="stylesheet" />
+	<link href="public/css/common.css" rel="stylesheet" />
+	<link href="public/css/public.css" rel="stylesheet" />
+	<link href="public/css/iconfont.css" rel="stylesheet" />
+	<script src="public/js/mui.min.js" type="text/javascript" charset="utf-8"></script>
+	<script src="public/js/zepto.min.js" type="text/javascript" charset="utf-8"></script>
+	<style>
+		{literal}
+		.img-responsive { display: block; height: auto; width: 100%; }
+		p{width:100%;}
+		.halfwidth{width:50%;}
+		{/literal}
+	</style>
+</head>
+<body>
+	<div id="pullrefresh" class="mui-content mui-scroll-wrapper">
+		<div class="mui-scroll">
+			<div id="list">
+				<p><a href=""><img class="img-responsive" src="public/images/summer_header.png" alt=""/></a></p>
+				<p>
+					<div class="mui-pull-left halfwidth"><a href="detail.php?from=index&productid=355009"><img class="img-responsive" src="public/images/summer_01.png" alt=""/></a></div>
+					<div class="mui-pull-left halfwidth"><a href="detail.php?from=salesactivity&productid=354206&salesactivityid=410120"><img class="img-responsive" src="public/images/summer_02.png" alt=""/></a></div>
+				</p>
+				<p>
+					<div class="mui-pull-left halfwidth"><a href="detail.php?from=index&productid=361759"><img class="img-responsive" src="public/images/summer_03.png" alt=""/></a></div>
+					<div class="mui-pull-left halfwidth"><a href="detail.php?from=index&productid=360262"><img class="img-responsive" src="public/images/summer_04.png" alt=""/></a></div>
+				</p>
+				<p>
+					<div class="mui-pull-left halfwidth"><a href="search.php?keywords=汇源"><img class="img-responsive" src="public/images/summer_05.png" alt=""/></a></div>
+					<div class="mui-pull-left halfwidth"><a href="detail.php?from=index&productid=362306"><img class="img-responsive" src="public/images/summer_06.png" alt=""/></a></div>
+				</p>
+				<p>
+					<div class="mui-pull-left halfwidth"><a href="detail.php?from=index&productid=355588"><img class="img-responsive" src="public/images/summer_07.png" alt=""/></a></div>
+					<div class="mui-pull-left halfwidth"><a href="search.php?keywords=水溶"><img class="img-responsive" src="public/images/summer_08.png" alt=""/></a></div>
+				</p>
+				<p><a href="search.php?categoryid=158943"><img class="img-responsive" src="public/images/summer_footer.png" alt=""/></a></p>
+			</div>
+		</div>
+</div>
+<script type="text/javascript">
+	{literal}
+	mui.init();
+	mui.ready(function() {
+		mui('#pullrefresh').scroll({
+			scrollX: false,
+			scrollY: true,
+			indicators: false, //是否显示滚动条
+			deceleration:0.0005, //阻尼系数,系数越小滑动越灵敏
+			bounce: false //是否启用回弹
+		});
+		mui('#list').on('tap','a',function(e){
+			mui.openWindow({
+				url: this.getAttribute('href'),
+				id: 'info'
+			});
+		});
+	});
+	{/literal}
+</script>
+<script src="/public/js/baidu.js?_=20140821" type="text/javascript"></script>
+    {include file='weixin.tpl'}
+</body>
+</html>

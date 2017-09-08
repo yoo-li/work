@@ -1,0 +1,1 @@
+<?php$Create = true;$Delete = true;$actionmapping = array (		 array ('actionid' => '10','actionname' => 'flashview','securitycheck' => '1','type'=>'ajax','location'=>'base'),);?>

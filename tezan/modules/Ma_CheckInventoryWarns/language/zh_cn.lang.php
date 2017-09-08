@@ -1,0 +1,13 @@
+<?php
+
+$mod_strings = Array(
+    'Module Type'=>'类别',
+    'Relation Id'=>'名称',
+    'Warn Msg'=>'内容',
+    'Modify Status'=>'修改状态',
+    'End date'=>'到期日期',
+    'Info Name'=>'名称',
+	'Supplier id' => '经营企业',
+	'Barcode'=> '产品编码',
+	'Products Batch No'=> '产品批号',
+);

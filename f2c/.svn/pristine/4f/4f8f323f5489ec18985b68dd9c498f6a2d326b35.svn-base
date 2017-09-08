@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <link href="public/css/mui.min.css" rel="stylesheet" />
+    <link rel="stylesheet" href="public/css/smk_order.css">
+    <link href="public/css/public.css" rel="stylesheet"/>
+    <link href="public/css/common.css" rel="stylesheet"/>
+    <link href="public/css/iconfont.css" rel="stylesheet"/>
+    <link href="public/css/mui.picker.css" rel="stylesheet"/>
+    <link href="public/css/mui.listpicker.css" rel="stylesheet"/>
+    <link href="public/css/mui.dtpicker.css" rel="stylesheet"/>
+    <link href="public/css/sweetalert.css" rel="stylesheet"/>
+    <script src="public/js/mui.min.js" type="text/javascript" charset="utf-8"></script>
+    <script type="text/javascript" src="public/js/jweixin.js"></script>
+    <script src="public/js/zepto.min.js" type="text/javascript" charset="utf-8"></script>
+    <script src="public/js/mui.picker.js"></script>
+    <script src="public/js/mui.listpicker.js"></script>
+    <script src="public/js/mui.dtpicker.js"></script>
+    <script src="public/js/utils.js" type="text/javascript" charset="utf-8"></script>
+    <script type="text/javascript" src="public/js/sweetalert.min.js"></script>
+    <title></title>
+    <script type="text/javascript">
+        {literal}
+        ! function() {
+            function a() {
+                document.documentElement.style.fontSize = document.documentElement.clientWidth / 6.4 + "px";
+                if (document.documentElement.clientWidth >= 640) document.documentElement.style.fontSize = '100px';
+            }
+            var b = null;
+            window.addEventListener("resize", function() {
+                clearTimeout(b), b = setTimeout(a, 300)
+            }, !1), a()
+        }(window);
+        {/literal}
+    </script>
+</head>
+<style>
+    {literal}
+      #header{
+        background:#333333;
+        box-shadow:none;
+      }
+      #header p,#header a{
+        color:white;
+      }
+      .lift_code{
+        text-align:center;
+        margin-top:40px;
+        background:#545768;
+      }
+      .lift_code p{
+        font-size:0.3rem;
+        line-height:1rem;
+        color:white;
+      }
+      .lift_code img{
+        width:3rem;
+        height:3rem;
+      }
+      .lift_view1 h3{
+        font-size:0.24rem;
+        color:#434343;
+        text-align:left;
+      }
+      .lift_view1_box{
+        overflow:hidden;
+        margin-top:0.2rem;
+      }
+      .lift_view1_box img{
+        width:1.6rem;
+        height:1rem;
+        float:left;
+        margin-top:0.2rem;
+      }
+      .lift_view1_box p{
+        font-size:0.26rem;
+        color:#434343;
+        text-align:left;
+        line-height:
+      }
+      .lift_view1_box span{
+        float:right;
+        font-size:0.26rem;
+        color:#434343;
+        line-height:0.8rem;
+      }
+      /*.lift_view2_box1{*/
+        /*float:left;*/
+      /*}*/
+      .lift_view2_box1 h3{
+        font-size:0.28rem;
+        color:#434343;
+        margin:0.2rem 0;
+      }
+      .lift_view2_box1 h3 span{
+        font-size:0.3rem;
+      }
+      .lift_view2_box1 p{
+        margin-bottom:0.24rem;
+        font-size:0.24rem;
+      }
+      .lift_view2{
+        overflow:hidden;
+      }
+      /*.lift_view2_box2{*/
+        /*float:right;*/
+      /*}*/
+      .lift_view2_box2 p{
+        margin-top:0.2rem;
+        font-size:0.24rem;
+        margin-right:0.2rem;
+      }
+      .lift_view2_box2 img{
+        width:1.1rem;
+        height:1rem;
+        float:right;
+      }
+      .lift_view3 p{
+        font-size:0.26rem;
+        color:#434343;
+        margin:0.1rem 0;
+      }
+      .lift_view4{
+
+        height:2rem;
+      }
+      .lift_view4 img{
+        width:0.4rem;
+        height:0.4rem;
+        float:left;
+      }
+      .lift_view4 p{
+        font-size:0.26rem;
+        width:90%;
+        float:left;
+        margin-left:5px;
+      }
+    {/literal}
+
+</style>
+<body>
+<header id="header" class="mui-bar mui-bar-nav mui-draggable mysure_hd" style="background-color: #fff;color:#444;">
+    <p class="mui-title"  style="color:#444;">二维码</p>
+    <a class="mui-action-back mui-icon mui-icon-left-nav mui-pull-left" style="color:#444;"></a>
+</header>
+<div class="lift_code">
+    <p class="code_number">&nbsp;</p>
+    <img src="/QRCode.img.php?record={$list.id}" alt="">
+    <p>请商家扫描提货二维码</p>
+</div>
+<div class="mui-table-view-cell" style="margin-top:3px;">
+    <div class="mui-media-body lift_view1">
+        <h3>订单编号:{$list.mall_orders_no}</h3>
+        {foreach name="products" item=products  from=$list.products}
+        <div class="lift_view1_box">
+            <img src="{$products.productthumbnail}" alt="">
+            <p>{$products.productname}</p>
+            <span>数量：{$products.quantity}</span>
+        </div>
+        {/foreach}
+    </div>
+</div>
+<div class="mui-table-view-cell" style="margin-top:3px;">
+    <div class="mui-media-body lift_view2">
+        <div class="lift_view2_box1">
+            <h3><span class="icon icon-address">&#xe600;</span>门店名称</h3>
+            <p>门店地址：{$list.smkadress}</p>
+        </div>
+        <div class="lift_view2_box2">
+            <p style="width:60%;float:left;">门店电话：{$list.mobile}</p>
+            <a style="width:30%;float:right;" href="tel:{$list.mobile}">
+            <img src="public/images/lift_phone.png" alt="">
+            </a>
+        </div>
+    </div>
+</div>
+<div class="mui-table-view-cell" style="margin-top:3px;">
+    <div class="mui-media-body lift_view3">
+        <p>预约日期&nbsp;&nbsp;&nbsp;&nbsp;{$list.smkdate}</p>
+        <p>预约时间&nbsp;&nbsp;&nbsp;&nbsp;{$list.smktime}</p>
+    </div>
+</div>
+<div class="mui-table-view-cell" style="background:#f3f3f3;">
+    <div class="mui-media-body lift_view4">
+        <img src="public/images/icon_attention.png" alt="">
+        <p>上门自提注意事项：<br>提交订单后，将自动生成二维码，到门店后请商家扫描二维码进行提货。</p>
+    </div>
+</div>
+</body>
+</html>

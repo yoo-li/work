@@ -1,0 +1,1 @@
+<?php/** * securitycheck:1表示不进行权限校验 */$Create = false;$Delete = false;$ExportExcel = true;$actionmapping = array (    array('actionname' => 'JdOrder_Skus','securitycheck' => '1','type'=>'ajax','location'=>'bottom'),);?>

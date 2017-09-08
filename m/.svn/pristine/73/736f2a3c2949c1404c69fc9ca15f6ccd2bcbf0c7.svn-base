@@ -1,0 +1,51 @@
+<?php
+ 
+session_start(); 
+
+require_once (dirname(__FILE__) . "/../include/config.inc.php");
+require_once (dirname(__FILE__) . "/../include/config.common.php");
+require_once (dirname(__FILE__) . "/../include/utils.php");
+ 
+ 
+try
+{
+	if(isset($_SESSION['profileid']) && $_SESSION['profileid'] !='' &&
+	   isset($_SESSION['supplierid']) && $_SESSION['supplierid'] !='')
+	{ 
+		$profileid = $_SESSION["profileid"];
+		$supplierid = $_SESSION["supplierid"];
+	}
+	else
+	{
+		messagebox("错误", '检测不到必需的请求参数！');
+		die();
+	} 
+ 
+	$supplier_profile = XN_Query::create('MainContent')->tag("supplier_profile_" . $profileid)
+	    ->filter('type', 'eic', 'supplier_profile') 
+	    ->filter('my.deleted', '=', '0')  
+		->filter('my.supplierid', '=', $supplierid)  
+		->filter('my.profileid', '=', $profileid) 
+	    ->end(-1)
+	    ->execute();   
+	if (count($supplier_profile) > 0)
+	{
+		$supplier_profile_info = $supplier_profile[0];
+		if ($supplier_profile_info->my->official != '1')
+		{
+			$supplier_profile_info->my->official = '1';
+			$supplier_profile_info->save("supplier_profile,supplier_profile_".$profileid.",supplier_profile_".$supplierid);
+		}
+	}
+	
+}
+catch ( XN_Exception $e )
+{
+	 
+}
+
+header("Location: index.php");
+die();
+   
+
+?>

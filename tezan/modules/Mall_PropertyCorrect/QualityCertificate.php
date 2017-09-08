@@ -1,0 +1,115 @@
+<?php
+/*+**********************************************************************************
+ * The contents of this file are subject to the 361CRM Public License Version 1.0
+ * ("License"); You may not use this file except in compliance with the License
+ * The Original Code is:  361CRM Open Source
+ * The Initial Developer of the Original Code is vtiger.
+ * Portions created by vtiger are Copyright (C) vtiger.
+ * All Rights Reserved.
+ ************************************************************************************/
+
+global $mod_strings,$app_strings,$theme,$currentModule,$current_user;
+
+require_once('Smarty_setup.php');
+require_once('include/utils/utils.php');
+global $currentModule;
+$lowermodule=strtolower($currentModule);
+require_once('modules/'.$currentModule.'/'.$currentModule.'.php');
+//列定义
+$fields =   array(
+    'filename' =>	array('label'=>'修改前',		'width'=>'35%',	'talign'=>'center',	'calign'=>'center',	'tclass'=>'lvtCol',	'cclass'=>'dvtCellInfo',),
+    'original'=>array('label'=>'修改后','width'=>'35%','talign'=>'center','calign'=>'center',	'tclass'=>'lvtCol',	'cclass'=>'dvtCellInfo'),
+    'opr'=>array('label'=>'操作','width'=>'10%','talign'=>'center','calign'=>'center',	'tclass'=>'lvtCol',	'cclass'=>'dvtCellInfo'),
+);
+
+$smarty = new vtigerCRM_Smarty;
+$smarty->assign("MODULE",$currentModule);
+
+$record=$_REQUEST['record'];
+
+$productcorrect=XN_Content::load($_REQUEST['record'],strtolower($currentModule));
+$productContent=XN_Content::load($productcorrect->my->product_id,"products");
+$suppliers=XN_Query::create("Content")
+    ->tag("suppliers")
+    ->filter("type","=","suppliers")
+    ->filter("my.pers","=",XN_Profile::$VIEWER)
+    ->filter("my.suppliersstatus","=","Agree")
+    ->filter("my.deleted","=","0")
+    ->end(1)
+    ->execute();
+if(count($suppliers)){
+    if($productcorrect->my->mall_propertycorrectstatus=='Approvaling'){
+        $readonly='true';
+    }else{
+        $readonly='false';
+    }
+}
+else{
+    $readonly='true';
+}
+$fieldname="qualitycertificate";$correct_fieldname="correctqualitycertificate";
+$msg = "";
+$msg .= '<table class="table table-bordered" border="0" cellspacing="0" cellpadding="0" style="width:70%;">';
+//创建表头
+$msg .= "<tbody><tr>";
+foreach($fields as  $field_info )
+{
+    $msg .= "<th align=".$field_info['talign']." width='".$field_info['width']."'>".getTranslatedString($field_info['label'])."</th>";
+}
+$msg .= "</tr>";
+$msg .= '<tr class="edit-form-tr" rel="'.$columfield.'" id="'.$columfield.$record.'">';
+//第一列：原证件
+$qualitycertificate = (array)$productContent->my->$fieldname;
+$certificates='';
+if(!empty($qualitycertificate)){
+    foreach($qualitycertificate as $info){
+        if ($info != "" && file_exists($_SERVER['DOCUMENT_ROOT'].$info)){
+            $certificates.= '<div style="border: medium none;margin-bottom: 10px;" width="100%">
+                                <a href="'.$info.'" data-lightbox="roadtrip">
+                                    <img border="0" width="100%" style="display:block;" src="'.$info.'">
+                                </a>
+                            </div>';
+        }
+    }
+}
+$msg .= '<td align="center" class="srcname">'.$certificates.'</td>';
+//第二列：修改后的证件
+$msg.='<td class="correct_certificate_srcname" align="center">';
+$correct_certificates=(array)$productcorrect->my->$correct_fieldname;
+
+if(!empty($correct_certificates)){
+    foreach($correct_certificates as $key=>$info){
+         $msg.='<div><input type="hidden" name="'.$correct_fieldname.'['.$key.']" id="'.$correct_fieldname.$key.'" value="'.$info.'"><a id="'.$correct_fieldname.$key.'_link" href="'.$info.'"  data-lightbox="roadtrip"><img id="'.$correct_fieldname.$key.'_view" align="absmiddle" width="100%" src="'.$info.'"/></a></div>';
+    }
+}
+$msg.='</td><td>';
+if($readonly=='false' && XN_Profile::$VIEWER==$productcorrect->author){
+    if($productcorrect->my->$correct_fieldname!=""){
+        $msg.='<img id="'.$correct_fieldname.'_delete" src="/images/icons/delete.png" title="删除" alt="删除" style="cursor: pointer;" border="0" onclick="delete_uploadinfo3(\''.$correct_fieldname.'\');">
+            <input style="display:none;" id="'.$correct_fieldname.'_select" type="button" onclick="show_upload_div3(\''.$correct_fieldname.'\')" value="选择证件">
+            ';
+    }else{
+        $msg.='<img id="'.$correct_fieldname.'_delete" src="/images/icons/delete.png" title="删除" alt="删除" style="cursor: pointer;display:none;" border="0" onclick="delete_uploadinfo3(\''.$correct_fieldname.'\');">
+            <input style="display:inline;" id="'.$correct_fieldname.'_select" type="button" onclick="show_upload_div3(\''.$correct_fieldname.'\')" value="选择证件">
+            ';
+    }
+}
+$msg.='</td></tr>';
+$msg .= "</tbody></table>";
+
+$script= '
+ function show_upload_div3(correct_fieldname){
+    jQuery.pdialog.open("index.php?module=PropertyCorrect&action=uploadpropertyimg&record='.$record.'&ope=uploadcertificate&correct_certificate="+correct_fieldname,"uploadpropertyimg","上传证件",{mask:true,width:835,height:480});
+}
+function delete_uploadinfo3(correct_filedname){
+    $("td.correct_srcname").text("");
+    $("#"+correct_filedname+"_delete").css("display","none");
+    $("#"+correct_filedname+"_select").css("display","inline");
+}
+';
+
+$smarty->assign("SCRIPT",$script);
+$smarty->assign("PANELBODY",$msg);
+$smarty->display('Panel.tpl');
+
+?>

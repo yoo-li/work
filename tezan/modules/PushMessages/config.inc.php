@@ -1,0 +1,1 @@
+<?php$Create = false;$Delete = false;$MassEdit = false;$CustomMassDelete = false; 	$actionmapping = array (        array('actionname' => 'LoginLogs','securitycheck' => '1','type'=>'ajax','location'=>'bottom'),	);?>

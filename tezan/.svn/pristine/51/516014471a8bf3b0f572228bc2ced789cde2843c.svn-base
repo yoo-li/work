@@ -1,0 +1,41 @@
+.panel-heading .fa-caret-square-o-up { display:block;}
+.panel-heading .fa-caret-square-o-down { display:none;}
+.panel-heading .collapsed .fa-caret-square-o-up { display:none;}
+.panel-heading .collapsed .fa-caret-square-o-down { display:block;}
+
+.panel-default .panel-heading {
+	height: 35px;
+	overflow: hidden;
+	padding: 0;
+}
+
+.panel-title {
+	height: 35px;
+}
+
+.panel-title a {
+	height: 35px;
+	display: block;
+	font-size: 17px;
+	padding: 7px 10px 5px;
+	position: relative;
+	text-decoration: none;
+}
+
+.panel-title a > span {
+	font-size:14px !important;
+}
+
+.panel-title a > b {
+	position: absolute;
+	right: 8px;
+	top: 6px;
+}
+
+.panel-title a:hover {
+	font-weight: bold;
+}
+
+fieldset > legend {
+	font-size: 12px !important;
+}

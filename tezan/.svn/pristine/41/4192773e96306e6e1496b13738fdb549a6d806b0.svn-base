@@ -1,0 +1,20 @@
+<?php
+$order_products= XN_Query::create ( 'YearContent' )
+    ->tag('mall_orders_products')
+    ->filter ( 'type', 'eic', 'mall_orders_products')
+    ->filter('my.vendorid','>','0')
+    ->end(-1)
+    ->execute ();
+$order_ids=array();
+$orderid_vendors=array();
+foreach($order_products as $info){
+    $order_ids[]=$info->my->orderid;
+    if($info->my->vendorid!="")
+        $orderid_vendors[$info->my->orderid]=$info->my->vendorid;
+}
+$order_infos=XN_Content::loadMany($order_ids,"mall_orders","7");
+foreach($order_infos as $order_info){
+    $order_info->my->vendorid=$orderid_vendors[$order_info->id];
+}
+XN_Content::batchsave($order_infos,"mall_orders");
+echo 'ok';

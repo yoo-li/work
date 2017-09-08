@@ -1,0 +1,1 @@
+<?php$Create = false;$Delete = false;$MassEdit = false;$CustomMassDelete = false;?>

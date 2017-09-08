@@ -1,0 +1,24 @@
+<div class="bjui-pageContent" style="overflow-x: hidden;">
+	<form id="RoleManagerPagerForm" method="post" action="/index.php" data-toggle="validate" data-validator-option="{ldelim}focusCleanup:true,timely:false{rdelim}" data-alertmsg="false">
+		<input type="hidden" id="module" name="module" value="{$MODULE}">
+		<input type="hidden" id="action" name="action" value="BatchModifyClinicalCategorys">
+		<input type="hidden" id="type" name="type" value="save">
+		<input type="hidden" id="ids" name="ids" value="{$RECORD}">
+		<input type="hidden" id="categoryid" name="categoryid" value="">
+		<div class="form-group">
+			<label class="control-label x120">选择所需的分类：</label>
+			<div style="top: -20px;left: 116px;position:relative;">
+				{$ZTREEDATA}
+			</div>
+		</div>
+	</form>
+</div>
+<div class="bjui-pageFooter">
+	<ul>
+		<li><button type="button" class="btn-close" data-icon="close">关闭</button></li>
+		<li><button type="submit" class="btn-green" data-icon="save"">保存</button></li>
+	</ul>
+</div>
+<script type="text/javascript" defer="defer">
+	{$SCRIPT}
+</script>

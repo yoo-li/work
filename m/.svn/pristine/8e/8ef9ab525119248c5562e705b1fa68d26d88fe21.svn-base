@@ -1,0 +1,21 @@
+header{
+	background: #1bc1f8 !important;
+}
+header>a,header>h1{
+	color:white !important;
+}
+.mui-btn-my{
+	background-color: #f81b3f !important;
+	color:white !important;
+	border:0 !important;
+}
+h5.show-content{
+	background: #f81b3f !important;
+	color:white !important;
+} 
+input::-webkit-input-placeholder{
+	color:#646464 !important;
+}
+.myfont-color{
+	color:#f81b3f !important;
+}

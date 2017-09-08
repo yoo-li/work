@@ -1,0 +1,150 @@
+<?php
+session_start();
+require_once (dirname(__FILE__) . "/config.error.php");
+header("Content-type:text/html;charset=utf-8");
+//$_GET['profileid'] = 'blenp8c6dvv';
+//$profileid = $_GET['profileid'];
+//获取profileid
+if(isset($_REQUEST["parameter"])&& $_REQUEST["parameter"]!=''){
+//    require_once (dirname(__FILE__) . "/../include/utils.php");
+    function Verification($parameter,$token) {
+        $newparameter = base64_decode($parameter);
+        $key = "4c35458e913efbcf86ef621d22387b10";
+        $Parameter = $parameter."_".$key;
+        $md5str = md5($Parameter);
+        if ($md5str === $token) {
+            return json_decode($newparameter,true);
+        }else{
+            return array();
+        }
+    }
+    $Sou = Verification($_REQUEST["parameter"],$_REQUEST["token"]);
+    $profileid = $Sou['profileid'];
+    $_GET['profileid'] = $Sou['profileid'];
+//    var_dump($profileid);
+    if(!isset($Sou) || !is_array($Sou) || count($Sou) <= 0){
+        errorprint("错误", '参数校验错误！');
+        die();
+    }
+    $profileid = $Sou["profileid"];
+    $_SESSION['profileid'] = $profileid;
+}
+
+
+//获取Profieid
+if (isset($_REQUEST["parameter"]) && $_REQUEST["parameter"] != "" && isset($_REQUEST["token"]) && $_REQUEST["token"] != "")
+{
+    $Sou = Verification($_REQUEST["parameter"],$_REQUEST["token"]);
+
+    if(!isset($Sou) || !is_array($Sou) || count($Sou) <= 0){
+        errorprint("错误", '参数校验错误！');
+        die();
+    }
+    $profileid = $Sou["profileid"];
+    $_SESSION['profileid'] = $profileid;
+    $_GET['profileid'] = $profileid;
+}
+else
+{
+    if(isset($_SESSION['profileid']) && $_SESSION['profileid'] !='')
+    {
+        $profileid = $_SESSION["profileid"];
+    }
+    else
+    {
+        messagebox("错误", '检测不到 必需的请求参数！');
+        die();
+    }
+}
+//---------
+$supplier_profile = XN_Query::create('MainContent')->tag("supplier_profile")      //根据profileid 查询店铺ID   supplier_profile blenp8c6dvv
+    ->filter('type', 'eic', "supplier_profile")
+    ->filter('my.deleted', '=', '0')
+    ->filter('my.official', '=', '0')
+    ->filter('my.profileid', '=',$profileid)
+    ->end(1)
+    ->execute();
+$_GET["supplierid"] = $supplier_profile[0]->my->supplierid;
+$_SESSION["supplierid"] = $supplier_profile[0]->my->supplierid;
+//var_dump($_GET["supplierid"] );die();//
+
+
+
+//获取token
+//var_dump($token);die();
+if ( !$token){
+//    require_once (dirname(__FILE__) . "/../include/config.common.php");
+    function guid()
+    {
+        if (function_exists('com_create_guid'))
+        {
+            return com_create_guid();//window��
+        }
+        else
+        {
+            mt_srand((double)microtime() * 10000);//optional for php 4.2.0 and up.
+            $charid = strtoupper(md5(uniqid(rand(), true)));
+            $hyphen = chr(45);// "-"
+            $uuid   = chr(123)// "{"
+                .substr($charid, 0, 8).$hyphen
+                .substr($charid, 8, 4).$hyphen
+                .substr($charid, 12, 4).$hyphen
+                .substr($charid, 16, 4).$hyphen
+                .substr($charid, 20, 12)
+                .chr(125);// "}"
+            return $uuid;
+        }
+    }
+    $token = guid();
+}
+//echo '<hr>';
+//var_dump($_GET['profileid']);
+//var_dump($_GET['supplierid']);
+//var_dump($_GET['token']);
+//die();
+if(isset($_GET['profileid']) && $_GET['profileid'] !='' &&
+	isset($_GET['supplierid']) && $_GET['supplierid'] !='' &&
+	isset($_GET['token']) && $_GET['token'] !='')
+{
+	try 
+	{
+		$token = $_GET['token'];
+		try
+		{ 
+			   $takecash_token = XN_MemCache::get("goto_supplier_".$profileid);
+//			   var_dump($takecash_token);die;
+			   XN_MemCache::put("","goto_supplier_".$profileid,"120");
+			   if ($takecash_token == $token)
+			   {
+				    $_SESSION['supplierid'] = $supplierid;
+					$_SESSION['profileid'] = $profileid;
+					$_SESSION['u'] = $profileid;
+					unset($_SESSION['accessprofileid']);
+					header("Location: index.php?profileid=$profileid&token=$token");
+					die();
+			   }
+//            $supplierid = $_SESSION["supplierid"];
+//            $wxopenid = $_REQUEST["wxopenid"];
+
+             header("Location: index.php");
+            messagebox('错误',"token已经过期！",'http://mall.tezan.cn/home.php',8);
+            die();
+		}
+
+		catch (XN_Exception $e)
+		{
+			 messagebox('错误',"token已经过期！",'http://mall.tezan.cn/home.php',10);
+			 die();
+		}
+
+	}
+	catch ( XN_Exception $e )
+	{
+		errorprint('错误',$e->getMessage());
+		die();
+	}
+}
+else
+{
+	errorprint('错误','系统禁止的调用!');
+}

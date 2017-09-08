@@ -1,0 +1,502 @@
+<?php
+
+    class CRMEntityMeta
+    {
+        private        $objectUser;
+        private        $moduleFields;
+        private        $ownerFields;
+        private        $hasAccess;
+        private        $hasReadAccess;
+        private        $hasWriteAccess;
+        private        $hasDeleteAccess;
+        private        $objectName;
+        private        $objectId;
+        private        $tabId;
+        private        $isMeta;
+        private        $isModule;
+        private        $referenceFieldDetails;
+        private static $_fromNameCache = array ();
+
+        private function CRMEntityMeta($module, $id, $ismodule, $user)
+        {
+            $this->objectUser = $user;
+            $this->objectName = $module;
+            $this->objectId   = $id;
+            if ($ismodule == '1')
+            {
+                $this->isModule = true;
+            }
+            else
+            {
+                $this->isModule = false;
+            }
+            $this->moduleFields = array ();
+            $this->isMeta       = false;
+        }
+
+        static function fromName($module, $user)
+        {
+			return new CRMEntityMeta($module, $tabId, 1, $user);
+            // $rowData = false;
+//             if (!isset(self::$_fromNameCache[$module]))
+//             {
+//                 $wsesquery = XN_Query::create('Content')
+//                     ->tag('Ws_entitys')
+//                     ->filter('type', 'eic', 'ws_entitys')
+//                     ->filter('my.name', 'in', array ($module));
+//                 $result    = $wsesquery->execute();
+//                 if ($result)
+//                 {
+//                     $rowCount = count($result);
+//                     if ($rowCount === 1)
+//                     {
+//                         foreach ($result as $result_info)
+//                         {
+//                             $rowData['id']       = $result_info->id;
+//                             $rowData['name']     = $result_info->my->name;
+//                             $rowData['ismodule'] = $result_info->my->ismodule;
+//                         }
+//                         self::$_fromNameCache[$module] = $rowData;
+//                     }
+//                 }
+//             }
+//             $rowData = self::$_fromNameCache[$module];
+//             if ($rowData)
+//             {
+//                 return new CRMEntityMeta($rowData["name"], $rowData["id"], $rowData['ismodule'], $user);
+//             }
+        }
+
+        public function getModuleFields()
+        {
+            if (!$this->isMeta)
+            {
+                $this->retrieveMeta();
+            }
+
+            return $this->moduleFields;
+        }
+
+        public function getTabName()
+        {
+            if ($this->objectName == 'Events')
+            {
+                return 'Calendar';
+            }
+
+            return $this->objectName;
+        }
+
+        public function getTabId()
+        {
+            if ($this->tabId == null)
+            {
+                $this->tabId = getTabid($this->objectName);
+            }
+
+            return $this->tabId;
+        }
+
+        public function isModuleEntity()
+        {
+            return $this->isModule;
+        }
+
+        public function getNameFields()
+        {
+            switch ($this->getTabId())
+            {
+                case 4 :
+                    return 'lastname,firstname';
+                    break;
+                case null :
+                    $tabs       = XN_Query::create('Content')->tag('Entitynames')
+                        ->filter('type', 'eic', 'entitynames')
+                        ->filter('my.modulename', '=', $this->getTabName())
+                        ->execute();
+                    $fieldNames = '';
+                    if (count($tabs) > 0)
+                    {
+                        $tab_info   = $tabs[0];
+                        $fieldNames = $tab_info->my->fieldname;
+                    }
+
+                    return $fieldNames;
+                default:
+                    $tabs       = XN_Query::create('Content')->tag('Entitynames')
+                        ->filter('type', 'eic', 'entitynames')
+                        ->filter('my.tabid', '=', $this->getTabId())
+                        ->execute();
+                    $fieldNames = '';
+                    if (count($tabs) > 0)
+                    {
+                        $tab_info   = $tabs[0];
+                        $fieldNames = $tab_info->my->fieldname;
+                    }
+
+                    return $fieldNames;
+            }
+        }
+
+        public function getReferenceFieldDetails()
+        {
+            if (!$this->isMeta)
+            {
+                $this->retrieveMeta();
+            }
+            if ($this->referenceFieldDetails === null)
+            {
+                $this->referenceFieldDetails = array ();
+                foreach ($this->moduleFields as $fieldName => $MetaField)
+                {
+                    if (strcasecmp($MetaField->getFieldDataType(), 'reference') === 0)
+                    {
+                        $this->referenceFieldDetails[$fieldName] = $MetaField->getReferenceList();
+                    }
+                }
+            }
+
+            return $this->referenceFieldDetails;
+        }
+
+        public function getOwnerFields()
+        {
+            if (!$this->isMeta)
+            {
+                $this->retrieveMeta();
+            }
+            if ($this->ownerFields === null)
+            {
+                $this->ownerFields = array ();
+                foreach ($this->moduleFields as $fieldName => $MetaField)
+                {
+                    if (strcasecmp($MetaField->getFieldDataType(), 'owner') === 0)
+                    {
+                        array_push($this->ownerFields, $fieldName);
+                    }
+                }
+            }
+
+            return $this->ownerFields;
+        }
+
+        private function computeAccess()
+        {
+            try
+            {
+				global $global_session,$global_user_privileges;  
+                $is_admin                = $global_user_privileges["is_admin"];
+                $profileGlobalPermission = $global_user_privileges['profileGlobalPermission']; 
+				 
+				$tabdata  = $global_session['tabdata'];  
+                $all_tabs_array          = $tabdata['all_tabs_array'];
+                $all_entity_tabs_array   = $tabdata['all_entity_tabs_array'];
+            }
+            catch (XN_Exception $e)
+            {
+            }
+            $module = $this->getTabName();
+            if ($is_admin == false && in_array($module, array_values($all_tabs_array)) && !in_array($module, array_values($all_entity_tabs_array)))
+            {
+                $is_admin = true;
+            }
+            global $AllPermitted;
+            if ($AllPermitted == true)
+            {
+                $this->hasAccess       = true;
+                $this->hasReadAccess   = true;
+                $this->hasWriteAccess  = true;
+                $this->hasDeleteAccess = true;
+            }
+            elseif ($is_admin == true || $profileGlobalPermission[1] == 0 || $profileGlobalPermission[2] == 0)
+            {
+                $this->hasAccess       = true;
+                $this->hasReadAccess   = true;
+                $this->hasWriteAccess  = true;
+                $this->hasDeleteAccess = true;
+            }
+            else
+            {
+                $profileList = getCurrentUserProfileList();
+                try
+                {
+                    $result = XN_Content::loadMany($profileList, 'Profiles');
+                }
+                catch (XN_Exception $e)
+                {
+                }
+                foreach ($result as $info)
+                {
+                    $permission1 = $info->my->globalactionpermission1;
+                    $permission2 = $info->my->globalactionpermission2;
+                    if ($permission1 != 1 || $permission1 != "1")
+                    {
+                        $this->hasAccess = true;
+                        if ($permission2 == 1 || $permission2 == "1")
+                        {
+                            $this->hasWriteAccess  = true;
+                            $this->hasDeleteAccess = true;
+                        }
+                        else
+                        {
+                            $this->hasReadAccess = true;
+                        }
+                    }
+                }
+                $query           = XN_Query::create('Content')->tag('Profile2tabs')
+                    ->filter('type', 'eic', 'profile2tabs')
+                    ->filter('my.profileid', 'in', $profileList)
+                    ->filter('my.tabid', '=', $this->getTabId())
+                    ->begin(0)->end(-1)
+                    ->execute();
+                $standardDefined = false;
+                if (count($query) > 0)
+                    $permission = $query[0]->my->permissions;
+                if ($permission == 1 || $permission == "1")
+                {
+                    $this->hasAccess = false;
+
+                    return;
+                }
+                else
+                {
+                    $this->hasAccess = true;
+                }
+                $query = XN_Query::create('Content')->tag('Profile2standardpermissions')
+                    ->filter('type', 'eic', 'profile2standardpermissions')
+                    ->filter('my.profileid', 'in', $profileList)
+                    ->filter('my.tabid', '=', $this->getTabId())
+                    ->execute();
+                foreach ($query as $info)
+                {
+                    $standardDefined = true;
+                    $permission      = $info->my->permissions;
+                    $operation       = $info->my->operation;
+                    if (!$operation)
+                    {
+                        $operation = $info->my->operation;
+                    }
+                    if ($permission != 1 || $permission != "1")
+                    {
+                        $this->hasAccess = true;
+                        if ($operation == 0 || $operation == "0")
+                        {
+                            $this->hasWriteAccess = true;
+                        }
+                        else if ($operation == 1 || $operation == "1")
+                        {
+                            $this->hasWriteAccess = true;
+                        }
+                        else if ($operation == 2 || $operation == "2")
+                        {
+                            $this->hasDeleteAccess = true;
+                        }
+                        else if ($operation == 4 || $operation == "4")
+                        {
+                            $this->hasReadAccess = true;
+                        }
+                    }
+                }
+                if (!$standardDefined)
+                {
+                    $this->hasReadAccess   = true;
+                    $this->hasWriteAccess  = true;
+                    $this->hasDeleteAccess = true;
+                }
+            }
+        }
+
+        private function retrieveMeta()
+        {
+            require_once('modules/CustomView/CustomView.php');
+            $this->computeAccess();
+            $cv          = new CustomView();
+            $module_info = $cv->getCustomViewModuleInfo($this->getTabName());
+            $blockArray  = array ();
+            foreach ($cv->module_list[$this->getTabName()] as $label => $blockList)
+            {
+                $blockArray = array_merge($blockArray, explode(',', $blockList));
+            }
+            $this->retrieveMetaForBlock($blockArray);
+            $this->isMeta = true;
+        }
+
+        private function retrieveMetaForBlock($block)
+        {
+            $result          = array ();
+            $tabid           = $this->getTabId();
+            $referenceArray  = array ();
+            $knownFieldArray = array ();
+             
+            global $global_user_privileges;
+            $is_admin                = $global_user_privileges["is_admin"];
+            $profileGlobalPermission = $global_user_privileges['profileGlobalPermission'];
+             
+            if (count($block) > 0)
+            {
+                $tabsquery = XN_Query::create('Content')->tag('Fields')
+                    ->filter('type', 'eic', 'fields')
+                    ->filter('my.tabid', '=', $tabid)
+                    ->filter('my.block', 'in', $block)
+                    ->end(-1)
+                    ->filter('my.displaytype', 'in', array (1, 2, 3, 4));
+                $result    = $tabsquery->execute();
+            }
+			global $global_session; 
+			$tabdata  = $global_session['tabdata']; 
+            $all_tabs_array        = $tabdata['all_tabs_array'];
+            $all_entity_tabs_array = $tabdata['all_entity_tabs_array'];
+            
+            $module = $this->getTabName();
+            global $AllPermitted;
+            if ($AllPermitted || ($is_admin == false && in_array($module, array_values($all_tabs_array)) && !in_array($module, array_values($all_entity_tabs_array))))
+            {
+                $is_admin = true;
+            }
+            if ($is_admin != true && $profileGlobalPermission[1] != 0 && $profileGlobalPermission[2] != 0 and $tabid != 29)
+            {
+                $profileList    = getCurrentUserProfileList();
+                $profile2fields = XN_Query::create('Content')->tag('Profile2fields')
+                    ->filter('type', 'eic', 'Profile2fields')
+                    ->filter('my.profileid', 'in', $profileList)
+                    ->filter('my.tabid', '=', $tabid)
+                    ->filter('my.visible ', '!=', '0')
+                    ->begin(0)->end(-1)
+                    ->execute();
+                $fieldlist      = array ();
+                foreach ($profile2fields as $profile2field_info)
+                {
+                    $fieldlist[] = $profile2field_info->my->fieldname;
+                }
+                foreach ($result as $result_info)
+                {
+                    $fieldname = $result_info->my->fieldname;
+                    $fieldid   = $result_info->my->fieldid;
+                    if (!in_array($fieldname, $fieldlist))
+                    {
+                        if (strcasecmp($fieldname, 'imagename') === 0)
+                        {
+                            continue;
+                        }
+                        $MetaField                                      = MetaField::fromQueryResult($result_info);
+                        $this->moduleFields[$MetaField->getFieldName()] = $MetaField;
+                    }
+                }
+            }
+            else
+            {
+                foreach ($result as $result_info)
+                {
+                    $fieldname = $result_info->my->fieldname;
+                    if (strcasecmp($fieldname, 'imagename') === 0)
+                    {
+                        continue;
+                    }
+                    $MetaField                                      = MetaField::fromQueryResult($result_info);
+                    $this->moduleFields[$MetaField->getFieldName()] = $MetaField;
+                }
+            }
+            $published_info                                 = array (
+                'uitype'      => '5',
+                'block'       => '0',
+                'tablename'   => 'vtiger_crmentity',
+                'fieldname'   => 'published',
+                'fieldlabel'  => getTranslatedString('published'),
+                'displaytype' => '2',
+                'typeofdata'  => 'YDMTI~O',
+                'presence'    => '0',
+                'tabid'       => $tabid,
+                'fieldid'     => '0',
+                'width'       => '12', // 4,8,12,20,30
+                'align'       => 'center', // left,center,right
+            );
+            $MetaField                                      = MetaField::fromArray($published_info);
+            $this->moduleFields[$MetaField->getFieldName()] = $MetaField;
+            $updated_info                                   = array (
+                'uitype'       => '5',
+                'block'        => '0',
+                'tablename'    => 'vtiger_crmentity',
+                'fieldname'    => 'updated',
+                'fieldlabel'   => getTranslatedString('updated'),
+                'displaytype'  => '2',
+                'masseditable' => '1',
+                'typeofdata'   => 'YDMTI~O',
+                'presence'     => '0',
+                'tabid'        => $tabid,
+                'fieldid'      => '0',
+                'width'        => '12', // 4,8,12,20,30
+                'align'        => 'center', // left,center,right
+            );
+            $MetaField                                      = MetaField::fromArray($updated_info);
+            $this->moduleFields[$MetaField->getFieldName()] = $MetaField;
+            $author_info                                    = array (
+                'uitype'       => '53',
+                'block'        => '0',
+                'tablename'    => 'vtiger_crmentity',
+                'columnname'   => 'author',
+                'fieldname'    => 'author',
+                'fieldlabel'   => getTranslatedString('author'),
+                'displaytype'  => '2',
+                'masseditable' => '1',
+                'typeofdata'   => 'V~O',
+                'presence'     => '0',
+                'tabid'        => $tabid,
+                'fieldid'      => '0',
+                'width'        => '8', // 4,8,12,20,30
+                'align'        => 'center', // left,center,right
+            );
+            $MetaField                                      = MetaField::fromArray($author_info);
+            $this->moduleFields[$MetaField->getFieldName()] = $MetaField;
+            $title_info                                     = array (
+                'uitype'       => '1',
+                'block'        => '0',
+                'tablename'    => 'vtiger_crmentity',
+                'fieldname'    => 'title',
+                'fieldlabel'   => getTranslatedString('title'),
+                'displaytype'  => '2',
+                'masseditable' => '1',
+                'typeofdata'   => 'V~O',
+                'presence'     => '0',
+                'tabid'        => $tabid,
+                'fieldid'      => '0',
+                'width'        => '20', // 4,8,12,20,30
+                'align'        => 'center', // left,center,right
+            );
+            $MetaField                                      = MetaField::fromArray($title_info);
+            $this->moduleFields[$MetaField->getFieldName()] = $MetaField;
+            $delete_info                                    = array (
+                'uitype'       => '1',
+                'block'        => '0',
+                'tablename'    => 'vtiger_crmentity',
+                'fieldname'    => 'deleted',
+                'fieldlabel'   => getTranslatedString('deleted'),
+                'displaytype'  => '2',
+                'masseditable' => '1',
+                'typeofdata'   => 'V~O',
+                'presence'     => '0',
+                'tabid'        => $tabid,
+                'fieldid'      => '0',
+                'width'        => '8', // 4,8,12,20,30
+                'align'        => 'center', // left,center,right
+            );
+            $MetaField                                      = MetaField::fromArray($delete_info);
+            $this->moduleFields[$MetaField->getFieldName()] = $MetaField;
+            $oper_info                                      = array (
+                'uitype'       => '4',
+                'block'        => '0',
+                'tablename'    => 'vtiger_crmentity',
+                'fieldname'    => 'oper',
+                'fieldlabel'   => getTranslatedString('OPER'),
+                'displaytype'  => '2',
+                'masseditable' => '1',
+                'typeofdata'   => 'V~O',
+                'presence'     => '0',
+                'tabid'        => $tabid,
+                'fieldid'      => '0',
+                'width'        => '6', // 4,8,12,20,30
+                'align'        => 'center', // left,center,right
+            );
+            $MetaField                                      = MetaField::fromArray($oper_info);
+            $this->moduleFields[$MetaField->getFieldName()] = $MetaField;
+        }
+    }

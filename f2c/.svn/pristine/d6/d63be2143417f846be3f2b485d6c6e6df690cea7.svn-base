@@ -1,0 +1,342 @@
+header.mui-bar-nav{
+    padding: 0;
+    margin: 0;
+    background: #000;
+    border: 0;
+}
+.mui-bar .tab.mui-segmented-control{
+    top: 0;
+    padding: 2px 1.55rem;
+    width: 6.4rem;
+    background: #000;
+}
+.tab.mui-segmented-control .mui-control-item.mui-active{
+    color: #fff;
+    border: 0;
+    background-color: #000;
+}
+.mui-bar-nav.mui-bar .mui-icon.mui-icon-back{
+    position: absolute;
+    top: 7px;
+    left: 5px;
+    z-index: 9;
+    color: #fff;
+}
+.tab.mui-segmented-control .mui-control-item{
+    position: relative;
+    color: #fff;
+    font-size: 15px;
+    border: 0;
+}
+.tab.mui-segmented-control .mui-control-item.mui-active{
+    color: #fff;
+    // border-bottom: 2px solid #fff;
+}
+.tab .mui-control-item.mui-active:after{
+    content: '';
+    position: absolute;
+    left: .15rem;
+    bottom: 4px;
+    display: block;
+    width: .8rem;
+    height: 2px;
+    background: #fff;
+}
+.mui-content-padded{
+    margin: 0;
+}
+.mui-icon-back{
+    position: absolute;
+    top: 7px;
+    left: 5px;
+    z-index: 9;
+    color: #fff;
+}
+.icon-more{
+    position: absolute;
+    top: 0;
+    right: 5px;
+    z-index: 9;
+    color: #fff;
+    font-size: 24px;
+}
+.mui-slider{
+    border-bottom: 1px solid #eee;
+    background: #fff;
+}
+.mui-row{
+    background: #fff;
+}
+.mui-slider .mui-slider-group .mui-slider-item img{
+    margin: .2rem auto;
+    display: block;
+    width: 100%;
+    height: 72vw;
+}
+.goods-title{
+    padding: 10px 5px;
+    font-size: .26rem;
+}
+.goods-content img,
+.goods-content p,
+.goods-content table,
+.goods-content ul,
+.goods-content div{
+    max-width: 100% !important;
+}
+.goods-tag{
+    padding: 2px 5px;
+    background: #fb3e21;
+    color: #fff;
+}
+.goods-title h4{
+    margin: 0;
+    font-size: 14px;
+    color: #2a2929;
+    -height: 20px;
+    font-weight: 400;
+}
+.goods-{
+    margin-top: 10px;
+}
+.goods- span{
+    color: #fb3e21;
+    font-size: .32rem;
+}
+.goods- s{
+    font-size: .24rem;
+    color: #6c6c6c;
+    margin-left: 10px;
+}
+.wrap{
+    padding: 10px 5px;
+    font-size: .28rem;
+}
+.t-right p{
+    margin-bottom: 10px;
+}
+.t-tag{
+    margin-right: 5px;
+    color: #fb3e21;
+    border: 1px solid #fb3e21;
+    padding: 2px 4px;
+}
+.tags{
+    width: 4.6rem;
+}
+.mui-btn-outd.mui-btn-danger{
+    margin: 0 0 10px 10px;
+    padding: 2px 10px;
+    display: in-block;
+    width: auto;
+    font-size: .26rem;
+    color: #878686;
+    background-color: transparent;
+    border: 1px solid #878686;
+}
+.mui-btn-danger.mui-active,
+.mui-btn-danger:enabled:active,
+.mui-btn-outd.mui-btn-danger:enabled:active,
+.mui-btn-danger.mui-active:enabled{
+    color: #fb3e21;
+    border: 1px solid #fb3e21;
+    background-color: #fff;
+}
+.mui-numbox{
+    float: left;
+    margin-left: 10px;
+    padding: 0;
+    width: 1.56rem;
+    height: .4rem;
+    border: solid 1px #ddd;
+    border-radius: 0;
+}
+.mui-numbox .mui-numbox-btn-plus,
+.mui-numbox .mui-numbox-btn-minus{
+    border-radius: 0;
+}
+.mui-btn:disabled,
+button:disabled{
+    opacity: 1
+}
+.mui-numbox .mui-numbox-input{
+    display: block;
+}
+.mui-numbox [class*=numbox-btn]{
+    width: .5rem;
+}
+.t-right .mui-row{
+    color: #878686;
+}
+.t-right .mui-row p{
+    font-size: 14px;
+    margin: 6px 0 0 0;
+}
+.goods-tips{
+    padding: 5px;
+    background: #f9f9f9;
+    font-size: 14px;
+}
+.goods-tips span.icon{
+    color: #fb3e21;
+    margin-left: 5px;
+}
+.mui-content{
+    background: #fff;
+}
+.mui-segmented-control{
+    border: 0;
+}
+.mui-segmented-control .mui-control-item{
+    font-size: 14px;
+    color: #383737;
+    border: 0;
+    border-bottom: 1px solid #eee;
+}
+.mui-segmented-control .mui-control-item.mui-active{
+    background-color: #fff;
+    color: #fb3e21;
+}
+.bottom{
+    display: table;
+    overflow: hidden;
+    width: 100%;
+    // height: 55px;
+    table-layout: fixed;
+}
+.mui-bar .mui-icon{
+    padding: 0;
+}
+.mui-bar{
+    border-top: 1px solid #eee;
+    box-shadow: none;
+}
+.mui-grid-view.mui-grid-9{
+    display: table;
+    background: #fff;
+    border: 0;
+}
+.mui-grid-view.mui-grid-9 .mui-table-view-cell{
+    border: 0;
+    padding: 0;
+    text-align: center;
+    display: table-cell;
+    vertical-align: middle;
+}
+.mui-table-view-cell a{
+    font-size: .26rem;
+}
+.mui-grid-view.mui-grid-9 .mui-table-view-cell>a:not(.mui-btn){
+    padding: 5px;
+}
+.mui-table-view.mui-grid-view .mui-table-view-cell .mui-media-body{
+    font-size: .26rem;
+    margin-top: 3px;
+}
+.mui-grid-view.mui-grid-9 .mui-media .mui-icon{
+    font-size: .4rem;
+}
+.mui-table-view.mui-grid-view .mui-table-view-cell.add-cart{
+    color: #fff;
+    background: #ffb03f;
+}
+.mui-table-view.mui-grid-view .mui-table-view-cell.pay{
+    color: #fff;
+    background: #f23030;
+}
+.detail-content{
+    padding: 0 5px;
+}
+.detail-content h4{
+    font-size: .26rem;
+    font-weight: 400;
+    -height: .5rem;
+}
+.detail-content p{
+    font-size: .24rem;
+    -height: .3rem;
+}
+.comment{
+    margin-bottom: 10px;
+    padding: 5px;
+    background: #fff;
+}
+.comment-head{
+    padding: 5px 0;
+    -height: .62rem;
+    border-bottom: 1px solid #eee;
+}
+.comment-head span{
+    margin: 0 8px;
+    font-size: .24rem;
+    color: #949393;
+}
+.goods-comment .comment-head{
+    padding: 0;
+}
+.goods-comment .comment-head span{
+    margin: 0;
+}
+.goods-comment .comment-head span.mui-icon{
+    font-size: .3rem;
+}
+.goods-comment .comment-body{
+    border-bottom: 1px solid #f9f9f9;
+}
+.comment-head span.red{
+    color: #fb3e21;
+}
+img.head-avator{
+    margin: 0;
+    width: .62rem;
+    height: .62rem;
+    border-radius: 100%;
+}
+.comment-rate{
+    width: 100px;
+    height: 20px;
+    background: url(../images/star.png) no-repeat;
+    background-size: 200px;
+}
+.comment-body{
+    padding: 5px;
+}
+.comment-img img{
+    float: left;
+    display: block;
+    margin: 0;
+    margin-right: 5px;
+    width: 1.36rem;
+    height: 1.36rem;
+}
+.mui-table-view.mui-grid-view .mui-table-view-cell .red .mui-media-body{
+    color: #fb3e21;
+}
+#collection.red{
+    color: #fb3e21;
+}
+#evaluate{
+    background-color: #f9f9f9;
+}
+.rate-5{
+    background-position: 0 0;
+}
+.rate-4{
+    background-position: -20px 0;
+}
+.rate-3{
+    background-position: -40px 0;
+}
+.rate-2{
+    background-position: -60px 0;
+}
+.rate-1{
+    background-position: -80px 0;
+}
+.rate-0{
+    background-position: -100px 0;
+}
+.h20{
+    height: .2rem;
+    background: #f9f9f9;
+}

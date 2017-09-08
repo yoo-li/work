@@ -1,0 +1,163 @@
+<?php 
+
+function get_applicator_creator(){
+		try 
+		{
+			$app = XN_Application::load(XN_Application::$CURRENT_URL); 
+			if ( $app->name == null) return "";
+			return $app->ownerName;
+		}
+	    catch ( XN_Exception $e ) 
+	    {
+			return "";
+		}
+}
+
+/** This function returns the Default Organisation Sharing Action Name
+  * @param $share_action_id -- It takes the Default Organisation Sharing ActionId as input :: Type Integer
+  * @returns The sharing Action Name :: Type Varchar
+  */
+function getDefOrgShareActionName($share_action_id)
+{
+	
+	
+
+	$Config_org_share_action_mapping = array (
+		0 => array ('share_action_id' => '0','share_action_name' => 'Public: Read Only',),
+		1 => array ('share_action_id' => '1','share_action_name' => 'Public: Read, Create/Edit',),
+		2 => array ('share_action_id' => '2','share_action_name' => 'Public: Read, Create/Edit, Delete',),
+		3 => array ('share_action_id' => '3','share_action_name' => 'Private',),
+		);
+	$share_action_name='';
+	foreach ( $Config_org_share_action_mapping as $org_share_action_mapping ) {
+		if ($share_action_id == $org_share_action_mapping ['share_action_id']) {
+			$share_action_name = $org_share_action_mapping ['share_action_name'];
+		}
+	}
+	
+	return $share_action_name;		
+
+
+}
+
+function getUserslist($setdefval=true)
+{
+	global $current_user,$module,$adb,$personman;
+	
+
+	global $global_user_privileges;
+	$is_admin = $global_user_privileges["is_admin"];
+    $profileGlobalPermission=$global_user_privileges['profileGlobalPermission'];
+    $defaultOrgSharingPermission=$global_user_privileges['defaultOrgSharingPermission'];
+    
+	if($is_admin==true && $profileGlobalPermission[2] == 1 && ($defaultOrgSharingPermission[getTabid($module)] == 3 or $defaultOrgSharingPermission[getTabid($module)] == 0))
+	{
+		$users_combo = get_select_options_array(get_user_array(FALSE, "Active", $current_user->id,'private'), $current_user->id);
+	}
+	else
+	{
+		$users_combo = get_select_options_array(get_user_array(FALSE, "Active", $current_user->id),$current_user->id);
+	}
+	foreach($users_combo as $userid=>$value)	
+	{
+
+		foreach($value as $username=>$selected)
+		{
+			if ($setdefval == false) {
+				$change_owner .= "<option value=$userid>".$username."</option>";
+			} else {
+				$change_owner .= "<option value=$userid $selected>".$username."</option>";
+			}
+		}
+	}
+	
+	
+	return $change_owner;
+}
+function get_select_options_array (&$option_list, $selected_key, $advsearch='false') {
+        return get_options_array_seperate_key($option_list, $option_list, $selected_key, $advsearch);
+}
+
+
+function get_options_array_seperate_key (&$label_list, &$key_list, $selected_key, $advsearch='false') {
+	
+	
+	global $app_strings;
+	if($advsearch=='true')
+	$select_options = "\n<OPTION value=''>--NA--</OPTION>";
+	else
+	$select_options = "";
+
+	//for setting null selection values to human readable --None--
+	$pattern = "/'0?'></";
+	$replacement = "''>".$app_strings['LBL_NONE']."<";
+	if (!is_array($selected_key)) $selected_key = array($selected_key);
+
+	//create the type dropdown domain and set the selected value if $opp value already exists
+	foreach ($key_list as $option_key=>$option_value) {
+		$selected_string = '';
+		// the system is evaluating $selected_key == 0 || '' to true.  Be very careful when changing this.  Test all cases.
+		// The vtiger_reported bug was only happening with one of the vtiger_users in the drop down.  It was being replaced by none.
+		if (($option_key != '' && $selected_key == $option_key) || ($selected_key == '' && $option_key == '') || (in_array($option_key, $selected_key)))
+		{
+			$selected_string = 'selected';
+		}
+
+		$html_value = $option_key;
+
+		$select_options .= "\n<OPTION ".$selected_string."value='$html_value'>$label_list[$option_key]</OPTION>";
+		$options[$html_value]=array($label_list[$option_key]=>$selected_string);
+	}
+	$select_options = preg_replace($pattern, $replacement, $select_options);
+
+	
+	return $options;
+}
+
+
+//used in module file
+function get_user_array($add_blank=true, $status="Active", $assigned_user="",$private="")
+{
+	
+	
+	global $current_user;
+	static $user_array = null;
+	$module=$_REQUEST['module'];
+
+	if($user_array == null)
+	{
+		$temp_result = Array();
+		$users_query = XN_Query::create('Content')->tag("Users")
+					->filter('type','eic','Users');	
+		if (!empty($status))  {
+			if($private == 'private'){
+				$users_query->filter('my.profileid','=',$current_user->id)
+						->filter('my.status','=','Active');
+			}
+			else {
+				$users_query->filter('my.status','=','Active');
+			}				
+		}		
+		$users_query->order('my.user_name',XN_Order::ASC);
+		$users = $users_query->execute();  
+		
+		if ($add_blank==true){
+			// Add in a blank row
+			$temp_result[''] = '';
+		}
+
+		// Get the id and the name.
+		foreach ($users as $user_info)
+		{
+			$temp_result[$user_info->my->profileid] = $user_info->my->user_name;
+		}
+
+		$user_array = &$temp_result;
+	}
+
+	
+	
+	return $user_array;
+}
+
+?>

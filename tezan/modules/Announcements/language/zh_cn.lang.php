@@ -1,0 +1,37 @@
+<?php
+
+$mod_strings = Array(
+	'LBL_ANNOUNCEMENTS_INFORMATION' => '公告信息',
+	'Announcements No' => '公告ID',
+	'Announcements Title' => '公告标题',
+    'Read Num'=>'已读人次',
+	'author' => '创建人',
+	'LBL_AUTHOR' => '创建人',
+	'Recipient' => '接收人',
+	'Unrelease' => '未发布',
+	'Notification' => '通知',
+	'Activity' => '活动',
+	'Meeting' => '会议',
+	'Business' => '财务',
+	'Other' => '其它',
+	'On Top' => '置顶',
+	'On Top 30 days' => '置顶30天',
+	'General' => '普通',
+    'Simple Description'=>'公告简介',
+	'Description' => '公告正文',
+	'Announce Type' => '公告类型',
+	'Notification' => '通知',
+	'Meeting' => '会议',
+	'Activity' => '活动',
+	'Business' => '商务',
+	'Other' => '其他',
+	'Float' => '浮动',
+	'Announcements Location' => '发布位置',
+    'Announcements Type' => '公告类别',
+	'Release Date' => '发布时间',
+	'Status' => '状态',
+	'SupplierID' => '商家',
+	'Release'  => '已经发布',
+);
+
+?>

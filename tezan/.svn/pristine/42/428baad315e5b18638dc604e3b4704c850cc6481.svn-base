@@ -1,0 +1,221 @@
+<?php
+require_once('Smarty_setup.php');
+global  $currentModule,$supplierid;
+
+if(isset($_REQUEST['type']) && $_REQUEST['type'] == "submit")
+{
+
+	$productid = $_REQUEST['record']; 
+	$product_info =  XN_Content::load($productid,"mall_products_".$supplierid);
+
+	$mall_product_property = XN_Query::create("Content")->tag("mall_product_property")
+		->filter("type","eic","mall_product_property")
+		->filter("my.productid","=",$productid)
+		->filter("my.deleted","=",'0')
+		->end(-1)
+		->execute();
+	if (count($mall_product_property) > 0)
+	{
+		$min_price = 999999;
+		$total_vendor_price = 0;
+		$count = count($mall_product_property);
+		foreach ($mall_product_property as $mall_product_property_info)
+		{
+			$propertyid = $mall_product_property_info->id;
+			if(isset($_REQUEST['property_price_'.$propertyid]) && $_REQUEST['property_price_'.$propertyid] != "" )
+			{
+				$property_price = $_REQUEST['property_price_'.$propertyid];
+				$property_price = number_format($property_price, 2, ".", "");
+				$old_shop_price = $mall_product_property_info->my->shop;
+				$vendor_price = $mall_product_property_info->my->vendor_price;
+				$total_vendor_price += floatval($vendor_price);
+				if ($mall_product_property_info->my->shop != $property_price)
+				{
+					$mall_product_property_info->my->shop = $property_price; 
+					$mall_product_property_info->save("mall_product_property,mall_product_property_".$supplierid);
+					
+					$newcontent=XN_Content::create('mall_adjustratelog',"",false,7);
+		            $newcontent->my->deleted = '0';
+		            $newcontent->my->supplierid = $product_info->my->supplierid;
+		            $newcontent->my->profileid = XN_Profile::$VIEWER;
+		            $newcontent->my->productid = $product_info->id;
+		            $newcontent->my->adjusttype  = "调整价格";
+		            $newcontent->my->products_no  = $product_info->my->mall_products_no;
+		            $newcontent->my->productname = $product_info->my->productname;
+		            $newcontent->my->oldrate = '-'; 
+		            $newcontent->my->newrate = '-'; 
+		            $newcontent->my->old_commissionswitch = '-'; 
+		            $newcontent->my->new_commissionswitch = '-'; 
+		            $newcontent->my->oldpostage = '-'; 
+		            $newcontent->my->newpostage = '-'; 
+					$newcontent->my->propertyid = $propertyid; 
+					$newcontent->my->propertydesc = $mall_product_property_info->my->propertydesc; 
+					$newcontent->my->old_shop_price = $old_shop_price; 
+					$newcontent->my->new_shop_price = $property_price;  
+		            $newcontent->save("mall_adjustratelog,mall_adjustratelog_".$product_info->my->supplierid);
+				}
+			 
+			}
+		}
+		if ($product_info->my->shop_price != $min_price)
+		{
+			$product_info->my->shop_price = number_format($min_price, 2, ".", "");
+			$vendorid = $product_info->my->vendorid;
+			if (isset($vendorid) && $vendorid != "")
+			{
+				$total_vendor_price = 0;
+				$vendor_price = $total_vendor_price / $count;
+				$profitrate = floatval($min_price) - $vendor_price;
+				$product_info->my->vendor_price = number_format($vendor_price, 2, ".", "");
+				$product_info->my->profitrate = $profitrate;
+			}
+			else
+			{
+				$product_info->my->vendor_price = "";
+				$product_info->my->profitrate = "0";
+			} 
+			$product_info->save("mall_products,mall_products_".$supplierid);
+		}
+	}
+	else
+	{
+		if(isset($_REQUEST['product_price']) && $_REQUEST['product_price'] != "")
+		{
+			$product_price = $_REQUEST['product_price']; 
+			$product_price = number_format($product_price, 2, ".", "");
+			$old_shop_price = $product_info->my->shop_price;
+			$profitrate = $product_info->my->profitrate;
+			if ($product_info->my->shop_price != $product_price || floatval($profitrate) < 0)
+			{
+				$vendor_price = $product_info->my->vendor_price;
+				$product_info->my->shop_price = $product_price;
+				$vendorid = $product_info->my->vendorid;
+				if (isset($vendorid) && $vendorid != "")
+				{
+					$profitrate = floatval($product_price) - floatval($vendor_price);
+					$profitrate = $profitrate / $product_price * 100;
+					$product_info->my->profitrate = number_format($profitrate, 2, ".", "");
+				}
+				else
+				{
+					$product_info->my->profitrate = "0";
+				}
+				$product_info->save("mall_products,mall_products_".$supplierid);
+				if ($product_info->my->shop_price != $product_price)
+				{
+					$newcontent=XN_Content::create('mall_adjustratelog',"",false,7);
+		            $newcontent->my->deleted = '0';
+		            $newcontent->my->supplierid = $product_info->my->supplierid;
+		            $newcontent->my->profileid = XN_Profile::$VIEWER;
+		            $newcontent->my->productid = $product_info->id;
+		            $newcontent->my->adjusttype  = "调整价格";
+		            $newcontent->my->products_no  = $product_info->my->mall_products_no ;
+		            $newcontent->my->productname =  $product_info->my->productname;
+		            $newcontent->my->oldrate = '-'; 
+		            $newcontent->my->newrate = '-'; 
+		            $newcontent->my->old_commissionswitch = '-'; 
+		            $newcontent->my->new_commissionswitch = '-'; 
+		            $newcontent->my->oldpostage = '-'; 
+		            $newcontent->my->newpostage = '-'; 
+					$newcontent->my->propertyid = ''; 
+					$newcontent->my->propertydesc = '-'; 
+					$newcontent->my->old_shop_price = $old_shop_price; 
+					$newcontent->my->new_shop_price = $product_price;  
+		            $newcontent->save("mall_adjustratelog,mall_adjustratelog_".$product_info->my->supplierid);
+				} 
+			} 
+		}
+	} 
+
+
+	echo '{"statusCode":"200","message":null,"tabid":"'.$currentModule.'","closeCurrent":true,"forward":null}';
+	die();
+}
+else
+{
+	$smarty = new vtigerCRM_Smarty;
+	$binds = $_REQUEST['ids'];
+	$binds = str_replace(";",",",$binds);
+	$binds = explode(",",trim($binds,','));
+	array_unique($binds);
+	array_unique($binds);
+	if (count($binds) > 1)
+	{
+		echo '<div style="width:100%;text-align:center;"><br><br><font color="red" size="2">您只能选择单条记录进行修改操作！</font></div>';
+		die();
+	}
+	$productid = $_REQUEST['ids']; 
+	$product_info =  XN_Content::load($productid,"mall_products_".$supplierid);
+	$shop_price = $product_info->my->shop_price;
+	$shop_price = number_format($shop_price, 2, ".", "");
+	
+	if ($product_info->my->approvalstatus != "2")
+	{
+		echo '<div style="width:100%;text-align:center;"><br><br><font color="red" size="2">您只能对已经审批通过的商品进行修改操作！</font></div>';
+		die();
+	}
+
+
+	$msg='<table class="table table-bordered" border="0" cellspacing="0" cellpadding="0">';
+
+	$mall_product_property = XN_Query::create("Content")->tag("mall_product_property")
+		->filter("type","eic","mall_product_property")
+		->filter("my.productid","=",$productid)
+		->filter("my.deleted","=",'0')
+		->end(-1)
+		->execute();
+	if (count($mall_product_property) > 0)
+	{
+		foreach ($mall_product_property as $mall_product_property_info)
+		{
+			$propertyid = $mall_product_property_info->id;
+			$shop = $mall_product_property_info->my->shop;
+			$shop = number_format($shop, 2, ".", "");
+			$vendor_price  = $mall_product_property_info->my->vendor_price;
+			$vendor_price = number_format($vendor_price, 2, ".", "");
+			 
+			$propertydesc = $mall_product_property_info->my->propertydesc;
+			$msg.= '<tr>
+				<td>' . $propertydesc . '-销售价:</td>
+				<td>
+					<input class="form-control number required" type="text" value="' . $shop . '" name="property_price_'.$propertyid.'" tabindex="16" style="width:120px" maxlength="100" data-rule="number;required;" >元
+				</td> 
+				<td>' . $propertydesc . '-结算价:</td>
+				<td>
+					<input class="form-control number" disabled type="text" value="' . $vendor_price . '" tabindex="16" style="width:120px" maxlength="100" data-rule="number;" >元
+				</td>
+				</tr>';
+		}
+	}
+	else
+	{ 
+		$vendor_price  = $product_info->my->vendor_price;
+		$vendor_price = number_format($vendor_price, 2, ".", "");
+		$msg.= '<tr>
+				<td>销售价:</td>
+				<td>
+					<input class="form-control number required" type="text" value="'.$shop_price.'" name="product_price" tabindex="16" style="width:120px" maxlength="100"  data-rule="number;required;"  >
+					元
+				</td> 
+				<td>结算价:</td>
+				<td>
+					<input class="form-control number" disabled type="text" value="'.$vendor_price.'"  tabindex="16" style="width:120px" maxlength="100"  data-rule="number;"  >
+					元
+				</td> 
+			</tr>';
+	}
+
+
+
+	$msg.= '</table>';
+	$smarty->assign("MSG", $msg);
+	$smarty->assign("OKBUTTON", "确定修改");
+	$smarty->assign("RECORD",$_REQUEST['ids']);
+	$smarty->assign("SUBMODULE", $currentModule);
+	$smarty->assign("SUBACTION", $_REQUEST['action']);
+	$smarty->display("MessageBox.tpl");
+}
+
+ 
+
+?>

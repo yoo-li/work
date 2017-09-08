@@ -1,0 +1,87 @@
+<?php
+/*+**********************************************************************************
+ * The contents of this file are subject to the 361CRM Public License Version 1.0
+ * ("License"); You may not use this file except in compliance with the License
+ * The Original Code is:  361CRM Open Source
+ * The Initial Developer of the Original Code is vtiger.
+ * Portions created by vtiger are Copyright (C) vtiger.
+ * All Rights Reserved.
+ ************************************************************************************/
+
+global $mod_strings,$app_strings,$theme,$currentModule,$current_user;
+
+require_once('Smarty_setup.php');
+require_once('include/utils/utils.php');
+
+
+if(isset($_REQUEST['readonly']) && $_REQUEST['readonly'] !='') 
+{
+		$readonly = $_REQUEST['readonly'];
+}
+if(isset($_REQUEST['submodule']) && $_REQUEST['submodule'] !='') 
+{
+		$submodule = $_REQUEST['submodule'];
+}
+
+$panel =  strtolower(basename(__FILE__,".php"));	
+
+if(isset($_REQUEST['record']) && $_REQUEST['record'] !='') 
+{
+	    $recordid = $_REQUEST['record'];
+	   
+		$html = '<table id="'.$panel.'_details_table" class="table table-bordered" border="0" cellspacing="0" cellpadding="0" width="100%" >
+		<tbody>
+		<tr>
+		<th align="center" width="6%">'.getTranslatedString('Custom Service').'</th>
+		<th align="center" width="14%">'.getTranslatedString('ReplyTime').'</th>
+		<th align="center" style="75%">'.getTranslatedString('Reply Content').'</th>
+		<th align="center" style="5%">&nbsp;</th>
+		</tr>';
+
+		 
+
+
+
+		$wxreplays =   XN_Query::create ( 'Content' )->tag("wxreplys")
+			->filter ( 'type', 'eic', 'wxreplys' ) 
+			->filter ( 'my.record', '=', $recordid )
+			->order('published',XN_Order::DESC)
+			->execute ();
+		if (count ( $wxreplays ) > 0) 
+		{ 
+			$auto_increment = 1;
+			$user_ids = array();
+			foreach($wxreplays as $wxreplay_info)
+			{
+				$user_ids[] = $wxreplay_info->my->customservice;
+			}
+			$userlist = getOwnerProfileNameList($user_ids);
+			foreach($wxreplays as $wxreplay_info)
+			{
+			    $profileid = $wxreplay_info->my->customservice;
+				$author = $userlist[$profileid];
+				$time = strtotime($wxreplay_info->published);
+				$published = date('Y-m-d H:i', $time);
+				$html .= '<tr id="'.$panel.'_row_'.$auto_increment.'">
+					<td style="text-align: center;" align="center" width="6%">'.$author.'</td>
+					<td align="center" style="text-align: center;" width="14%">'.$published.'</td>
+				<td align="left" width="75%">'.$wxreplay_info->my->reply.'</td>';
+				$html .= '<td align="center" style="text-align: center;"><img border="0" title="不能删除" src="/images/icons/nodelete.png"></td>';
+				$html .= '</tr>';
+				$auto_increment ++;	
+			}
+		}
+				
+		$html .= '<tr><td width="6%">&nbsp;</td><td width="14%">&nbsp;</td><td width="75%">&nbsp;</td>';
+		$html .= '<td align="center" width="5%" style="text-align: center;" ><a  href="index.php?module=WxServices&action=AddWxReplys&record='.$recordid.'"   target="dialog" mask="true" width="700" height="310" fresh="false" title="增加回复"><img  border="0" src="/images/icons/add.png" style="cursor: pointer;"></a></td></tr>';
+		$html .= '</tbody></table>';
+		
+}
+
+$script = '';
+
+
+echo '<script type="text/javascript" defer="defer">'.$script.'</script>
+<div id="memo_form_div">'.$html.'</div>';
+
+?>

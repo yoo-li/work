@@ -1,0 +1,35 @@
+<?php
+if(isset($_REQUEST['record']) && $_REQUEST['record'] != ''){
+	$record = $_REQUEST['record'];
+	try{
+        try{
+            $userInfo=XN_MemCache::get("user_privileges_".XN_Application::$CURRENT_URL."_".XN_Profile::$VIEWER);
+            $is_admin=$userInfo["is_admin"];
+        }
+        catch(XN_Exception $e){}
+
+        if($is_admin)
+		  {
+				$backup = XN_Backup::load($_REQUEST['record']);
+				$filepath =$backup->path .'/'. $_REQUEST['record'] . '.dp';
+
+				if (file_exists($filepath)){
+					$file=fopen($filepath,'r');
+					Header("Content-type:application/octet-stream");
+					Header("Accept-Ranges:bytes");
+					Header("Content-Disposition:attachment;filename=".$_REQUEST['record'] . ".dp");
+					 while(!feof($file)) {
+						echo fgets($file, 4096);
+					}
+					fclose($file);
+					exit;
+				}
+		  }
+	}catch(XN_Exception $e){
+	}
+}
+
+header("Location: index.php?module=Settings&action=ListBackup&parenttab=Settings");
+?>
+
+

@@ -1,0 +1,1 @@
+<?phprequire_once('modules/Dev_Public/config.func.php');?>

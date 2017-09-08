@@ -1,0 +1,71 @@
+<?php
+
+include_once('config.func.php');
+require_once('include/utils/utils.php');
+
+class Supplier_Profile extends CRMEntity {
+
+    
+    public $table_name = 'supplier_profile';
+    public $table_index = 'id';
+    public $tab_name = Array('supplier_profile');
+    public $tab_name_index = Array('supplier_profile' => 'id');
+    public $customFieldTable = Array('supplier_profile', 'id');
+    public $column_fields = Array();
+    public $sortby_fields = Array('supplierid','profileid','gender','province','city','mobile','birthdate','rank','ranklevel','accumulatedmoney','money','maxtakecash','hassourcer','onelevelsourcer','twolevelsourcer','threelevelsourcer');
+    public $list_link_field = 'profileid';
+    public $default_order_by = 'published';
+    public $default_sort_order = 'DESC';
+    public $search_fields = Array(
+    );
+    public $search_fields_name = Array(
+    );
+    var $popup_fields = Array('profileid','gender','province','city','mobile','rank','ranklevel','accumulatedmoney','money','published');
+    //必填写字段
+    public $mandatory_fields = Array('profileid');
+    var $filter_fields = Array('mobile');
+    var $sortby_number_fields = Array('rank','accumulatedmoney','money','maxtakecash');
+    var $select_fields = array(
+    );
+    
+	public $special_search_fields = array(
+		 
+        'subscribe'=>array(
+            '' => array('value'=>'','label'=>'全部','operator'=>'='),
+            '0'=>array('value'=>"0",'label'=>'关注','operator'=>'='),
+            '1'=>array('value'=>"1",'label'=>'取关','operator'=>'='),
+        )
+	);
+
+    function Supplier_Profile() {
+                $this->column_fields = getColumnFields('Supplier_Profile');
+    }
+
+    function save_module($module) {
+        
+    }
+
+    function getSortOrder() {
+        
+        if (isset($_REQUEST['sorder']))
+            $sorder = $_REQUEST['sorder'];
+        else
+            $sorder = (($_SESSION['SUPPLIER_PROFILE_SORT_ORDER'] != '') ? ($_SESSION['SUPPLIER_PROFILE_SORT_ORDER']) : ($this->default_sort_order));
+        return $sorder;
+    }
+
+    function getOrderBy() {
+        
+        $use_default_order_by = $this->default_order_by;
+        if (isset($_REQUEST['order_by']))
+            $order_by = $_REQUEST['order_by'];
+        else
+            $order_by = (($_SESSION['SUPPLIER_PROFILE_ORDER_BY'] != '') ? ($_SESSION['SUPPLIER_PROFILE_ORDER_BY']) : ($use_default_order_by));
+        return $order_by;
+    }
+    
+    
+
+}
+
+?>

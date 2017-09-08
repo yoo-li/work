@@ -1,0 +1,94 @@
+body{
+    width: 6.4rem;
+    margin: 0 auto;
+}
+.mui-search{
+    margin: 5px 10px;
+}
+.mui-search .mui-placeholder{
+    font-size: 12px;
+}
+.mui-search:before{
+    top: 24px
+}
+input[type=search]{
+    margin-bottom: 0;
+    border: 1px solid #ebebeb;
+    border-left: 2px solid #ebebeb;
+    border-right: 2px solid #ebebeb;
+    border-radius: 12px;
+    background-color: #fff;
+}
+.mui-bar-tab .mui-tab-item.mui-active {
+    color: #fb3e21;
+}
+.mui-scroll-wrapper{
+    background: #fff;
+}
+.filter{
+    text-align: center;
+    border-top: 1px solid #ebebeb;
+    border-bottom: 1px solid #ebebeb;
+    padding: 10px 0;
+    font-size: .26rem;
+}
+.filter:active,
+.filter.active{
+    color: #fa3f21;
+}
+.mui-table-view .mui-media-object{
+    max-width: none;
+    width: 1.6rem;
+    height: 1.15rem;
+}
+.goods-title{
+    font-size: .26rem;
+    line-height: .32rem;
+    height: .64rem;
+    color: #595959;
+    white-space: normal;
+    text-overflow:ellipsis;
+    display: -webkit-box;
+    -webkit-box-orient: vertical;
+    -webkit-line-clamp: 2;
+    overflow: hidden;
+}
+.goods-price{
+    margin-top: .26rem;
+}
+.goods-price .mui-pull-right{
+    position: relative;
+}
+.goods-price .mui-pull-right span{
+    display: inline;
+    color: #939292;
+    font-size: .3rem;
+}
+.add_shoppingcart{
+    position: absolute !important;
+    bottom: 10px;
+    right: 20px;
+    color: #939292 !important;
+    font-size: .3rem;
+}
+.praise{
+    position: absolute;
+    top: 50%;
+    left: -.28rem;
+    margin-top: -.14rem;
+    width: .26rem;
+    height: .26rem;
+    background-image: url(../images/zan.png);
+    background-size: 100% 100%;
+}
+.praise.active{
+    background-image: url(../images/zan_active.png);
+}
+.price-red{
+    font-size: .3rem;
+    color: #fa3f21;
+}
+.price-gray{
+    font-size: .22rem;
+    color: #939292;
+}

@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no"/>
+	<meta name="apple-mobile-web-app-capable" content="yes">
+	<meta name="apple-mobile-web-app-status-bar-style" content="black">
+	<title></title>
+	<link href="css/mui.css" rel="stylesheet"/>
+	<link href="css/public.css" rel="stylesheet"/>
+	<link href="css/iconfont.css" rel="stylesheet"/>
+	<link href="css/index.css" rel="stylesheet"/>
+	<link href="css/global.css" rel="stylesheet"/>
+	<link href="css/sweetalert.css" rel="stylesheet"/>
+	<script src="js/mui.min.js" type="text/javascript" charset="utf-8"></script>
+	<script src="js/zepto.min.js" type="text/javascript" charset="utf-8"></script>
+	<script src="js/lazyload.min.js" type="text/javascript" charset="utf-8"></script>
+	<script src="js/common.js" type="text/javascript" charset="utf-8"></script>
+	<script src="js/sweetalert.min.js" type="text/javascript" charset="utf-8"></script>
+	<script type="text/javascript">
+		document.write("<s" + "cript type='text/javascript' charset='utf-8' src='js/phonegap.js?_=" + Math.random() + "'>" + "</s" + "cript>")
+		document.write("<s" + "cript type='text/javascript' charset='utf-8' src='meso-js/index.js?_=" + Math.random() + "'>" + "</s" + "cript>")
+	</script>
+	<style>
+		.left-arrow {
+			display: inline-block;
+			position: relative;
+			padding: 0px 10px;
+			background: #ccc;
+			color: green;
+			line-height: 2.5;
+			margin-left: 2em;
+			border-radius: 0;
+		}
+		.left-arrow:hover {
+			background: gray;
+			color: white;
+		}
+		.left-arrow:before {
+			position: absolute;
+			content: " ";
+			border: transparent 1.25em solid;
+			border-right-color: #ccc;
+			top: 0;
+			left: -2.5em;
+			height: 0em;
+			width: 0em;
+		}
+		.left-arrow:hover:before {
+			border-right-color: gray;
+		}
+		.left-arrow:after {
+			position: absolute;
+			content: " ";
+			background: white;
+			width: 0.5em;
+			height: 0.5em;
+			top: 1em;
+			left: -0.125em;
+			border-radius: 0.25em;
+		}
+	</style>
+</head>
+
+<body>
+	<!-- 侧滑导航根容器 -->
+	<div class="mui-off-canvas-wrap mui-draggable" id="offCanvasWrapper">
+		<!-- 菜单容器 -->
+		<script type="text/javascript">
+			document.write("<s" + "cript type='text/javascript' charset='utf-8' src='meso-js/leftmenu.js?_=" + Math.random() + "'>" + "</s" + "cript>")
+		</script>
+		<!-- 主页面容器 -->
+		<div class="mui-inner-wrap">
+			<!-- 主页面标题 -->
+			<header class="mui-bar mui-bar-nav">
+				<a id="offCanvasShow" href="#offCanvasSide" class="mui-icon mui-action-menu mui-icon-bars mui-pull-left"></a>
+				<!--<a href="#" class="mui-icon mui-action-menu mui-icon-chat mui-twinkling mui-pull-right"></a>-->
+				<h1 class="mui-title">跟单系统</h1>
+			</header>
+			<script type="text/javascript">
+				document.write("<s" + "cript type='text/javascript' charset='utf-8' src='meso-js/footer.js?_=" + Math.random() + "'>" + "</s" + "cript>")
+			</script>
+			<div id="pullrefresh" class="mui-content mui-scroll-wrapper">
+				<div class="mui-scroll">
+					<!--slider-->
+					<div id="slider" class="mui-slider">
+						<div class="mui-slider-group mui-slider-loop">
+						</div>
+						<div class="mui-slider-indicator mui-text-right">
+						</div>
+					</div>
+					<!-- end slider -->
+					<input id="page" name="page" value="1" type="hidden">
+					<div class="mui-table-view" >
+						<ul id="list"  class="mui-table-view" style="padding-top: 5px;padding-bottom: 5px;">
+						</ul>
+					</div>
+					<script type="text/javascript">
+						document.write("<s" + "cript type='text/javascript' charset='utf-8' src='meso-js/copyright.js?_=" + Math.random() + "'>" + "</s" + "cript>")
+					</script>
+				</div>
+			</div>
+			<div class="mui-backdrop" style="display:none;"></div>
+		</div>
+	</div>
+
+	<script type="text/javascript">
+		mui.init({
+					 pullRefresh: {
+						 container: '#pullrefresh', //待刷新区域标识，querySelector能定位的css选择器均可，比如：id、.class等
+						 down: {
+							 callback: PullDownRefresh
+						 },
+						 up: {
+							 contentrefresh: "正在加载...", //可选，正在加载状态时，上拉加载控件上显示的标题内容
+							 contentnomore: '没有更多数据了', //可选，请求完毕若没有更多数据时显示的提醒内容；
+							 callback: PullupLoadMore //必选，刷新函数，根据具体业务来编写，比如通过ajax从服务器获取新数据；
+						 }
+					 }
+				 });
+	</script>
+
+</body>
+</html>

@@ -1,0 +1,103 @@
+<?php
+ 	
+//http://o2o.tezan.cc:7000/test.php?profileid=jcmwjvi1te1	
+
+session_start(); 
+
+require_once(dirname(__FILE__) . "/config.inc.php");	
+require_once (dirname(__FILE__) . "/config.common.php");
+require_once (dirname(__FILE__) . "/util.php");
+
+
+
+//$supplierid = '41461';  //若米家 
+//$supplierid = '46661';  //异动心情
+$supplierid = '8596';  //行云特赞
+//$supplierid = '136981';  //模包
+//$supplierid = '562109'; //地道湘
+//$supplierid = '266184'; //地道湘
+//$supplierid = '7962';  //赛明威
+//$supplierid = '496790';  //大势野
+$supplierid = '12352';  //行云特赞
+
+
+$_GET['profileid'] = 'h3l317pdqhz'; //老手
+//$_GET['profileid'] ='j9bzbji0n97'; //洋葱
+//$_GET['profileid'] = '7bvjhpz8vue'; //与你同行
+//$_GET['profileid'] = '24uxxyld2lt'; //赛明威
+//$_GET['profileid'] = 'j6zda8gh860'; //徐雁
+//$_GET['profileid'] = '5i97icf0iwv'; //郭秉信 18627556627
+//$_GET['profileid'] = 'i87zcrt5l0t'; //Daylight 18684672988
+//$_GET['profileid'] = 'ng66mz7c9o1'; //夜在美也是黑 15874232808
+//$_GET['profileid'] = '7msxks6r7zt'; //李锋
+//$_GET['profileid'] ='r5jzd2pq36w'; //魏星
+//$_GET['profileid'] ='j9bzbji0n97'; //
+//$_GET['profileid'] = 'b7edy6s7ijv';
+//$_GET['profileid'] = 'i6cyae6jm3r';
+//$_GET['profileid'] = 'l1hfe4yzkv2';
+//$_GET['profileid'] = '24uxxyld2lt'; //老手
+
+//$_GET['profileid'] = '7zmw7mxxrr';  //爱拼才会赢
+
+$_SESSION['supplierid'] = $supplierid;
+$_SESSION['appid'] = "wxe54a943a23a4603d";  
+
+XN_Application::$CURRENT_URL = 'admin'; 
+ 
+$supplierinfo = get_supplier_info($supplierid);
+
+
+
+if(isset($_GET['openid']) && $_GET['openid'] !='')
+{
+	$openid = $_GET['openid']; 
+	$t = base64_encode(md5(strtotime("now")));
+	
+	echo '<form action="index.php" method="post" name="frm">
+	      <input type="hidden" name="openid"   value="'.$openid.'"/>
+		  <input type="hidden" name="t"   value="'.$t.'" />
+		  <input type="hidden" id="width" name="width"   value="0" />
+		  <input type="hidden" id="height" name="height"   value="0" />
+	</form>
+	<script language="JavaScript">
+    document.getElementById("width").value=screen.width;
+    document.getElementById("height").value=screen.height; 
+	document.frm.submit();
+	</script>';	  
+}  
+elseif(isset($_GET['profileid']) && $_GET['profileid'] !='')
+{
+	try 
+	{  
+		$profileid = $_GET['profileid'];
+		$profile = XN_Profile::load($profileid,"id","profile_".$profileid);  
+		
+		/*  直接登录*/
+		$_SESSION['profileid'] = $profileid;
+		$_SESSION['u'] = $profileid;
+		unset($_SESSION['accessprofileid']); 
+		
+		
+			//
+		//
+		// unset($_SESSION['profileid']);
+		// $_SESSION['u'] = 'hx5eyjjmlg6';
+		// $_SESSION['accessprofileid'] = 'i87zcrt5l0t';
+		//
+		//
+		// $profileid = 'hx5eyjjmlg6';
+		// $_SESSION['profileid'] = $profileid;
+		// $_SESSION['u'] = $profileid;
+		// unset($_SESSION['accessprofileid']);
+		
+		header("Location: index.php");
+	}
+	catch ( XN_Exception $e ) 
+	{ 
+		errorprint('错误',$e->getMessage());
+	}
+}
+else
+{
+	errorprint('错误','系统禁止的调用!');	 
+}

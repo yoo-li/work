@@ -1,0 +1,44 @@
+﻿.main-bg {
+  background-color: #1271b4; 
+}
+
+.main .right .con-01 {
+    border-top: 2px solid #09639a; 
+}
+
+.main .right .con-02 .forget-pwd .a-01 {
+  color: #1271b4;
+}
+
+.btn-common {
+  background: #1271b4 none repeat scroll 0 0; 
+}
+
+.btn-common:hover{background: #09639a;color: #fff;}
+
+.header .red-line {
+  border-right: 2px solid #09639a; 
+}
+
+.common_btn {
+  background: #1271b4 none repeat scroll 0 0; 
+}
+
+.main .right .con-02 .password{background:url(../images/password_blue.png) no-repeat left center;}
+.main .right .con-02 .account{background:url(../images/username_blue.png) no-repeat left center;}
+.main .right .con-02 .checkcode{background:url(../images/checkcode_blue.png) no-repeat left center;}
+
+.common-error{color:#1271b4;}
+.common-error .icon{display: inline-block;width: 15px;height: 15px;vertical-align: middle;background: url(../images/icons_blue.png) no-repeat -32px 0px;margin-right: 5px;}
+.main .right .con-02 .forget-pwd .span-01{display: inline-block;width: 16px;height: 16px;background: url(../images/icons_blue.png) no-repeat 0px 0px;margin-right: 3px;vertical-align: middle;}
+.main .right .con-02 .forget-pwd .span-01.unchecked{background: url(../images/icons_blue.png) no-repeat -16px 0px;}
+
+
+
+.verify_step .inner ol .done em {
+    color: #1271b4;
+}
+.verify_step .inner span{ display:block; background:url(../images/verify_step_blue.jpg) repeat-x; padding-right:107px; height:100%; width:43px;}
+.verify_step .inner i{ display:block; background:url(../images/verify_step_blue.jpg) no-repeat 0 -74px; height:100%; width:37px;}
+.verify_step .inner ol .done{ background:url(../images/verify_step_blue.jpg) repeat-x 0 -37px;}
+.verify_step .inner ol .done i{ background:url(../images/verify_step_blue.jpg) no-repeat 0 -74px;}

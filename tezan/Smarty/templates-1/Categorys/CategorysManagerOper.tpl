@@ -1,0 +1,74 @@
+<div class="bjui-pageContent">
+	<form id="CategorysManagerPagerForm" method="post" action="index.php" data-toggle="validate" data-validator-option="{ldelim}focusCleanup:true,timely:false{rdelim}" data-alertmsg="false">
+		<input type="hidden" value="{$PARENT}" id="parent" name="parent">
+		<input type="hidden" value="{$RECORD}" id="record" name="record">
+		<input type="hidden" value="{$MODULE}" name="module">
+		<input type="hidden" value="{$ACTION}" id="action" name="action">
+		<input type="hidden" value="f05447c821012018c16dec99264a7bdc_ea332f4bef78750abe1e93924eaf44f8" name="__hash__">
+		{if $CUSTOMHTML eq ""}
+		<div>
+			<div class="form-group">
+				<label class="control-label x120" for="categoryname">分类名称：</label>
+				<input id="categoryname" name="categoryname" {if $READONLY eq '1'}readonly{/if} value="{$CATEGORYNAME}" class="form-control {if $READONLY neq '1'}required{/if}" style="padding-right: 15px;" data-rule="required;" type="text" placeholder="输入分类的名称" size="20">
+			</div>
+			<div class="form-group">
+				<label class="control-label x120" for="categorylevel">管理类别：</label>
+				<select data-toggle="selectpicker" name="categorylevel" id="categorylevel" data-width="80" {if $READONLY eq '1'}disabled{/if}>
+					<option value=""></option>
+					<option value="1" {if $CATEGORYLEVEL eq "1"}selected{/if}> I  </option>
+					<option value="2" {if $CATEGORYLEVEL eq "2"}selected{/if}> II </option>
+					<option value="3" {if $CATEGORYLEVEL eq "3"}selected{/if}> III</option>
+					<option value="4" {if $CATEGORYLEVEL eq "4"}selected{/if}> IV </option>
+				</select>
+			</div>
+			<div class="form-group">
+				<label class="control-label x120" for="sequence">排序：</label>
+				<input id="sequence" name="sequence" {if $READONLY eq '1'}disabled{/if}  class="form-control {if $READONLY neq '1'}required{/if}" style="padding-right: 15px;" data-rule="required;number;" type="text" placeholder="输入分类显示序号" size="20" value="{$SEQUENCE}">
+			</div>
+			<div class="form-group" >
+				<label class="control-label x120" style="margin-top:-125px;">首图：</label>
+				<div id="categoryicon_plupload_div" style="display:inline-block"></div>
+			</div>
+		</div>
+		{else}
+		<div>
+			{$CUSTOMHTML}
+		</div>
+		{/if}
+	</form>
+</div>
+<div class="bjui-pageFooter">
+    <ul>
+        <li><button type="button" class="btn-close" data-icon="close">关闭</button></li>
+		{if $BUTTONS neq ''}
+			{foreach item=data from=$BUTTONS}
+				<li>{$data}</li>
+			{/foreach}
+		{/if}
+    </ul>
+</div>
+{if $CUSTOMHTML eq ""}
+{/if}
+<script type="text/javascript" defer="defer">
+{if $CUSTOMHTML eq ""}
+	var prams = {ldelim}
+		currentModule	: 	'{$MODULE}',
+		record		 	:	'{$ID}',
+		fieldname		: 	'categoryicon',
+		fieldvalues		: 	{if $CATEGORYICON neq ''}'{$CATEGORYICON}'{else}'[]'{/if},
+		div_width		: 	125,
+		div_height 		: 	125,
+		readonly 		: 	{if $READONLY eq '1'}'true'{else}'false'{/if},
+		multi_selection	: 	'false',
+		mode			: 	'smarty',
+		img_width		: 	0,
+		img_height		: 	0,
+		required		: 	'false',
+		required_info	: 	"选择一张展示图片"
+	{rdelim};
+	$(function() {ldelim}
+		getPlupLoadForJson(prams);
+	{rdelim});
+{/if}
+	{$SCRIPT}
+</script>

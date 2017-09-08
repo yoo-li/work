@@ -1,0 +1,121 @@
+<?php
+/*+**********************************************************************************
+ * The contents of this file are subject to the 361CRM Public License Version 1.0
+ * ("License"); You may not use this file except in compliance with the License
+ * The Original Code is:  361CRM Open Source
+ * The Initial Developer of the Original Code is vtiger.
+ * Portions created by vtiger are Copyright (C) vtiger.
+ * All Rights Reserved.
+ ************************************************************************************/
+
+
+session_start();
+
+require_once (dirname(__FILE__) . "/config.inc.php");
+require_once (dirname(__FILE__) . "/config.common.php");
+require_once (dirname(__FILE__) . "/util.php");
+
+
+if(isset($_SESSION['profileid']) && $_SESSION['profileid'] !='')
+{
+    $profileid = $_SESSION['profileid'];
+}
+elseif(isset($_SESSION['accessprofileid']) && $_SESSION['accessprofileid'] !='')
+{
+    $profileid = $_SESSION['accessprofileid'];
+}
+else
+{
+   $profileid = "anonymous";
+}
+if(isset($_SESSION['supplierid']) && $_SESSION['supplierid'] !='')
+{
+	$supplierid = $_SESSION['supplierid'];
+}
+else
+{
+	die();
+}
+
+try {
+    $wxsmk_cardno = $_REQUEST['card'];
+    $wxsmk_password = $_REQUEST['word'];
+   // $wxsmk_cardno = '123870000403479'; //卡号
+   // $wxsmk_password = '4419892665';
+
+    /*091570000414581--5294625203
+420060000414582--2467182144*/
+    require_once (dirname(__FILE__) . "/wxsmk.func.php");
+    if(strlen($wxsmk_cardno) != 15){
+        echo 203;
+        die();
+    }
+
+    $amount = wxsmk_query_jsapi($wxsmk_cardno,$wxsmk_password);
+    if ($amount <= 0){
+        echo '201';
+        die();
+    }
+//    var_dump($amount);die;
+   // $amount = '10000';
+
+    // $result = wxsmk_cost_jsapi($wxsmk_cardno,$wxsmk_password,$amount);
+    // if ($result['payement'] != "ok")
+    // {
+    //     echo '202';
+    //     die();
+    // }
+
+    $users = XN_Query::create('Content')->tag('Mall_SmkCardRecords')
+        ->filter('type', 'eic', 'Mall_SmkCardRecords')
+        ->filter('my.profileid', '=', $profileid)
+        ->execute();
+
+    $smk_list = XN_Content::create('Mall_SmkCardRecords');
+    $smk_list->my->profileid = $profileid; // 用户
+    $smk_list->my->card = $wxsmk_cardno; // 卡号
+    $smk_list->my->passwd = $wxsmk_password;
+    $smk_list->my->seq = $result['seq']; // 交易号
+    $smk_list->my->money = ($amount/100); // 金额
+    $smk_list->my->addtime = strtotime(date("Y").$result['sendtime']);
+    $smk_list->my->account = ($amount/100); // 余额
+    $smk_list->my->deleted = 0;
+    $smk_list->my->supplierid = $supplierid;
+    $smk_list->save('Mall_SmkCardRecords');
+
+    $users = XN_Query::create ( 'Content' )->tag('Mall_SmkUsers')
+        ->filter ( 'type', 'eic', 'Mall_SmkUsers')
+        ->filter ( 'my.profileid', '=',$profileid)
+        ->end(1)
+        ->execute();
+
+    if($users){
+        foreach ($users as $list) {
+            $list->my->profileid = $profileid; // 用户
+            $list->my->totle_money = ($list->my->totle_money + ($amount/100) );
+            $list->my->totle_account = ($list->my->totle_account + ($amount/100) );
+            $list->my->totle_number = $list->my->totle_number + 1;
+            $list->save('Mall_SmkUsers');
+        }
+    }else{
+        $users = XN_Content::create('Mall_SmkUsers');
+        $users->my->profileid = $profileid; // 用户
+        $users->my->totle_money = ($amount/100);
+        $users->my->totle_account = ($amount/100);
+        $users->my->totle_consumption =0;
+        $users->my->totle_refund = 0;
+        $users->my->totle_number = 1;
+        $users->my->deleted = 0;
+        $users->my->supplierid = $supplierid;
+        $users->save('Mall_SmkUsers');
+    }
+
+    echo '200';
+    die();
+
+}
+catch(XN_Exception $e)
+{
+    echo $e->getMessage();
+    die();
+}

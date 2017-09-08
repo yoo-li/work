@@ -1,0 +1,65 @@
+<?php
+require_once('include/utils/CommonUtils.php');
+if(isset($_REQUEST['roleid']) && $_REQUEST['roleid'] == '-1')
+{
+		$rolename = $_REQUEST['rolename'];
+		$leadership = $_REQUEST['leadership_id'];
+		$mainleadership = $_REQUEST['mainleadership_id'];
+		$sequence = $_REQUEST['sequence'];	
+		$roletype = $_REQUEST['roletype'];	
+		$roleid = $_REQUEST['roleid'];
+		$roles = XN_Query::create('Content')
+			->tag('Roles')
+			->filter('type','eic','roles')
+			->filter('my.rolename','=',$rolename)
+			->execute();
+		if(count($roles) > 0)
+		{
+			echo '{"statusCode":"300","message":"'.$mod_strings['LBL_ROLENAME_EXIST'].'"}';
+			die();
+		}
+		$parentRoleId=$_REQUEST['parent'];
+		createRole($rolename,$parentRoleId,$sequence,$leadership,$mainleadership,$roletype);
+		create_roles_tree_data_file();
+		echo '{"statusCode":200,"divid":"RoleManagerTreeForm","closeCurrent":true}';
+		die();
+
+}
+else if(isset($_REQUEST['roleid']) && $_REQUEST['roleid'] != '' && $_REQUEST['roleid'] != '-1')
+{
+		$rolename = $_REQUEST['rolename'];
+		if (isset($_REQUEST['leadership_id']) && $_REQUEST['leadership_id'] != "")
+			$leadership = $_REQUEST['leadership_id'];
+		else
+			$leadership = null;
+		if (isset($_REQUEST['mainleadership_id']) && $_REQUEST['mainleadership_id'] != "")
+			$mainleadership = $_REQUEST['mainleadership_id'];
+		else
+			$mainleadership = null;
+		$sequence = $_REQUEST['sequence'];	
+		$roletype = $_REQUEST['roletype'];
+		$roleid = $_REQUEST['roleid'];
+
+		$roles = XN_Query::create('Content')
+			->tag('Roles')
+			->filter('type','eic','roles')
+			->filter('my.rolename','=',$rolename)
+			->filter('my.roleid','!=',$roleid)
+			->execute();
+		if(count($roles) > 0)
+		{
+			echo '{"statusCode":"300","message":"'.$mod_strings['LBL_ROLENAME_EXIST'].'"}';
+			die();
+		}
+		updateRole($roleid,$rolename,$sequence,$leadership,$mainleadership,$roletype);
+		create_roles_tree_data_file();
+		echo '{"statusCode":200,"divid":"RoleManagerTreeForm","closeCurrent":true}';
+		die();
+
+}
+echo '{"statusCode":"300","message":"参数错误，无法完成操作！"}';
+die();
+
+
+
+?>

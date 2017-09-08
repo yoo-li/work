@@ -1,0 +1,72 @@
+<?php
+/*+********************************************************************************
+ * The contents of this file are subject to the 361CRM Public License Version 1.0
+ * ("License"); You may not use this file except in compliance with the License
+ * The Original Code is:  361CRM Open Source
+ * The Initial Developer of the Original Code is vtiger.
+ * Portions created by vtiger are Copyright (C) vtiger.
+ * All Rights Reserved.
+ ********************************************************************************/
+
+	
+require_once('Smarty_setup.php');
+
+global $mod_strings,$app_strings,$theme;
+$smarty = new vtigerCRM_Smarty;
+$smarty->assign("MOD",$mod_strings);
+$smarty->assign("APP",$app_strings);
+$smarty->assign("THEME", $theme);
+$smarty->assign("IMAGE_PATH", "themes/$theme/images/");
+
+$module_disable = $_REQUEST['module_disable'];
+$module_name = $_REQUEST['module_name'];
+$module_enable = $_REQUEST['module_enable'];
+
+$formodule = $_REQUEST['formodule'];
+	
+function vtlib_toggleParentTabsAccess($module, $enable_disable,$parenttabname) {
+	
+	if ($parenttabname != null) 
+	{
+		$tabs = XN_Query::create ( 'Content' )->tag ( 'Tabs' )
+				->filter ( 'type', 'eic', 'tabs' )
+				->filter ( 'my.tabname', '=', $module )
+				->end(-1)
+				->execute ();
+		if (count($tabs) >0)
+		{
+			$tab_info = $tabs[0];
+			$tab_info->my->presence = $enable_disable;
+			$tab_info->save('Tabs'); 
+			XN_MemCache::delete("session_".XN_Application::$CURRENT_URL);
+		}		
+	}
+	else 
+	{
+		$tabs = XN_Query::create ( 'Content' )->tag ( 'Parenttabs' )
+				->filter ( 'type', 'eic', 'parenttabs' )
+				->filter ( 'my.parenttabname', '=', $module )
+				->execute ();
+		if (count($tabs) >0)
+		{
+			$tab_info = $tabs[0];
+			$tab_info->my->presence = $enable_disable;
+			$tab_info->save('Parenttabs');
+			XN_MemCache::delete("session_".XN_Application::$CURRENT_URL);
+		}
+	}	
+	
+}
+if($module_name != '') {		
+		if($module_enable == 'true') vtlib_toggleParentTabsAccess($module_name, '0',$formodule);
+		if($module_disable== 'true') vtlib_toggleParentTabsAccess($module_name, '1',$formodule);		
+}
+
+
+$smarty->assign("TOGGLE_MODINFO", vtlib_getToggleParentModuleInfo($formodule));
+
+$smarty->assign("FORMMODULE", $formodule);
+
+$smarty->display('Settings/ModuleManager/ModuleManager.tpl');
+
+?>

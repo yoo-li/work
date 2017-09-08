@@ -1,0 +1,142 @@
+<?php
+/**
+ * Created by PhpStorm.
+ * User: xingyun
+ * Date: 2017/7/10
+ * Time: 17:56
+ */
+session_start();
+
+require_once (dirname(__FILE__) . "/config.inc.php");
+require_once (dirname(__FILE__) . "/config.common.php");
+require_once (dirname(__FILE__) . "/util.php");
+
+
+if(isset($_SESSION['profileid']) && $_SESSION['profileid'] !='')
+{
+    $profileid = $_SESSION['profileid'];
+}
+elseif(isset($_SESSION['accessprofileid']) && $_SESSION['accessprofileid'] !='')
+{
+    $profileid = $_SESSION['accessprofileid'];
+}
+else
+{
+    $profileid = "anonymous";
+}
+if(isset($_SESSION['supplierid']) && $_SESSION['supplierid'] !='')
+{
+    $supplierid = $_SESSION['supplierid'];
+}
+else
+{
+    die();
+}
+
+
+if(isset($_REQUEST['keywords']) && $_REQUEST['keywords'] !='')
+{
+    $keywords = $_REQUEST['keywords'];
+    XN_Content::create('mall_searchlog', '',false,7)
+        ->my->add('deleted','0')
+        ->my->add('profileid',$profileid)
+        ->my->add('supplierid',$supplierid)
+        ->my->add('keywords',$keywords)
+        ->save("mall_searchlog,mall_searchlog_".$supplierid);
+
+}
+
+require_once('Smarty_setup.php');
+
+$smarty = new vtigerCRM_Smarty;
+
+$islogined = false;
+if ($_SESSION['u'] == $_SESSION['profileid'])
+{
+    $islogined = true;
+}
+//取当前最近一次的活动
+$RobSingles = XN_Query::create ( 'Content' )->tag ( 'Mall_RobSingles' )
+    ->filter ( 'type', 'eic', 'Mall_RobSingles' )
+    ->filter ( 'my.supplierid', '=', $supplierid )
+    ->order('published',XN_Order::DESC)
+    ->end(1)
+    ->execute();
+$salesactivityid=$RobSingles[0]->id;
+$smarty->assign("islogined",$islogined);
+
+$action = strtolower(basename(__FILE__,".php"));
+
+$recommend_info = checkrecommend();
+$smarty->assign("share_info",$recommend_info);
+$smarty->assign("supplier_info",get_supplier_info());
+$smarty->assign("profile_info",get_supplier_profile_info());
+
+$smarty->assign("keywords",$keywords);
+
+
+$sysinfo = array();
+$sysinfo['action'] = 'category';
+$sysinfo['date'] = date("md");
+$sysinfo['api'] = $APISERVERADDRESS;
+$sysinfo['http_user_agent'] = check_http_user_agent();
+$sysinfo['domain'] = $WX_DOMAIN;
+$sysinfo['width'] = $_SESSION['width'];
+$smarty->assign("sysinfo",$sysinfo);
+
+$result = XN_Query::create ( 'Content' )
+    ->tag ( 'Mall_RobSingles_details' ) // 514968水蜜桃
+    ->filter ( 'type', 'eic', 'Mall_RobSingles_details' )
+    ->filter ( 'my.salesactivityid', '=', $salesactivityid )
+    ->filter('my.activitynumber','>','0')
+    ->order('id',XN_Order::ASC)
+    ->execute();
+
+$starttime = date("Y-m-d 00:00:00",strtotime($result[0]->my->begindate));
+$endtime = date("Y-m-d 23:59:59",strtotime($result[0]->my->enddate));
+//var_dump($starttime);
+//var_dump($endtime);
+//die;
+$list = array();
+foreach ($result as $key=>$val){
+    try{
+        XN_MemCache::get($val->id);
+    }
+    catch(XN_Exception $e){
+        XN_MemCache::put($val->my->productid.'_'.$val->my->activitynumber.'_'.$starttime.'_'.$endtime,$val->id);
+    }
+    $list[$key]['productname'][] = $val->my->productname;
+    $list[$key]['begindate'][] =  $starttime;
+    $list[$key]['enddate'][] =  $endtime;
+    $list[$key]['robprice'][] = $val->my->robprice;
+    $list[$key]['activitynumber'][] = $val->my->activitynumber;
+    $list[$key]['productid'][] = $val->my->productid;
+    $list[$key]['supplierid'][] = $val->my->supplierid;
+    $list[$key]['deleted'][] = $val->my->deleted;
+}
+//秒杀活动id
+
+$smarty->assign("list_info",$list);
+$smarty->assign("salesactivityid",$salesactivityid);
+//var_dump($list);
+//echo "<hr>";
+//foreach ($list as $val){
+//    var_dump($val);
+//    foreach ( $val as $value){
+//        var_dump($value);
+//    }
+//}
+// die;
+if ($_SESSION['supplierid'] == "12352")
+{
+    $smarty->assign("rob_list",1);
+    $smarty->display('rob_smk_search.tpl');
+//    $smarty->display('smk_time_sales.tpl');
+//    die();
+}else{
+    $smarty->display($action.'.tpl');
+}
+
+
+
+?>

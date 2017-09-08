@@ -1,0 +1,558 @@
+/**icon font*/
+@font-face {font-family: 'iconfont';
+    src: url('iconfont.eot'); /* iE9*/
+    src: url('iconfont.eot?#iefix') format('embedded-opentype'), /* iE6-iE8 */
+    url('iconfont.woff') format('woff'), /* chrome、firefox */
+    url('iconfont.ttf') format('truetype'), /* chrome、firefox、opera、safari, android, ios 4.2+*/
+    url('iconfont.svg#iconfont') format('svg'); /* ios 4.1- */
+}
+.fa-iconfont{
+    font-family:"iconfont" !important;
+    font-size:16px;font-style:inherit;
+    -webkit-font-smoothing: antialiased;
+    -webkit-text-stroke-width: 0.3px;
+    -moz-osx-font-smoothing: grayscale;}
+.iconfont{
+    font-family:"iconfont" !important;
+    color: #ff3300;
+    font-size:16px;font-style:inherit;
+    -webkit-font-smoothing: antialiased;
+    -webkit-text-stroke-width: 0.3px;
+    -moz-osx-font-smoothing: grayscale;}	
+	
+.icon-application:before { content: "\e6b2"; }/* 功能 */
+.icon-settings:before { content: "\e6b4"; }/*系统设置*/   
+.icon-group-reports:before { content: "\e6b5"; }/* 报表 */  
+
+
+	  
+
+.icon-lbl_user_management:before { content: "\e615"; }/* 用户管理 */
+.icon-lbl_users:before { content: "\e635"; }/* 用户 */
+.icon-lbl_roles:before { content: "\e634"; }/* 部门 */
+.icon-lbl_profiles:before { content: "\e633"; }/* 权限 */
+.icon-lbl_boss_authorize:before { content: "\e632"; }/* 管理授权 */
+
+
+.icon-lbl_studio:before { content: "\e614"; }/* 模块管理 */
+.icon-lbl_program_switch:before { content: "\e631"; }/* 功能菜单 */
+.icon-lbl_module_switch:before { content: "\e630"; }/* 模块菜单 */
+.icon-lbl_module_layout:before { content: "\e62f"; }/* 模块管理 */
+.icon-lbl_picklist:before { content: "\e62e"; }/* 数据字典 */
+.icon-lbl_approval_flow:before { content: "\e62d"; }/* 审批流程 */ 
+.icon-lbl_domains:before { content: "\e62c"; }/* 域名管理 */ 
+
+
+.icon-lbl_often_settings:before { content: "\e613"; }/* 常用设置 */ 
+.icon-lbl_backup_restore_settings:before { content: "\e62b"; }/* 备份还原 */
+.icon-lbl_audit_trail:before { content: "\e62a"; }/* 操作日志 */
+.icon-lbl_login_history:before { content: "\e629"; }/* 登入记录 */
+.icon-lbl_invoiceprint:before { content: "\e651"; }/* 单据打印模板 */ 
+.icon-lbl_customize_modent_number:before { content: "\e628"; }/* 系统编号定制 */ 
+
+ 
+
+.icon-lbl_ma_settings_management:before { content: "\e612"; }/* 医疗平台 */
+.icon-lbl_ma_settings:before { content: "\e657"; }/* 运营设置 */
+.icon-lbl_ma_registerusers:before { content: "\e627"; }/* 注册用户 */ 
+.icon-lbl_ma_enterpriseusers:before { content: "\e626"; }/*企业用户*/
+.icon-lbl_ma_foodanddrugadmin:before { content: "\e625"; }/* 药监局 */
+.icon-lbl_ma_socialsecurity:before { content: "\e623"; }/* 社保局 */
+.icon-lbl_ma_financials:before { content: "\e622"; }/* 金融机构 */ 
+
+
+.icon-lbl_ma_logistics_manage:before { content: "\e609"; }/* 物流管理 */
+.icon-lbl_ma_logistics:before { content: "\e64f"; }/* 物流公司 */
+
+ 
+.icon-my_home_page:before { content: "\e600"; }/* 首页 */
+
+.icon-approvals:before { content: "\e654"; }/* 审批记录 */
+.icon-approvalcenters:before { content: "\e654"; }/* 审批中心 */
+.icon-announcements:before { content: "\e655"; }/* 公告 */
+.icon-calendar:before { content: "\e656"; }/* 待办事项 */ 
+ 
+
+ 
+.icon-tezan_platfrom:before { content: "\e620"; }/* 特赞平台*/
+.icon-tezan_platfrom_log:before { content: "\e61f"; }/* 特赞平台日志 */
+.icon-micro_mall:before { content: "\e619"; }/* 微商城 */
+.icon-micro_mall_log:before { content: "\e618"; }/* 微商城日志 */   
+.icon-mall_vendors_and_settlements:before { content: "\e617"; }/* 商城供应商 */ 
+.icon-supplier_weixin_platform:before  { content: "\e648"; }/* 商家微信平台 */
+
+.icon-suppliers:before { content: "\e64c"; }/* 商家列表 */ 
+.icon-potenitalsuppliers:before { content: "\e64a"; }/* 潜在商家*/ 
+.icon-suppliercorrect:before { content: "\e64d"; }/* 商家中心 */ 
+.icon-profile:before { content: "\e663"; }/* 会员  */
+.icon-profilerank:before { content: "\e64b"; }/* 会员等级  */ 
+.icon-friends:before { content: "\e64e"; }/* 通讯录  */
+.icon-themes:before { content: "\e653"; }/* APP主题  */   
+.icon-logistics:before { content: "\e64f"; }/* 物流快递 */
+.icon-profilelog:before { content: "\e64f"; }/* 管理日志 */ 
+.icon-smslog:before { content: "\e649"; }/* 短信日志 */  
+.icon-mobilelog:before { content: "\e658"; }/* 手机修改日志 */ 
+.icon-lastloginlog:before { content: "\e629"; }/*登陆日志  */ 
+ 
+
+
+.icon-weixin_platform:before { content: "\e61c"; }/* 微信平台 */
+.icon-locations:before { content: "\e645"; }/* 位置信息 */
+.icon-wxsettings:before { content: "\e648"; }/* 公众号设置 */
+.icon-wxroles:before { content: "\e647"; }/* 回复规则 */
+.icon-wxservices:before { content: "\e646"; }/* 微信客服 */ 
+
+
+.icon-pushs_and_messages:before { content: "\e61b"; }/* 推送与消息 */
+.icon-baidupushs:before { content: "\e659"; }/* 百度推送配置 */
+.icon-pushmsgbinds:before { content: "\e642"; }/* 推送绑定 */
+.icon-pushmessages:before { content: "\e673"; }/* 推送记录 */
+.icon-messages:before { content: "\e677"; }/* 消息记录 */
+.icon-admessages:before { content: "\e664"; }/* 广告推送 */ 
+
+
+.icon-reports:before { content: "\e6f8"; }/* 报表 */   
+.icon-reportslinkrelative:before { content: "\e6f9"; }/* 环比报表 */
+.icon-reportssamerelative:before { content: "\e6fa"; }/* 同比报表 */
+.icon-reportstopn:before { content: "\e6fb"; }/* Top n报表 */
+.icon-reportitem:before { content: "\e658"; }/* 报表 */
+.icon-reportsintegrated:before { content: "\e6f8"; }/* 综合报表 */ 
+
+
+
+
+
+.icon-supplier_style:before  { content: "\e616"; }/* 商家设置 */
+.icon-supplier_physicalstores:before  { content: "\e64c"; }/* 实体店 */ 
+.icon-supplier_physicalstoreprofiles:before  { content: "\e663"; }/* 实体店顾客 */
+.icon-supplier_physicalstoreassistants:before  { content: "\e661"; }/* 实体店员 */
+.icon-supplier_authenticationprofiles:before  { content: "\e670"; }/* 认证会员 */  
+.icon-supplier_profile:before  { content: "\e635"; }/* 商家会员 */
+.icon-supplier_frozenlists:before { content: "\e665"; }/* 冻结名单 */
+.icon-supplier_shops:before  { content: "\e65f"; }/* 商家店铺 */ 
+.icon-supplier_ads:before  { content: "\e664"; }/* 平台广告 */ 
+.icon-supplier_takecashs:before  { content: "\e672"; }/* 提现申请 */ 
+.icon-supplier_albums:before  { content: "\e676"; }/* 商家相册 */ 
+.icon-supplier_news:before  { content: "\e67b"; }/*  商家资讯*/ 
+.icon-supplier_chats:before  { content: "\e67a"; }/* 商家咨询 */ 
+.icon-supplier_redenvelopes:before  { content: "\e666"; }/* 红包记录 */   
+.icon-supplier_recharges:before  { content: "\e65e"; }/*  充值设置*/ 
+.icon-supplier_rechargelogs:before  { content: "\e65d"; }/* 充值记录 */ 
+
+.icon-supplier_wxsettings:before  { content: "\e648"; }/* 公众号设置 */
+.icon-supplier_wxroles:before  { content: "\e647"; }/* 回复规则 */
+.icon-supplier_wxservices:before  { content: "\e646"; }/* 客服 */ 
+.icon-supplier_wxchannels:before  { content: "\e644"; }/* 推广二维码 */ 
+.icon-supplier_wxscans:before  { content: "\e643"; }/* 微信扫码记录 */ 
+.icon-supplier_wxfirstmeets:before  { content: "\e642"; }/* 分享绑定记录 */ 
+
+.icon-supplier_setting:before { content: "\e602"; }/*配置管理*/ 
+.icon-supplier_users:before  { content: "\e627"; }/* 用户管理 */ 
+.icon-supplier_accesssetting:before { content: "\e633"; }/*权限设置*/  
+.icon-supplier_approvalflows:before {content: "\e62d"; }/* 审批流程 */
+.icon-supplier_departments:before { content: "\e634"; }/* 部门管理 */ 
+.icon-supplier_modules:before { content: "\e62f"; }/* APP模块 */
+.icon-supplier_themes:before { content: "\e653"; }/* APP主题 */ 
+.icon-supplier_authorizemanage:before { content: "\e632"; }/* 角色授权 */
+.icon-supplier_invoiceprint:before { content: "\e651"; }/* 打印设置 */
+.icon-supplier_reportsettings:before { content: "\e650"; }/* 报表设置 */
+.icon-supplier_settings:before { content: "\e657"; }/* 运营设置 */
+	 
+	  
+.icon-sop_platfrom:before { content: "\e76b"; }/* sop平台*/
+.icon-sop_worksops:before { content: "\e76c"; }/* sop列表*/
+.icon-sop_platfrom_log:before { content: "\e769"; }/* sop平台日志*/
+.icon-sop_worknotices:before { content: "\e6d6"; }/* sop通知*/
+.icon-sop_sub_platfrom:before { content: "\e768"; }/* sop平台子系统*/
+.icon-erp_products:before { content: "\e63e"; }/* 采购商品*/
+.icon-erp_inventorys:before { content: "\e66a"; }/* 商品库存*/
+.icon-erp_purchaseorders:before { content: "\e688"; }/* 采购订单*/
+.icon-erp_budgets:before { content: "\e763"; }/* 年度预算*/
+.icon-erp_reimbursements:before { content: "\e760"; }/* 年度报账*/
+.icon-sop_setting:before { content: "\e76a"; }/* sop平台配置*/
+.icon-sop_categorys:before { content: "\e762"; }/* 流程分类*/
+.icon-sop_workflows:before { content: "\e767"; }/* 流程配置*/
+.icon-sop_plugins:before { content: "\e764"; }/* 插件设置*/
+.icon-sop_docnums:before { content: "\e766"; }/* 文号管理*/
+.icon-sop_doctemplates:before { content: "\e765"; }/* 文档模板*/
+.icon-sop_settings:before { content: "\e614"; }/* 运维设置*/ 
+	  
+  
+
+.icon-vehiclemanagement:before { content: "\e61a"; }/* 车辆管理 */ 
+.icon-vehicle_activity:before { content: "\e6a7"; }/* 车辆动态 */
+.icon-vehicle_driver:before { content: "\e671"; }/* 驾驶员信息 */
+.icon-vehicle_vehicle:before { content: "\e6aa"; }/* 车辆信息 */
+.icon-vehicle_apply:before { content: "\e6b0"; }/* 用车记录 */
+.icon-addvehicleapply:before { content: "\e6ad"; }/* 申请用车 */
+.icon-vehicle_attendance:before { content: "\e6b1"; }/* 值班管理 */
+.icon-vehicle_quota:before { content: "\e6a8"; }/* 车辆配额 */
+.icon-vehicle_accidentrecord:before { content: "\e6a9"; }/*车辆事故  */
+.icon-vehicle_refuelrecord:before { content: "\e6ac"; }/* 车辆加油 */
+.icon-vehicle_insurance:before { content: "\e6ab"; }/*车辆保险  */
+.icon-vehicle_maintenance:before { content: "\e694"; }/* 车辆维修/保养 */
+.icon-vehicle_violaterecord:before { content: "\e6ae"; }/* 车辆违章 */
+.icon-vehicle_driverquery:before { content: "\e6a6"; }/* 驾驶员查询 */
+.icon-vehicle_query:before { content: "\e6af"; }/* 信息查询 */
+.icon-vehicleinfomanagement:before { content: "\e611"; }/* 信息查询 */
+.icon-vehicleschedule:before { content: "\e61a"; }/* 车辆使用 */
+.icon-vehiclestatistics:before { content: "\e658"; }/*车辆统计  */
+ 
+
+.icon-mall_brands:before { content: "\e63f"; }/* 品牌  */
+.icon-mall_categorys:before { content: "\e640"; }/* 商品分类  */
+.icon-mall_ads:before { content: "\e641"; }/* 轮播图 */
+.icon-mall_orders:before { content: "\e63c"; }/* 订单 */
+.icon-mall_propertycorrect:before { content: "\e678"; }/* 商品信息修改 */
+.icon-mall_productlibs:before { content: "\e63d"; }/* 商品样品库 */
+.icon-mall_products:before { content: "\e63e"; }/* 商品 */
+.icon-mall_returnedgoodsapplys:before { content: "\e6dd"; }/*退货申请  */
+.icon-mall_reimburses:before { content: "\e63b"; }/* 退款管理 */
+.icon-mall_parameterconfig:before { content: "\e65a"; }/*商品参数  */
+.icon-mall_salesactivitys:before { content: "\e679"; }/* 促销活动  */
+.icon-mall_inventorys:before { content: "\e66a"; }/* 库存管理 */
+.icon-mall_vipcards:before  { content: "\e669"; }/* 卡券 */
+.icon-mall_rechargeablecards:before { content: "\e65c"; }/* 充值卡 */
+.icon-mall_smkrechargeablecards:before { content: "\e65c"; }/* 市民卡充值卡 */
+.icon-mall_appraises:before { content: "\e66e"; }/* 评价记录 */
+.icon-mall_settings:before { content: "\e64d"; }/* 商城设置 */
+.icon-mall_receptionproducts:before { content: "\e69d"; }/* 签到商品 */
+.icon-mall_sharedatas:before { content: "\e660"; }/* 分享记录 */
+
+
+
+.icon-mall_turnovers:before { content: "\e69b"; }/* 库存流水 */
+.icon-mall_shares:before { content: "\e696"; }/* 分享记录 */
+.icon-mall_mycollections:before { content: "\e69f"; }/* 我的收藏 */
+.icon-mall_payments:before { content: "\e697"; }/* 支付记录 */ 
+.icon-mall_shoppingcarts:before { content: "\e698"; }/* 购物车 */
+.icon-mall_searchlog:before { content: "\e6a6"; }/* 搜索历史 */ 
+.icon-mall_billwaters:before { content: "\e6a4"; }/* 帐单流水 */
+.icon-mall_commissions:before { content: "\e6a1"; }/* 商品提成 */ 
+.icon-mall_hitshelflog:before { content: "\e69e"; }/* 上下架日志 */
+.icon-mall_consumelogs:before { content: "\e6a2"; }/* 消费记录 */
+.icon-mall_usages:before  { content: "\e699"; }/* 卡券记录 */ 
+.icon-mall_orders_products:before { content: "\e6a3"; }/* 销售明细 */ 
+.icon-mall_bargains:before { content: "\e69a"; }/* 砍价记录 */ 
+.icon-mall_receptions:before { content: "\e66f"; }/* 商品签到表 */
+.icon-mall_receptionrecords:before { content: "\e69c"; }/* 签到记录 */
+.icon-mall_uniquesales:before { content: "\e6a5"; }/* 资格售卖记录 */ 
+.icon-mall_adjustratelog:before { content: "\e695"; }/* 商品调整日志 */
+ 
+ 
+.icon-mall_grouppurchaseorders:before { content: "\e724"; }/* 团购记录 */
+.icon-mall_grouppurchases:before { content: "\e723"; }/* 团购 */
+
+.icon-mall_official_management:before { content: "\e75e"; }/* 事务官管理 */  
+.icon-mall_officialauthorizerelationships:before { content: "\e71d"; }/*授权人关系设置*/
+.icon-mall_officialauthorizeevents:before { content: "\e721"; }/*授权事件*/
+.icon-mall_officialauthorizedimensions:before { content: "\e758"; }/*授权维度*/
+.icon-mall_officialenterprisecurrencys:before { content: "\e753"; }/* 企业币设置*/
+.icon-mall_officialenterprisecurrencysauthorizes:before { content: "\e71d"; }/* 企业币授权管理*/
+.icon-mall_officialauthorizeusers:before { content: "\e71d"; }/*企业授权*/
+.icon-mall_officialquotas:before { content: "\e71a"; }/*配额管理*/
+.icon-mall_officialquotaslogs:before { content: "\e71c"; }/*配额记录*/
+.icon-mall_officialorders:before { content: "\e71f"; }/*事务官审批*/
+.icon-mall_official_log:before { content: "\e75c"; }/*事务官日志*/
+.icon-mall_officialenterprisecurrencylogs:before { content: "\e750"; }/* 企业币日志*/
+.icon-mall_officialauthorizelogs:before { content: "\e754"; }/*授权金日志*/
+.icon-mall_officialopinions:before { content: "\e756"; }/* 关注人记录*/
+.icon-mall_officialphotologs:before { content: "\e756"; }/* 拍摄照片记录*/
+.icon-mall_officialqrcodelogs:before { content: "\e751"; }/* 分享二维码加入企业记录*/
+.icon-mall_officialfocusedlogs:before { content: "\e755"; }/* 关注商家记录*/
+.icon-mall_official_platform:before { content: "\e75d"; }/*事务官平台*/
+.icon-mall_officialpromotionsettings:before { content: "\e75a"; }/* 推广信息设置*/
+.icon-mall_officialranksettings:before { content: "\e759"; }/* 推广积分设置*/
+.icon-mall_officialranklog:before { content: "\e757"; }/* 推广积分记录*/
+.icon-mall_officialenterprisepayments:before { content: "\e6f1"; }/* 商户支付日志*/
+.icon-mall_officialenterprisereceivables:before { content: "\e6f2"; }/* 企业应收日志*/  
+.icon-mall_officialapplys:before { content: "\e75b"; }/* 企业申请记录*/
+.icon-mall_officialtreats:before { content: "\e75f"; }/* 宴请记录*/  
+.icon-mall_officialauthorizeeventmodifys:before { content: "\e6d1"; }/* 授权事件变更 */  
+.icon-mall_officialtreatobjects:before { content: "\e71c"; }/* 宴请对象 */  
+.icon-mall_officialtreatpayments:before { content: "\e697"; }/* 宴请支付*/  
+.icon-mall_officialsettlements:before { content: "\e668"; }/* 事务官结算记录*/  
+
+
+.icon-mall_suppliers:before { content: "\e60f"; }/* 商家列表 */
+.icon-mall_suppliercorrect:before { content: "\e61d"; }/* 商家中心 */  
+
+
+.icon-mall_vendors:before { content: "\e662"; }/* 供应商 */
+.icon-mall_settlements:before { content: "\e668"; }/* 结算记录 */
+.icon-mall_settlementorders:before { content: "\e667"; }/* 结算订单 */
+
+
+.icon-mall_logistics:before { content: "\e64f"; }/* 商城物流 */
+.icon-mall_logisticdrivers:before { content: "\e671"; }/* 司机列表 */
+.icon-mall_logisticpoints:before { content: "\e66d"; }/* 配送点列表 */
+.icon-mall_logisticpackages:before { content: "\e674"; }/* 路线列表 */
+.icon-mall_logistictrips:before { content: "\e65b"; }/* 车次管理 */
+.icon-mall_logisticbills:before { content: "\e66b"; }/* 物流单据 */
+.icon-mall_logisticroutes:before { content: "\e66c"; }/* 路由信息 */ 
+
+
+
+
+
+.icon-tezan_micro_mall:before { content: "\e61e"; }/* 特赞分销平台 */ 
+.icon-tezan_micro_mall_log:before { content: "\e61d"; }/* 特赞分销平台日志 */ 
+
+.icon-tezan_settings:before { content: "\e620"; }/* 特赞设置 */ 
+.icon-tezan_profile:before { content: "\e663"; }/* 特赞会员 */ 
+.icon-tezan_categorys:before { content: "\e640"; }/* 特赞商品分类 */ 
+.icon-tezan_recommendsuppliers:before { content: "\e6f7"; }/* 特色商家 */ 
+.icon-tezan_distributionproducts:before { content: "\e63e"; }/* 分销商品 */ 
+.icon-tezan_robsingles:before { content: "\e675"; }/* 限时秒杀 */ 
+.icon-tezan_distributionsalesactivitys:before { content: "\e679"; }/* 分销活动 */ 
+.icon-tezan_distributionsettlements:before { content: "\e667"; }/* 分销结算 */ 
+
+.icon-tezan_distributionorders:before { content: "\e63c"; }/* 分销订单 */
+.icon-tezan_payments:before { content: "\e697"; }/* 支付记录 */ 
+.icon-tezan_shoppingcarts:before { content: "\e698"; }/* 购物车 */ 
+.icon-tezan_shares:before { content: "\e696"; }/* 分享记录 */
+.icon-tezan_billwaters:before { content: "\e6a4"; }/* 帐单流水 */
+.icon-tezan_commissions:before { content: "\e6a1"; }/* 商品提成 */  
+.icon-tezan_orders:before { content: "\e616"; }/* 订单 */   
+.icon-tezan_salesactivitys:before { content: "\e679"; }/* 促销活动  */  
+.icon-tezan_suppliers:before { content: "\e64c"; }/* 商家列表 */ 
+.icon-tezan_consumelogs:before { content: "\e6a2"; }/* 消费记录 */  
+.icon-tezan_orders_products:before { content: "\e6a3"; }/* 销售明细 */
+
+/*智博医疗平台*/ 
+.icon-ma_clinicalcategorys:before { content: "\e67f"; }/* 临床分类 */
+.icon-ma_categorys:before { content: "\e640"; }/* 产品分类 */
+.icon-ma_products:before { content: "\e610"; }/*产品列表*/
+.icon-ma_registercodes:before { content: "\e680"; }/*注册备案证*/
+.icon-ma_pricelist:before { content: "\e67c"; }/*价格策略*/
+.icon-ma_productpackage:before { content: "\e67d"; }/*产品套餐*/
+.icon-ma_salesauthorizations:before { content: "\e685"; }/* 销售人员授权书*/
+
+
+ 
+.icon-ma_factorys:before { content: "\e682"; }/*生产厂家*/
+.icon-ma_agencys:before { content: "\e681";  }/*经营企业*/
+.icon-ma_hospitals:before { content: "\e687"; }/*医疗机构*/  
+.icon-ma_firstchecks:before { content: "\e683"; }/*品种首营资质*/
+.icon-ma_firstchecksenterprise:before { content: "\e684"; }/*企业首营资质*/ 
+.icon-ma_purchaserqualification:before { content: "\e70a"; }/*购货者资质*/ 
+.icon-ma_checkwarns:before { content: "\e686"; }/*效期预警*/  
+
+
+.icon-ma_purchasecontract:before { content: "\e689"; }/*采购合同*/
+.icon-ma_salecontract:before { content: "\e692"; }/*销售合同*/  
+.icon-ma_purchaseorders:before { content: "\e688"; }/*采购订单*/  
+.icon-ma_saleorders:before { content: "\e691"; }/*销售订单*/ 
+.icon-ma_centralizedpurchase:before { content: "\e68c"; }/* 集中采购*/
+.icon-ma_centralizedsale:before { content: "\e68d"; }/* 集中销售*/
+.icon-ma_borrowordersout:before { content: "\e68e"; }/* 借出单*/
+.icon-ma_borrowordersin:before { content: "\e68f"; }/* 借入单*/
+.icon-ma_returnorders:before { content: "\e78f"; }/* 采购退货 */
+.icon-ma_returnordersout:before { content: "\e68b"; }/* 购进退出 */
+.icon-ma_returnordersin:before { content: "\e690"; }/* 销后退回 */
+.icon-ma_returndetails:before { content: "\e624"; }/* 退货详情 */
+.icon-ma_purchaselogs:before { content: "\e68a"; }/* 采购记录*/
+.icon-ma_salelogs:before { content: "\e6a3"; }/* 销售记录*/
+
+.icon-ma_deliverycontract:before { content: "\e6b7"; }/*委托协议*/
+.icon-ma_deliveryorders:before { content: "\e6b6"; }/*委托订单*/
+.icon-ma_storageauthorize:before { content: "\e709"; }/*委托仓库*/ 
+
+
+
+.icon-ma_storagelist:before { content: "\e6b8"; }/*仓库列表*/
+.icon-ma_storageracks:before { content: "\e729"; }/*货架列表*/
+.icon-ma_storagelibs:before { content: "\e72a"; }/*货位列表*/
+
+
+.icon-ma_storageinit:before { content: "\e6bb"; }/*仓库初始化*/
+.icon-ma_inventorycount:before { content: "\e6c0"; }/*实时库存*/ 
+.icon-ma_inventorybillwaters:before { content: "\e6bc"; }/*库存流水*/
+.icon-ma_inventoryconfirm:before { content: "\e6bd"; }/*库存盘点*/
+.icon-ma_storageallocate:before { content: "\e6c2"; }/*库间调拨*/
+.icon-ma_storagehumiture:before { content: "\e6b9"; }/* 仓库温湿度*/
+.icon-ma_humitureverifications:before { content: "\e6c1"; }/* 温湿度校准记录*/
+.icon-ma_inventorymaintenance:before { content: "\e6be"; }/* 库存养护检查*/
+.icon-ma_deviceverifications:before { content: "\e6bf"; }/* 设施设备检查记录*/
+.icon-ma_qualityinspectionnotice:before { content: "\e638"; }/*质量复检通知单*/ 
+.icon-ma_vehiclechecks:before { content: "\e6ba"; }/*车辆资质*/
+
+
+.icon-ma_incheckstorage:before { content: "\e6d4"; }/*采购待验入库*/ 
+.icon-ma_inreturncheckstorage:before { content: "\e637"; }/*销后退回待验入库*/ 
+.icon-ma_borrowincheckstorage:before { content: "\e6d7"; }/*借入待验入库*/ 
+.icon-ma_backincheckstorage:before { content: "\e705"; }/*借出归还收货*/ 
+.icon-ma_instoragecheck:before { content: "\e6d5"; }/*采购验收*/ 
+.icon-ma_inreturnstoragecheck:before { content: "\e63a"; }/*销后退回验收*/ 
+.icon-ma_borrowinstoragecheck:before { content: "\e639"; }/*借入验收*/ 
+.icon-ma_backinstoragecheck:before { content: "\e706"; }/*借出归还验收*/ 
+.icon-ma_checklogs:before { content: "\e6d8"; }/*验收记录*/ 
+.icon-ma_rejectionnotice:before { content: "\e6d6"; }/*拒收报告单*/ 
+.icon-ma_instoragecertificate:before { content: "\e6e4"; }/*入库凭证*/ 
+ 
+
+
+.icon-ma_recheckorders:before { content: "\e6db"; }/*销售出库复核*/
+.icon-ma_recheckordersout:before { content: "\e636"; }/*购进退出复核*/
+.icon-ma_recheckordersborrow:before { content: "\e60a"; }/*借出复核*/
+.icon-ma_recheckordersback:before { content: "\e708"; }/*借出归还复核*/ 
+.icon-ma_rechecklogs:before { content: "\e6d9"; }/*复核记录*/
+.icon-ma_followgoods:before { content: "\e6da"; }/*随货同行单*/
+
+
+.icon-ma_inventoryputin:before { content: "\e6c3"; }/*采购入库*/
+.icon-ma_inventorysaleout:before {  content: "\e6ce";}/*销售出库*/ 
+.icon-ma_inventoryborrowout:before { content: "\e6c7"; }/*借出出库*/
+.icon-ma_inventoryborrowin:before { content: "\e6c8"; }/*借入入库*/
+.icon-ma_inventoryreturnin:before { content: "\e6cd"; }/*销后退回入库*/
+.icon-ma_inventoryreturnout:before { content: "\e6c6"; }/*购进退出出库*/
+.icon-ma_inventorybackin:before { content: "\e704"; }/*借出归还入库*/ 
+.icon-ma_inventorybackout:before { content: "\e707"; }/*借出归还出库*/ 
+.icon-ma_sortoutstorage:before { content: "\e6fc"; }/*分拣出库*/
+.icon-ma_sortinstorage:before { content: "\e6fd"; }/*分拣入库*/
+.icon-ma_entrustinstorages:before { content: "\e6cb"; }/* 委托入库*/
+.icon-ma_entrustoutstorages:before { content: "\e6ca"; }/* 委托出库*/
+.icon-ma_inventoryoutlogs:before { content: "\e6c4"; }/* 出库记录*/
+.icon-ma_inventorylogs:before { content: "\e6c9"; }/* 入库记录*/  
+.icon-ma_instoragecertificateout:before { content: "\e6c5"; }/* 出库凭证*/
+.icon-ma_logisticsrouting:before { content: "\e6cc"; }/* 物流信息*/ 
+.icon-ma_traffichumitures:before { content: "\e6cf"; }/* 运输温湿度记录*/
+
+.icon-ma_rejects:before { content: "\e6e2"; }/*公示不合格品*/ 
+.icon-ma_destroyapprovallogs:before { content: "\e6e3"; }/*不合格品审批记录*/
+.icon-ma_destroylogs:before { content: "\e6df"; }/* 不合格品销毁记录*/
+.icon-ma_badreturnlogs:before { content: "\e6dd"; }/* 不合格品退货记录*/ 
+.icon-ma_badproducts:before { content: "\e6dc"; }/*不合格品登记*/
+.icon-ma_destroyapprovals:before { content: "\e703"; }/*不合格品审批*/ 
+.icon-ma_recalls:before { content: "\e6d3"; }/* 不合格品召回*/
+.icon-ma_destroyproducts:before { content: "\e6de"; }/*不合格品销毁*/ 
+.icon-ma_badreponsereports:before { content: "\e6e1"; }/*不良反应报告*/
+
+
+
+
+.icon-ma_qualitycomplaints:before { content: "\e6d2"; }/* 质量投诉*/
+.icon-ma_accidentinvestigations:before { content: "\e6d1"; }/* 事故调查*/
+.icon-ma_aftersaleserviceprocessingreports:before { content: "\e6d0"; }/* 处理报告*/
+
+
+
+.icon-ma_workers:before { content: "\e6f5"; }/*上岗人员*/
+.icon-ma_employeehealtharchives:before { content: "\e6e0"; }/* 员工健康档案*/
+.icon-ma_servicecertificates:before { content: "\e6f4"; }/* 售后服务上岗证*/
+.icon-ma_trainrecords:before { content: "\e67e"; }/* 培训记录*/
+.icon-ma_trainingevaluations:before { content: "\e693"; }/* 培训评估记录*/
+
+
+
+.icon-ma_paymentlist:before { content: "\e6f1"; }/*应付款*/
+.icon-ma_receiptlist:before { content: "\e6f2"; }/*应收款*/
+.icon-ma_invoicemanage:before { content: "\e6ee"; }/*发票管理*/
+.icon-ma_invoicetake:before { content: "\e6e8"; }/*收票管理*/ 
+.icon-ma_mergepayment:before { content: "\e6eb"; }/* 付款记录*/
+.icon-ma_mergereceipt:before { content: "\e6ec"; }/* 收款记录*/
+
+
+.icon-ma_certificateapproval:before { content: "\e6e7"; }/*资格审查*/
+.icon-ma_ordersapproval:before { content: "\e6ef"; }/*应收应付审查*/
+.icon-ma_poolfinancialapproval:before { content: "\e6ea"; }/*池融资管理*/
+.icon-ma_nopaylist:before { content: "\e6e9"; }/*应付应付款池*/
+.icon-ma_fundpool:before { content: "\e6e5"; }/*资金池*/
+.icon-ma_fundbillwaters:before { content: "\e6f0"; }/*资金流水*/
+.icon-ma_financialcount:before { content: "\e6ed"; }/* 金融统计 */
+
+
+
+.icon-ma_productsfrom:before { content: "\e6f3"; }/*产品溯源*/ 
+.icon-ma_rejectanalysis:before { content: "\e6e6"; }/*不合格品分析*/
+
+.icon-ma_shoppingcarts:before { content: "\e702"; }/*购物车*/
+
+
+.icon-ma_staffs:before { content: "\e627"; }/*员工设置*/
+.icon-ma_accesssetting:before { content: "\e633"; }/*权限设置*/
+.icon-ma_invoiceprint:before { content: "\e651"; }/* 打印设置 */
+.icon-ma_reportsettings:before { content: "\e650"; }/* 报表设置 */
+.icon-ma_approvalflows:before {content: "\e62d"; }/* 审批流程 */
+.icon-ma_departments:before { content: "\e634"; }/* 部门管理 */
+.icon-ma_authorizemanage:before { content: "\e632"; }/* 用户角色 */
+.icon-ma_suppliers:before { content: "\e64c"; }/* 商家列表 */
+
+
+.icon-ma_products_manage:before { content: "\e610"; }/* 产品管理 */
+.icon-ma_certificate_manage:before{ content: "\e60f"; }/*资质管理*/
+.icon-ma_authorize_manage:before { content: "\e60d"; } /*委托管理*/
+.icon-ma_orders_manage:before { content: "\e60a"; }/*合同订单*/
+.icon-ma_storage_manage:before { content: "\e60c"; }/*仓储管理*/
+.icon-ma_instoragecheck_manage:before { content: "\e60b"; }/* 入库验收*/
+.icon-ma_recheckorders_manage:before { content: "\e60a"; }/* 出库复核*/
+.icon-ma_storage_logistics:before { content: "\e609"; }/* 仓储物流*/
+.icon-ma_rejects_manage:before { content: "\e608"; }/* 不合格产品管理*/ 
+.icon-ma_aftersaleservice:before { content: "\e607"; }/* 售后服务*/
+.icon-ma_employee_manage:before { content: "\e606"; }/* 人员管理*/
+.icon-ma_financial_manage:before { content: "\e605"; }/*财务管理*/
+.icon-ma_banks_manage:before { content: "\e604";}/*金融平台*/
+.icon-ma_government_manage:before { content: "\e603"; }/*政府监管设置*/
+.icon-ma_humiture_manage:before { content: "\e6ff"; }/*温湿度管理系统*/
+.icon-ma_traffic_manage:before { content: "\e6fe"; }/*运输管理系统*/
+.icon-ma_setting_manage:before { content: "\e602"; }/*配置管理*/
+.icon-ma_purchaseauthorizations:before { content: "\e700"; }/*采购收货人员授权书*/
+.icon-ma_equipmentcalibration:before { content: "\e701"; }/*计量器具校准*/
+.icon-ma_temphumequip:before { content: "\e70d"; }/*温湿度设备*/
+.icon-ma_temphumelogs:before { content: "\e70c"; }/*温湿度记录*/
+.icon-ma_inventorylist:before { content: "\e70b"; }/*库存详情*/
+.icon-ma_pricestrategy_manage:before { content: "\e70f"; }/*价格策略管理*/
+.icon-ma_purchasestrategy:before { content: "\e710"; }/*采购策略*/
+.icon-ma_salestrategy:before { content: "\e711"; }/*销售策略*/
+.icon-wendu:before { content: "\e70e"; }/*温度*/
+.icon-shidu:before { content: "\e71e"; }/*温度*/
+
+.icon-wcs_picking_system:before { content: "\e728"; }  /*wcs 拣货系统 */
+.icon-wcs_controllers:before { content: "\e718"; }  /*控制器管理*/
+.icon-wcs_workareas:before { content: "\e727"; }  /*作业区域管理*/
+.icon-wcs_channels:before { content: "\e720"; }  /*通道管理*/
+.icon-wcs_warehouselocations:before { content: "\e71b"; }  /*标签仓位管理*/
+.icon-wcs_pickingusers:before { content: "\e725"; }  /*拣货员管理*/
+.icon-wcs_orders:before { content: "\e63c"; }  /*拣货订单*/
+.icon-wcs_userresults:before { content: "\e6af"; }  /*拣货信息*/
+.icon-wcs_ordermonitors:before { content: "\e719"; }  /*标签监控*/
+.icon-wcs_hardwaremonitors:before { content: "\e726"; }  /*硬件监控*/
+
+.icon-ma_inventoryauthoout:before { content: "\e712"; }  /*委托调拨出库*/
+.icon-ma_inventoryauthoin:before { content: "\e714"; }  /*委托调拨入库*/
+.icon-ma_recheckordersautho:before { content: "\e713"; }  /*委托调拨复核*/
+.icon-ma_authoincheckstorage:before { content: "\e717"; }  /*委托调拨收货*/
+.icon-ma_authoinstoragecheck:before { content: "\e716"; }  /*委托调拨验收*/
+.icon-ma_authoallocatecontract:before { content: "\e715"; }  /*委托调拨协议*/
+.icon-ma_receivelogs:before { content: "\e722"; }  /*收货记录*/
+.icon-wcs_warehouselocationsproducts:before { content: "\e72b"; }  /*货位产品列表*/
+.icon-ma_coldchaintruck:before { content: "\e72c"; }  /*运输温湿度设备*/
+
+.icon-ma_onsale_manage:before { content: "\e731"; }/*特价商品*/
+.icon-ma_onsalesuppliers:before { content: "\e730"; }/*特价商品会员*/
+.icon-ma_onsaleproducts:before { content: "\e72f"; }/*特价商品列表*/
+.icon-ma_onsaleproductshow:before { content: "\e72e"; }/*特价商品展示区*/
+.icon-ma_onsaleshoppingcarts_details:before { content: "\e72d"; }/*医疗机构特价商品购物车详情*/
+
+.icon-ma_refuseincheckstorage:before { content: "\e733"; }/*拒收归还收货*/
+.icon-ma_refuseinstoragecheck:before { content: "\e735"; }/*拒收归还验收*/
+.icon-ma_inventoryrefusein:before { content: "\e736"; }/*拒收归还入库*/
+.icon-ma_inventoryrefuseout:before { content: "\e732"; }/*拒收归还出库*/
+.icon-ma_recheckordersrefuse:before { content: "\e734"; }/*拒收归还复核*/
+
+.icon-cms_descrip:before { content: "\e738"; }/*官网介绍*/
+.icon-cms_ads:before { content: "\e737"; }/*轮播图*/
+.icon-cms_fagui:before { content: "\e739"; }/*法律法规*/
+.icon-cms_news:before { content: "\e73b"; }/*资讯文章*/
+.icon-ma_cms_manage:before { content: "\e73a"; }/*内容管理*/
+
+/*抢单管理*/
+.icon-rush_management:before { content: "\e73c"; }/*抢单管理*/
+.icon-rush_users:before { content: "\e627"; }/*用户管理*/
+.icon-rush_suppliers:before { content: "\e684"; }/*发布企业*/
+.icon-rush_hospitals:before { content: "\e687"; }/*医疗机构*/
+.icon-rush_protocol:before { content: "\e60e"; }/*发布协议*/
+.icon-rush_technician:before { content: "\e685"; }/*技术人员*/
+.icon-rush_orders:before { content: "\e691"; }/*订单信息*/
+.icon-rush_payables:before { content: "\e6f1"; }/*应付款*/
+.icon-rush_receivables:before { content: "\e6f2"; }/*应收款*/

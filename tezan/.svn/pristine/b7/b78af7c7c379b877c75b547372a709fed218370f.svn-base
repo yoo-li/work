@@ -1,0 +1,1 @@
+<?phprequire_once('modules/Mall_Public/config.func.php');function get_wx_domain(){	$domain = "tezan.cn";	if (preg_match("/[\w\-]+\.\w+$/", $_SERVER['SERVER_NAME'], $domain))	{	    $domain = strtolower($domain[0]);	}	return $domain;}?>

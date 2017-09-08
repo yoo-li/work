@@ -1,0 +1,59 @@
+//获取产品编码或条码
+function getitemcode(obj)
+{
+    var itemcodes ="";
+    if (obj.substring(0, 3) === 'WZD') {
+        var strs = obj.split("_");
+         itemcodes = strs[1];//条码
+    }else if (obj.substring(0, 3) === 'YLT') {//威曼.威高
+         itemcodes = obj.substring(3, 19);
+    } else if (obj.substring(0, 3) === 'ATH') {//中安泰华。华科润
+         itemcodes = obj.substring(3, 16);
+    } else if (obj.substring(0, 3) === 'BCL') {//春丽
+        itemcodes = obj.substring(6, 19);
+    } else if (obj.substring(0, 3) === 'RTK') {//贝尔泰克
+        itemcodes = obj.substring(6, 23);
+    } else {//常州鼎健
+         itemcodes = obj.substring(3, 15);
+    }
+    return itemcodes;
+}
+
+//获取批号
+function getbatchcode(obj)
+{
+    var batchcodes ="";
+    if (obj.substring(0, 3) === 'WZD') {
+        var strs = obj.split("_");
+        batchcodes = strs[2];
+    }else if (obj.substring(0, 3) === 'YLT') {//威曼.威高
+         batchcodes = obj.substring(29);
+    } else if (obj.substring(0, 3) === 'ATH') {//中安泰华。华科润
+         batchcodes = obj.substring(26);
+    } else if (obj.substring(0, 3) === 'BCL') {//春丽
+        batchcodes = obj.substring(37);
+    } else if (obj.substring(0, 3) === 'RTK') {//贝尔泰克
+        batchcodes =  obj.substring(35);
+    }else {//常州鼎健
+         batchcodes = obj.substring(26);
+    }
+    return batchcodes;
+}
+
+//生产厂家
+function getfactorys(obj)
+{
+    var factorys_name ='';
+    if (obj.indexOf('威曼') != -1 || obj.indexOf('威高') != -1) {
+        factorys_name = 'YLT';
+    } else if (obj.indexOf('中安泰华') != -1 || obj.indexOf('华科润') != -1) {
+        factorys_name = 'ATH';
+    } else if (obj.indexOf('春丽') != -1) {
+        factorys_name = 'BCL010';
+    }else if (obj.indexOf('贝尔泰克') != -1) {
+        factorys_name = 'RTK00';
+    }else {//常州鼎健
+        factorys_name ='';
+    }
+    return factorys_name;
+}

@@ -1,0 +1,12 @@
+rm -fr Ma_*
+rm -fr Local_*
+rm -fr Vehicle_*
+rm -fr Tezan_*  
+rm -fr Official* 
+rm -fr Wcs_*
+rm -fr Mall_Official*
+rm -fr Dc_*
+rm -fr Rush_*
+rm -fr Erp_*
+rm -fr Sop_*
+rm -fr Let_*

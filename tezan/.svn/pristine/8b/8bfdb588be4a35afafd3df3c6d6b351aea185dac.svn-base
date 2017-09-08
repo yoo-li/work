@@ -1,0 +1,87 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd"
+		>
+<html>
+<head>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+	<meta http-equiv="X-UA-Compatible" content="IE=EmulateIE7"/>
+	<link rel="stylesheet" type="text/css" href="/Public/gef/css/ext-all.css"/>
+	<script type="text/javascript" src="/Public/gef/js/ext-base.js"></script>
+	<script type="text/javascript" src="/Public/gef/js/ext-all.js"></script>
+	<script type="text/javascript" src="/Public/gef/js/FlowEditor.js" charset="UTF-8"></script>
+	<style type="text/css">
+		{literal}
+		ul#topnav li a.cai_wid {
+			*width: 82px;
+		}
+
+		.tuichi_c_bmc {
+			*width: 250px;
+		}
+
+		.top_bmc_right0 {
+			*width: 100px;
+		}
+
+		<!--
+		ext右键菜单在ie浏览器下，图片会覆盖文字，需要以下样式20120117 mdm-- >
+		.ext-ie .x-menu-item-icon {
+			left: -24px;
+			top: 0px;
+		}
+
+		.ext-strict .x-menu-item-icon {
+			left: 3px;
+			top: 3px;
+		}
+
+		.ext-ie6 .x-menu-item-icon {
+			left: -24px;
+			top: 0px;
+		}
+
+		{/literal}
+	</style>
+</head>
+<body >
+<input id="processTypeId_hidden" type="hidden" value="1">
+<input id="processStatus" type="hidden" value="1">
+<input id="processKey_hidden" type="hidden" value="INC">
+<input id="processVersion_hidden" type="hidden" value="INC.1">
+<div id="cwfJpdlDisplayPosition"></div>
+<div data-toggle="floweditor" style="height: 400px;"></div>
+</body>
+<script type="text/javascript">
+	{literal}
+	Gef.Event.on(Gef.Event.Alert, function (obj)
+	{
+		alert(obj);
+	})
+	Gef.Event.on(Gef.Event.Info, function (obj)
+	{
+		alert("提示：" + obj)
+	})
+	Gef.Event.on(Gef.Event.Dialog, function (url, options)
+	{
+		alert(url)
+		alert(options)
+	})
+	$(document).ready(function ()
+					  {
+						  var urlstring = '/index.php?module=Sop_Workflows&action=GetFlowInfo';
+						  BJUI.ajax("doajax", {
+							  url: urlstring, loadingmask: true, okCallback: function (json, options)
+							  {
+								  xmlString                         = json.jpdlContent;
+								  Gef.Editor.nodeTimerSettings      = json.nodeTimerSettings;
+								  Gef.Editor.signSettings           = json.countersignNodeSettings;
+								  Gef.Editor.subProcessNodeSettings = json.subProcessNodeSettings;
+								  Gef.Editor.taskNodeSettings       = json.taskNodeSettings;
+								  Gef.Editor.taskNodePermissions    = json.taskNodePermissions;
+								  Gef.Editor.init(xmlString)
+							  }
+						  })
+					  })
+	{/literal}
+</script>
+
+</html>

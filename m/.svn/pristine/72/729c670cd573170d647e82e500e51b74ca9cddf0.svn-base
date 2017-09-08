@@ -1,0 +1,583 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no"/>
+	<title>我要宴请</title>
+	<link rel="stylesheet" href="/public/css/mui.min.css">
+	<link href="/public/css/public.css" rel="stylesheet" />
+	<link href="/public/css/iconfont.css" rel="stylesheet"/>
+	<link href="/public/css/parsley.css" rel="stylesheet">
+	<link rel="stylesheet" type="text/css" href="/public/css/mui.picker.min.css" />
+	<link href="/public/css/mui.poppicker.css" rel="stylesheet" />
+	<link href="/public/css/sweetalert.css" rel="stylesheet"/>
+
+	<script src="/public/js/mui.min.js" type="text/javascript" charset="utf-8"></script>
+	<script src="/public/js/zepto.min.js" type="text/javascript" charset="utf-8"></script>
+	<script src="/public/js/utils.js" type="text/javascript" charset="utf-8"></script>
+
+	<script src="/public/js/parsley.min.js"></script>
+	<script src="/public/js/parsley.zh_cn.js"></script>
+	<script type="text/javascript" src="/public/js/sweetalert.min.js"></script>
+	<script src="/public/js/mui.picker.min.js"></script>
+	<script src="/public/js/mui.poppicker.js"></script>
+	<script type="text/javascript" charset="utf-8" src="/public/js/cordova.js"></script>
+	<script type="text/javascript" charset="utf-8" src="/public/js/jquery-1.11.3.min.js"></script>
+	<style>
+		{literal}
+
+
+		.mui-input-row label{
+			line-height:21px;
+			height:21px;
+		}
+
+		.menuicon{ font-size:1.2em; color:#fe4401; padding-right:10px; }
+
+		.menuitem a{ font-size:1.1em; }
+
+		#save_button{
+			font-size:20px;
+			color:#cc3300;
+			padding-left:5px;
+		}
+
+		.mui-bar-tab .mui-tab-item .mui-icon{
+			width:auto;
+		}
+
+		.mui-bar-tab .mui-tab-item, .mui-bar-tab .mui-tab-item.mui-active{
+			color:#cc3300;
+		}
+
+		.mui-input-row label{
+			text-align:right;
+			width:30%;
+		}
+
+		.mui-input-row label ~ input, .mui-input-row label ~ select, .mui-input-row label ~ textarea{
+			float:right;
+			width:70%;
+		}
+
+		.mui-input-row label{
+			line-height:21px;
+			padding:10px 10px;
+		}
+
+		.mui-input-clear{
+			font-size:12px;
+		}
+
+		input.parsley-success,
+		select.parsley-success,
+		textarea.parsley-success{
+			color:#468847;
+			background-color:#DFF0D8;
+			border:1px solid #D6E9C6;
+		}
+
+		input.parsley-error,
+		select.parsley-error,
+		textarea.parsley-error{
+			color:#B94A48;
+			background-color:#F2DEDE;
+			border:1px solid #EED3D7;
+		}
+
+		.parsley-errors-list{
+			margin:2px 0 3px;
+			padding:0;
+			list-style-type:none;
+			font-size:0.9em;
+			line-height:0.9em;
+			opacity:0;
+			transition:all .3s ease-in;
+			-o-transition:all .3s ease-in;
+			-moz-transition:all .3s ease-in;
+			-webkit-transition:all .3s ease-in;
+		}
+
+		.parsley-errors-list.filled{
+			opacity:1;
+		}
+
+		.mui-table-view input[type='radio']{
+			line-height:21px;
+			width:20px;
+			margin-top:10px;
+			height:30px;
+			float:left;
+			border:0;
+			outline:0 !important;
+			background-color:transparent;
+			-webkit-appearance:none;
+		}
+
+		.mui-input-row label.radio{
+			line-height:21px;
+			width:30px;
+			height:40px;
+			float:left;
+			text-align:left;
+			padding:10px 3px;
+		}
+
+		.mui-table-view input[type='radio']{
+		}
+
+		.mui-table-view input[type='radio']:before{
+			content:'\e411';
+		}
+
+		.mui-table-view input[type='radio']:checked:before{
+			content:'\e441';
+		}
+
+		.mui-table-view input[type='radio']:checked:before{
+			color:#007aff;
+		}
+
+		.mui-table-view input[type='radio']:before{
+			font-family:Muiicons;
+			font-size:20px;
+			font-weight:normal;
+			line-height:1;
+			text-decoration:none;
+			color:#aaa;
+			border-radius:0;
+			background:none;
+			-webkit-font-smoothing:antialiased;
+		}
+
+
+
+		.mui-bar .tit-sortbar{
+			left: 0;
+			right: 0;
+			margin-top: 45px;
+		}
+		.mui-bar .mui-segmented-control {
+			top: 0px;
+		}
+		.mui-segmented-control.mui-segmented-control-inverted .mui-control-item {
+			color: #333;
+		}
+
+		.tishi { color: #fe4401; width: 100%; text-align: center; padding-top: 10px; }
+		.tishi .mui-icon { font-size: 4.4em; }
+		.msgbody { width: 100%; font-size: 1.4em; line-height: 25px; color: #333; text-align: center; padding-top: 10px; }
+		.msgbody a { font-size: 1.0em; }
+
+		#address{
+			font-size: 12px;
+		}
+		.mui-input-row label{
+			text-align:left;
+			width:35%;
+			margin-left:10%;
+		}
+		.mui-input-row label ~ input,.mui-input-row label ~ select,.mui-input-row label ~ textarea{
+			width:55%;
+		}
+		.mytreat{
+			float:right;
+			width:55%;
+			height:100%;
+		}
+		.mytreat a{
+			display: inline-block;
+			width:20px;
+			height:20px;
+			text-align: center;
+			color:white;
+			background: #820e01;
+			border-radius: 50%;
+			vertical-align: middle;
+		}
+		.mytreat input{
+			width:50px;
+			font-size:12px;
+			vertical-align: middle;
+			text-align: center;
+		}
+		.dis_address a{
+			position:absolute;
+			right:10px;
+			top:10px;
+			width:20px;
+			height:20px;
+			text-align:center;
+			line-height: 20px;
+			font-size:16px;
+			background: #820e01;
+			border-radius: 50%;
+			color:white;
+		}
+		.address_list{
+			position: absolute;
+			top:45px;
+			right:10px;
+			list-style:none;
+			background: white;
+			border:1px solid #c8c7cc;
+			padding:0;
+			z-index:25;
+		}
+		.address_list li{
+			height:30px;
+			padding-top:0;
+			padding-bottom: 0;
+			line-height: 30px;
+		}
+		.address_list .mui-table-view-cell:after{
+			left:0;
+		}
+		{/literal}
+	</style>
+    {include file='theme.tpl'}
+</head>
+<body>
+
+<div class="mui-inner-wrap">
+	<header class="mui-bar mui-bar-nav" style="padding-right: 15px;">
+        {*<a href="/official/supplier.php?supplierid={$supplier_info.supplierid}" class="mui-icon mui-icon-back mui-pull-left"></a>*}
+		<a id="returnback" class="mui-icon mui-icon-left-nav mui-pull-left"></a>
+		<h1 class="mui-title">我要宴请</h1>
+		<div class="mui-title mui-content tit-sortbar" id="sortbar">
+			<div id="segmentedControl" class="mui-segmented-control mui-segmented-control-inverted mui-segmented-control-negative">
+				<a class="mui-control-item iconfont icon-daishenpi button-color mui-active" href="pendingapproval.php">&nbsp;我要宴请</a>
+				<a class="mui-control-item iconfont icon-shenpijilu button-color" href="treatrecord.php">&nbsp;宴请记录</a>
+			</div>
+		</div>
+	</header>
+	<div id="pullrefresh" class="mui-content mui-scroll-wrapper" style="padding-top: 85px;">
+		<div class="mui-scroll">
+            {if $officialauthorizeevents|@count eq 1}
+				<div class="mui-card" style="margin: 3px 3px;">
+					<p class="tishi"><span class="mui-icon iconfont icon-tishi"></span></p>
+					<p class="msgbody">您还未获得宴请的授权！<br>
+						<br>
+					</p>
+				</div>
+            {else}
+				<form class="mui-input-group" name="frm" id="frm" method="post" action="treat.php"  parsley-validate>
+					<div class="mui-card" style="margin: 3px 3px;">
+						<ul class="mui-table-view" style="padding-top: 5px;padding-bottom: 5px;">
+							<input  name="type" value="submit" type="hidden">
+							<div class="mui-input-row" style="margin-top:3px;">
+								<label style="height:45px;">授权:</label>
+								<input id="authorizeevent" name="authorizeevent" value="" type="hidden">
+								<input id="authorizeevent_text" name="authorizeevent_text" value=""
+									   readonly  type="text" class="mui-input-clear"
+									   maxlength="20" placeholder="请选择授权">
+							</div>
+							<div class="mui-input-row" style="margin-top:3px;">
+								<label style="height:45px;">宴请对象:</label>
+								<input required="required" name="treatobject"
+									   value="" type="text" style="font-size: 12px;"
+									   class="mui-input-clear required"  placeholder="宴请对象公司">
+							</div>
+
+							<div class="mui-input-row" style="margin-top:3px;">
+								<label style="height:45px;">参与人员:</label>
+								<input required="required"  name="participants"
+									   value="" type="text" style="font-size: 12px;"
+									   class="mui-input-clear required"  placeholder="参与人员">
+							</div>
+                            {*------------------------------------------------------------------------------*}
+							<div class="mui-input-row" style="margin-top:3px; display: none;" >
+								<label style="height:45px;">宴请地点:</label>
+								<select name="address"  id="address" >
+                                    {foreach from=$result2 item = foo }
+										<option type="hidden" class="mui-input-clear" value="{$foo}" id="address1" blur = get_address() >{$foo}</option>
+                                    {/foreach}
+								</select>
+							</div>
+							<div class="mui-input-row dis_address" style="margin-top:3px;overflow:visible;height:45px;">
+								<label style="height:45px;">填写宴请地点:</label>
+								<a href="javascript:;" class="select_address">+</a>
+								<input   name="address" id="address2"  value="" type="text" style="font-size: 12px;" class="mui-input-clear  "  placeholder="自己填写宴请地点">
+								<ul class="mui-table-view address_list" hidden>
+                                    {foreach from=$result2 item = foo }
+										<li class="mui-table-view-cell" value="{$foo}" id="address1" >{$foo}</li>
+                                    {/foreach}
+								</ul>
+							</div>
+							<script type="text/javascript">
+                                {literal}
+                                $('.select_address').on('tap',function(e){
+                                    $('.address_list').show();
+                                    e.stopPropagation()
+                                })
+                                $('.address_list').on('tap','li',function(e){
+                                    e.stopPropagation();
+                                    setTimeout(function(){
+                                        $('#address2').val(e.target.innerHTML);
+                                        $('.address_list').hide()
+                                    },300);
+                                })
+                                $(document).on('tap',function(){
+                                    $('.address_list').hide()
+                                })
+                                {/literal}
+							</script>
+
+                            {*-------------------------------------------------------------------------------------*}
+							<div class="mui-input-row" style="margin-top:3px;">
+								<label style="height:45px;">宴请日期:</label>
+								<input id="treatdatetime" name="treatdatetime" value="" required="required"
+									   data-options='{ldelim}"type":"datetime","beginYear":2017,"endYear":2027,"value":""{rdelim}'
+									   readonly  type="text" class="mui-input-clear required"
+									   maxlength="20" placeholder="请输入宴请日期">
+
+							</div>
+							<div class="mui-input-row" style="margin-top:3px;">
+								<label style="height:45px;">预计金额:</label>
+								<input required="required"  name="estimatedcost"
+									   value="" type="number" style="font-size: 12px;"
+									   class="mui-input-clear required"  placeholder="预计金额（元）" id = "pre_totalmoney">
+							</div>
+
+							<!-- <div class="mui-input-row" style="margin-top:3px;">
+                                <label style="height:45px;">宴请人数:</label>
+                                <input required="required"  name="treat_num"
+                                       value="" type="number" style="font-size: 12px;"
+                                       class="mui-input-clear required"  placeholder="宴请人数（人）" id = "treat_num">
+                            </div> -->
+
+
+							<div class="mui-input-row" style="margin-top:3px;">
+								<label style="height:45px;">宴请人数:</label>
+								<!-- <input required="required"  name="treat_num"
+                                       value="" type="number" style="font-size: 12px;"
+                                       class="mui-input-clear required"  placeholder="宴请人数（人）" id = "treat_num"> -->
+								<div class="mytreat">
+									<a href="javascript:;" class="minusnum" style="font-size:12px" id="treat_add">—</a>
+									<input type="number" value="1" id = "treat_num" >
+									<a href="javascript:;" class="addnum" style="font-size:18px" id="treat_cut">+</a>
+								</div>
+							</div>
+							<script type="text/javascript">
+                                {literal}
+                                $('.addnum').on('tap',function(){
+                                    var i = parseInt($('.mytreat input').val());
+                                    i++;
+                                    $('.mytreat input').val(i);
+                                    console.log(i)
+                                })
+                                $('.minusnum').on('tap',function(){
+                                    var i = parseInt($('.mytreat input').val());
+                                    i--;
+                                    if(i<0) i=0;
+                                    $('.mytreat input').val(i);
+                                })
+                                {/literal}
+							</script>
+
+							<div class="mui-input-row" style="margin-top:3px;">
+								<label style="height:45px;">人均消费:</label>
+								<input required="required"  name="percapita"
+									   value="" type="number" style="font-size: 12px;"
+									   class="mui-input-clear required"  placeholder="人均消费（元）" id="average_money"  >
+							</div>
+
+							<div class="mui-input-row" style="margin-top:3px;">
+								<label style="height:65px;">宴请理由:</label>
+								<textarea name="treatreason" required="required" parsley-minlength="10" class="mui-input-clear required" placeholder="宴请理由"   rows="2" ></textarea>
+							</div>
+						</ul>
+					</div>
+					<div class="mui-card" style="margin: 3px 3px;">
+						<h4 class="mui-content-padded" style="margin-bottom:0px;">关注人</h4>
+						<ul id="opinion_div" class="mui-table-view" style="padding-left: 10px;padding-bottom: 5px;">
+							<!-- <li style="float:left;padding: 8px 5px;">
+                                  <img style="width:50px;height:50px;" src="images/user.png">
+                             </li>
+                             <li style="float:left;padding: 8px 5px;">
+                                  <img style="width:50px;height:50px;" src="images/user.png">
+                             </li>
+                             <li style="float:left;padding: 8px 5px;">
+                                  <img style="width:50px;height:50px;" src="images/user.png">
+                             </li>-->
+						</ul>
+					</div>
+					<div class="mui-card" style="margin: 3px 3px;background:{$theme_info.buttoncolor};" id = "btn">
+						<div class="mui-content-padded" style="margin:0px;margin-top: 5px;"  onclick="getadderss()">
+							<h5 class="show-content" style="padding: 10px;"><span class="mui-icon iconfont icon-save"></span> 确认提交</h5>
+						</div>
+					</div>
+				</form>
+            {/if}
+            {include file='copyright.tpl'}
+		</div>
+	</div>
+
+</div>
+<script type="text/javascript">
+    {literal}
+    //根据预计金额计算人均金额
+    average_money = document.getElementById("average_money");
+    average_money.addEventListener("click",function () {
+        var total_money = document.getElementById("pre_totalmoney").value;
+        var total_num = document.getElementById("treat_num").value;
+        if(total_money==''||total_num==''){
+            alert('请输入预计金额和宴请人数')
+        }else {
+            var person_money = document.getElementById("average_money").value = total_money/total_num;
+            average_money.val(person_money);
+        }
+    })
+    var treat_num = document.getElementById("treat_num");
+    treat_num.addEventListener("blur",function () {
+        var total_money = document.getElementById("pre_totalmoney").value;
+        var total_num = document.getElementById("treat_num").value;
+        var person_money = document.getElementById("average_money").value = total_money/total_num;
+        average_money.val(person_money);
+
+
+    })
+    var treat_add = document.getElementById("treat_num");
+    treat_add.addEventListener("blur",function () {
+        var total_money = document.getElementById("pre_totalmoney").value;
+        var total_num = document.getElementById("treat_num").value;
+        var person_money = document.getElementById("average_money").value = total_money/total_num;
+        // average_money.val(person_money);
+
+    })
+    var treat_cut = document.getElementById("treat_num");
+    treat_cut.addEventListener("blur",function () {
+        var total_money = document.getElementById("pre_totalmoney").value;
+        var total_num = document.getElementById("treat_num").value;
+        var person_money = document.getElementById("average_money").value = total_money/total_num;
+        // average_money.val(person_money);
+
+    })
+
+
+    var zepto_address1 =  $("#address").find("option").not(function(){ return !this.selected }).text();
+
+    $(document).on("tap","#btn",function(){
+        var address1= $("#address").find("option:selected").text();
+        var address2 = $("#address2").val();
+        if( address1 == '点击可选' && address2 ==null){
+            alert('您还没有输入宴请地址哦')
+        }else{
+            if(address1 !== '点击可选'){
+                $("#address2").val(address1);
+//                    address2 =  address1;
+//                alert(address2);
+             }
+        }
+    });
+    {/literal}
+</script>
+<script type="text/javascript">
+    {literal}
+
+    {/literal}
+</script>
+<script type="text/javascript">
+    {**}
+
+    var authorizeevents = [
+        {foreach name="officialauthorizeevents" key=officialauthorizeeventid item=officialauthorizeevent_info from=$officialauthorizeevents}
+        {ldelim} value: '{$officialauthorizeeventid}', text: '{$officialauthorizeevent_info.authorizationtitle}'{rdelim},
+        {/foreach}];
+    var authorizeevents_jscode = [{$officialauthorizeevents_encode}];
+
+    {literal}
+    mui.init({
+        pullRefresh: {
+            container: '#pullrefresh' //待刷新区域标识，querySelector能定位的css选择器均可，比如：id、.class等
+        },
+    });
+    mui.ready(function ()
+    {
+
+//返回按钮的调整
+        document.getElementById('returnback').addEventListener('tap', function() {
+            Cordova.exec(null, null, "PhoneGapPlugin", "PluginFunction", [{"type":"historyback"}]);
+        });
+//
+        mui('#pullrefresh').scroll();
+        mui('.mui-bar').on('tap', 'a', function (e)
+        {
+            mui.openWindow({
+                url: this.getAttribute('href'),
+                id: 'info'
+            });
+        });
+        mui('.mui-content').on('tap', 'h5.show-content', function (e)
+        {
+            var validate = Zepto( '#frm' ).parsley( 'validate' );
+            if (validate)
+            {
+                swal({
+                    title: "提示",
+                    text: "您确定提交申请吗？",
+                    type: "warning",
+                    showCancelButton: true,
+                    closeOnConfirm: true,
+                    confirmButtonText: "确定提交",
+                    confirmButtonColor: "#ec6c62"
+                }, function ()
+                {
+                    document.frm.submit();
+                });
+            }
+        });
+        var pickers = {};
+        mui('.mui-table-view').on('tap', 'input#treatdatetime', function (e) {
+            var optionsJson = this.getAttribute('data-options') || '{}';
+            var options = JSON.parse(optionsJson);
+            var id = this.getAttribute('id');
+			/*
+			 * 首次显示时实例化组件
+			 * 示例为了简洁，将 options 放在了按钮的 dom 上
+			 * 也可以直接通过代码声明 optinos 用于实例化 DtPicker
+			 */
+            pickers[id] = pickers[id] || new mui.DtPicker(options);
+            pickers[id].show(function (rs) {
+				/*
+				 * rs.value 拼合后的 value
+				 * rs.text 拼合后的 text
+				 * rs.y 年，可以通过 rs.y.vaue 和 rs.y.text 获取值和文本
+				 * rs.m 月，用法同年
+				 * rs.d 日，用法同年
+				 * rs.h 时，用法同年
+				 * rs.i 分（minutes 的第二个字母），用法同年
+				 */
+                Zepto("#treatdatetime").val(rs.text);
+                Zepto('#treatdatetime').parsley('validate');
+            });
+        });
+        ////
+        var authorizeeventPicker = new mui.PopPicker();
+        authorizeeventPicker.setData(authorizeevents);
+        mui('.mui-table-view').on('tap', 'input#authorizeevent_text', function (e) {
+            authorizeeventPicker.show(function(items) {
+                var selectauthorizeevent =  items[0].value;
+                $("#authorizeevent").val(selectauthorizeevent);
+                $("#authorizeevent_text").val(items[0].text);
+                Zepto.each(authorizeevents_jscode, function(i, v) {
+                    Zepto.each(v, function(ii, vv) {
+                        if (selectauthorizeevent == ii)
+                        {
+                            //alert(JSON.stringify(vv.givennames));
+                            $("#opinion_div").html('');
+                            Zepto.each(vv.givennames, function(profileid, profile_info) {
+                                $("#opinion_div").append('<li style="float:left;padding: 8px 5px;text-align:center;"><img style="width:50px;height:50px;" src="'+profile_info.headimgurl+'"><br>'+profile_info.givenname+'</li>');
+                            });
+                        }
+                    });
+                });
+            });
+        });
+    });
+
+    {/literal}
+</script>
+<script src="/public/js/baidu.js?_=20140821" type="text/javascript"></script>
+</body>
+</html>

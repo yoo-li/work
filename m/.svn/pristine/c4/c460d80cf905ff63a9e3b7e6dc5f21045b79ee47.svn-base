@@ -1,0 +1,35 @@
+<?php
+    session_start();
+    require_once(dirname(__FILE__)."/../include/config.inc.php");
+    require_once(dirname(__FILE__)."/../include/config.common.php");
+    require_once(dirname(__FILE__)."/../include/utils.php");
+
+
+
+    $loadcontent=XN_Content::load('4230751',"ma_inventorylist");
+    $loadcontent->my->isauthorize="0";
+    $loadcontent->save("ma_inventorylist");
+
+
+//
+//    $loadcontent=XN_Content::load('5241675',"ma_checkdetails");
+//    $bath["1114120810adv407"]=array(
+//        "products_batch_no" => "1114120810adv407",
+//        "productdate"       => "2014-12-08",
+//        "validate"          => "",
+//        "sterilizecode"     => "",
+//        "sterilizedate"     => "",
+//        "sterilizevalidate" => "",
+//        "submitnumber"      => 3,
+//        "rechecknumber"      => 3,
+//        "sendnumber"      => 3,
+//        "instoragenumber"      => 3,
+//        "backnumber"      => 0,
+//        "checknumber"      => 3,
+//        "refusenumber"      => 0,
+//    );
+//    $loadcontent->my->batch_info = json_encode($bath);
+//    $loadcontent->save("ma_checkdetails");
+
+
+?>

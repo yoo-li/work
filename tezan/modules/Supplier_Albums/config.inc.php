@@ -1,0 +1,1 @@
+<?php/** * securitycheck:1表示不进行权限校验 */	$Create = true;	$Delete = true;	$actionmapping = array ();?>

@@ -1,0 +1,213 @@
+<html>
+
+<head>
+<meta http-equiv=Content-Type content="text/html; charset=gb2312">
+<meta name=Generator content="Microsoft Word 12 (filtered)">
+<style>
+<!--
+ /* Font Definitions */
+ @font-face
+	{font-family:宋体;
+	panose-1:2 1 6 0 3 1 1 1 1 1;}
+@font-face
+	{font-family:"Cambria Math";
+	panose-1:2 4 5 3 5 4 6 3 2 4;}
+@font-face
+	{font-family:Calibri;
+	panose-1:2 15 5 2 2 2 4 3 2 4;}
+@font-face
+	{font-family:微软雅黑;
+	panose-1:2 11 5 3 2 2 4 2 2 4;}
+@font-face
+	{font-family:"\@微软雅黑";
+	panose-1:2 11 5 3 2 2 4 2 2 4;}
+@font-face
+	{font-family:"\@宋体";
+	panose-1:2 1 6 0 3 1 1 1 1 1;}
+ /* Style Definitions */
+ p.MsoNormal, li.MsoNormal, div.MsoNormal
+	{margin:0cm;
+	margin-bottom:.0001pt;
+	text-align:justify;
+	text-justify:inter-ideograph;
+	font-size:10.5pt;
+	font-family:"Calibri","sans-serif";}
+h1
+	{mso-style-link:"标题 1 Char";
+	margin-top:17.0pt;
+	margin-right:0cm;
+	margin-bottom:16.5pt;
+	margin-left:0cm;
+	text-align:justify;
+	text-justify:inter-ideograph;
+	line-height:240%;
+	page-break-after:avoid;
+	font-size:22.0pt;
+	font-family:"Calibri","sans-serif";}
+h2
+	{mso-style-link:"标题 2 Char";
+	margin-top:13.0pt;
+	margin-right:0cm;
+	margin-bottom:13.0pt;
+	margin-left:0cm;
+	text-align:justify;
+	text-justify:inter-ideograph;
+	line-height:173%;
+	page-break-after:avoid;
+	font-size:16.0pt;
+	font-family:"Cambria","serif";}
+h3
+	{mso-style-link:"标题 3 Char";
+	margin-top:13.0pt;
+	margin-right:0cm;
+	margin-bottom:13.0pt;
+	margin-left:0cm;
+	text-align:justify;
+	text-justify:inter-ideograph;
+	line-height:173%;
+	page-break-after:avoid;
+	font-size:16.0pt;
+	font-family:"Calibri","sans-serif";}
+p.MsoHeader, li.MsoHeader, div.MsoHeader
+	{mso-style-link:"页眉 Char";
+	margin:0cm;
+	margin-bottom:.0001pt;
+	text-align:center;
+	layout-grid-mode:char;
+	border:none;
+	padding:0cm;
+	font-size:9.0pt;
+	font-family:"Calibri","sans-serif";}
+p.MsoFooter, li.MsoFooter, div.MsoFooter
+	{mso-style-link:"页脚 Char";
+	margin:0cm;
+	margin-bottom:.0001pt;
+	layout-grid-mode:char;
+	font-size:9.0pt;
+	font-family:"Calibri","sans-serif";}
+p.MsoListParagraph, li.MsoListParagraph, div.MsoListParagraph
+	{margin:0cm;
+	margin-bottom:.0001pt;
+	text-align:justify;
+	text-justify:inter-ideograph;
+	text-indent:21.0pt;
+	font-size:10.5pt;
+	font-family:"Calibri","sans-serif";}
+span.1Char
+	{mso-style-name:"标题 1 Char";
+	mso-style-link:"标题 1";
+	font-weight:bold;}
+span.2Char
+	{mso-style-name:"标题 2 Char";
+	mso-style-link:"标题 2";
+	font-family:"Cambria","serif";
+	font-weight:bold;}
+span.3Char
+	{mso-style-name:"标题 3 Char";
+	mso-style-link:"标题 3";
+	font-weight:bold;}
+p.1, li.1, div.1
+	{mso-style-name:样式1;
+	mso-style-link:"样式1 Char";
+	margin-top:17.0pt;
+	margin-right:0cm;
+	margin-bottom:16.5pt;
+	margin-left:0cm;
+	text-align:justify;
+	text-justify:inter-ideograph;
+	line-height:240%;
+	page-break-after:avoid;
+	font-size:22.0pt;
+	font-family:"Calibri","sans-serif";
+	font-weight:bold;}
+span.1Char0
+	{mso-style-name:"样式1 Char";
+	mso-style-link:样式1;
+	font-weight:bold;}
+span.Char
+	{mso-style-name:"页眉 Char";
+	mso-style-link:页眉;}
+span.Char0
+	{mso-style-name:"页脚 Char";
+	mso-style-link:页脚;}
+ /* Page Definitions */
+ @page Section1
+	{size:50.0cm 842.0pt;
+	margin:72.0pt 89.85pt 72.0pt 89.85pt;
+	layout-grid:15.6pt;}
+div.Section1
+	{page:Section1;}
+ /* List Definitions */
+ ol
+	{margin-bottom:0cm;}
+ul
+	{margin-bottom:0cm;}
+-->
+</style>
+
+</head>
+
+<body lang=ZH-CN style='text-justify-trim:punctuation'>
+
+<div class=Section1 style='layout-grid:15.6pt'>
+
+<h2><span style='font-family:"微软雅黑","sans-serif"'>软件初次使用向导</span></h2>
+
+<p class=MsoNormal style='margin-bottom:7.8pt'><span style='font-size:9.0pt;
+font-family:"微软雅黑","sans-serif"'>第一步：后台设置（添加用户）<span lang=EN-US><br>
+</span>部门设置——按公司组织结构设置部门，不同用户分属不同部门；</span></p>
+
+<p class=MsoNormal style='margin-bottom:7.8pt'><span style='font-size:9.0pt;
+font-family:"微软雅黑","sans-serif"'>岗位设置——设置销售、采购、库管、财务等岗位权限，可对各岗位能看到那些模块进行那些操作进行控制，初次使用可选择我们设置好的各默认的岗位权限；</span></p>
+
+<p class=MsoNormal style='margin-bottom:7.8pt'><span style='font-size:9.0pt;
+font-family:"微软雅黑","sans-serif"'>用户设置——设置用户名、密码，直接上级等内容；</span></p>
+
+<p class=MsoNormal style='margin-bottom:7.8pt'><span style='font-size:9.0pt;
+font-family:"微软雅黑","sans-serif"'>单位设置——设置公司<span lang=EN-US>logo</span>、地址、账号等信息</span></p>
+
+<p class=MsoNormal style='margin-bottom:7.8pt'><a name="_GoBack"><span
+lang=EN-US></span></a></p>
+
+<p class=MsoNormal style='margin-bottom:7.8pt'><span lang=EN-US
+style='font-size:9.0pt;font-family:"微软雅黑","sans-serif"'>&nbsp;</span></p>
+
+<p class=MsoNormal style='margin-bottom:7.8pt'><span style='font-size:9.0pt;
+font-family:"微软雅黑","sans-serif"'>第二步：基础设置（使用报价、合同、库管等模块需进行此设置）<span lang=EN-US><br>
+</span>添加产品——先在左侧添加产品类别，然后添加产品，要使用库管产品需取消产品的不计库存勾选项。</span></p>
+
+<p class=MsoNormal style='margin-bottom:7.8pt'><span style='font-size:9.0pt;
+font-family:"微软雅黑","sans-serif"'>制定产品价格策略——需要对产品价格进行控制，需要计算项目、产品毛利、毛利率的用户需进行此设置</span></p>
+
+<p class=MsoNormal style='margin-bottom:7.8pt'><span lang=EN-US></span></p>
+
+<p class=MsoNormal style='margin-bottom:7.8pt'><span lang=EN-US
+style='font-size:9.0pt;font-family:"微软雅黑","sans-serif"'>&nbsp;</span></p>
+
+<p class=MsoNormal style='margin-bottom:7.8pt'><span style='font-size:9.0pt;
+font-family:"微软雅黑","sans-serif"'>第三步：使用软件<span lang=EN-US><br>
+</span>客户模块——对客户及其联系人进行管理。只有负责人有编辑权限，上级以及上级的上级有查看权限；</span></p>
+
+<p class=MsoNormal style='margin-bottom:7.8pt'><span style='font-size:9.0pt;
+font-family:"微软雅黑","sans-serif"'>销售模块——对项目机会、报价单、采购、销售合同进行管理；</span></p>
+
+<p class=MsoNormal style='margin-bottom:7.8pt'><span style='font-size:9.0pt;
+font-family:"微软雅黑","sans-serif"'>库存模块——对出、入库货品进行管理；</span></p>
+
+<p class=MsoNormal style='margin-bottom:7.8pt'><span style='font-size:9.0pt;
+font-family:"微软雅黑","sans-serif"'>服务模块——对服务工单、呼叫中心、知识库进行管理；</span></p>
+
+<p class=MsoNormal style='margin-bottom:7.8pt'><span style='font-size:9.0pt;
+font-family:"微软雅黑","sans-serif"'>财务模块——对应收、应付、借支、费用报销进行管理</span></p>
+
+<p class=MsoNormal style='margin-bottom:7.8pt'><span style='font-size:9.0pt;
+font-family:"微软雅黑","sans-serif"'>市场模块——对市场活动进行发布和管理，支持群发邮件、短信；</span></p>
+
+<p class=MsoNormal style='margin-bottom:7.8pt'><span style='font-size:9.0pt;
+font-family:"微软雅黑","sans-serif"'>报表模块——通过综合报表、同比、环比报表、<span lang=EN-US>Top N</span>报表、统计报表，全面掌控企业信息</span></p>
+
+</div>
+
+</body>
+
+</html>

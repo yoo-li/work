@@ -1,0 +1,26 @@
+<?php 
+$mod_strings = Array(
+	'LBL_BASE_INFORMATION' => '基本信息',
+	'TakeCashs No' => '提现ID',
+	'TakeCashs User' => '用户',
+	'Bank' => '收款银行',
+	'IDCard' => '身份证',
+	'Real Name' => '收款人姓名',
+	'Account' => '收款账号',
+	'Amount' => '提现金额',
+	'Money' => '提现前余额',
+	'New Money' => '提现后余额',
+	'TakeCashs DateTime' => '提现日期',
+	'Takecashs Status' => '状态', 
+	'User' => '用户',
+	'Execute DateTime' => '完成日期',
+	'Oper User' => '提现操作人',
+    'Paymethode History'=>'支付记录',
+	'Subscribe Status'=>'关注状态',
+	'Frozen Status'=>'冻结状态',
+	'Examinant'=>'审核员',
+	'Examine DateTime'=>'审核时间',
+	'Reject Reason'=>'驳回申请原因',
+	'TransferFailure Reason'=>'转账失败原因',
+);
+?>

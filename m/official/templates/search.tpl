@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<meta charset="utf-8">
+	<meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no"/>
+	<title>事务官</title>
+	<link rel="stylesheet" href="/public/css/mui.min.css">
+    <link href="/public/css/public.css" rel="stylesheet" />
+     <link href="/public/css/common.css" rel="stylesheet" />
+	<link href="/public/css/iconfont.css" rel="stylesheet"/> 
+	<script src="/public/js/mui.min.js" type="text/javascript" charset="utf-8"></script> 
+	<script src="/public/js/zepto.min.js" type="text/javascript" charset="utf-8"></script>  
+    <script src="/public/js/utils.js" type="text/javascript" charset="utf-8"></script>  
+	<script type="text/javascript" charset="utf-8" src="/public/js/cordova.js"></script>
+	<style>
+		{literal}
+		  
+		{/literal}
+	</style>
+	{include file='theme.tpl'}
+</head>
+<body>
+ 
+	<div class="mui-inner-wrap">
+		<header class="mui-bar mui-bar-nav" style="padding-right: 15px;">
+		    <a href="/official/index.php" class="mui-icon mui-icon-back mui-pull-left"></a>
+			<h1 class="mui-title">查找企业</h1> 
+		</header> 
+         <div id="pullrefresh" class="mui-content mui-scroll-wrapper" style="padding-top: 50px;"> 
+                 <div class="mui-scroll">   
+  					  <div class="mui-card" style="margin: 3px 3px;">  
+	  					   <form action="search.php" onSubmit="return searchgo()"> 
+									  <div class="mui-table-view">
+										  <div class="mui-table-view-cell">     
+							   				<div class="mui-input-row mui-search">
+							   					<input id="keywords" name="keywords" type="search" class="mui-input-clear" placeholder="搜索企业">
+							   				</div> 
+									     </div>
+								      </div>
+						    </form>
+					    </div>
+						{if $official eq '0'}
+						<div class="mui-card" style="margin: 3px 3px;"> 
+		  			        <div class="mui-table-view-cell" style="margin-top:3px;">
+		                         <div  class="mui-media-body myfont-color"
+		                              style="color:#cc3300;font-size: 17px;text-align:center">
+		                                  您已经成为一个企业事务官！<br>
+										  不能同时加入多个企业！
+		                         </div>
+		                    </div>
+						</div>
+						{/if}
+					    <ul id="vendors" class="mui-table-view" style="color: #333;">
+								 	{foreach name="suppliers" item=supplier_info  from=$suppliers} 
+								 		<li class="mui-table-view-cell mui-left"> 
+											 	 <img class="mui-media-object mui-pull-left" style="width:20%" src="{$supplier_info.logo}">
+												<div class="mui-media-body mui-pull-left" style="width:50%">
+														<p class='mui-ellipsis' style="color:#333;font-size:1.3em;line-height: 27px;height: 27px;">{$supplier_info.mallname}</p>  
+														<p class='mui-ellipsis' style="font-size:1.1em;line-height: 15px;height: 15px;">{$supplier_info.suppliers_name}</p>  
+												</div> 
+												{if $official neq '0'} 
+												<div class="mui-media-body mui-pull-right" style="width:28%;padding-top:5px; ">
+													<button data-url="supplierdetail.php?supplierid={$supplier_info.supplierid}" type="button" class="mui-btn mui-btn-danger">{$supplier_info.status}</button>
+												</div> 
+												{/if}
+	  									</li> 
+						   		  {/foreach}
+					 	 	</ul>  
+   				   <div class="mui-card mui-btn-my" style="margin: 3px 3px;background:{$theme_info.buttoncolor};">  
+   					   <div class="mui-content-padded" style="margin:0px;margin-top: 5px;"> 
+   	               			<a href="suppliernew.php"><h5 class="show-content" style="padding: 10px;"><span class="mui-icon iconfont icon-hezuo"></span> 新建企业</h5></a>
+   	  				   </div> 
+   				   </div>	 	
+ 				   {include file='copyright.tpl'}
+ 				</div>
+ 		</div>
+		 
+	</div> 
+
+<script type="text/javascript">
+	{literal}
+	mui.init({
+				 pullRefresh: {
+					 container: '#pullrefresh' //待刷新区域标识，querySelector能定位的css选择器均可，比如：id、.class等 
+				 },
+			 });
+	mui.ready(function ()
+			  {
+				  mui('#pullrefresh').scroll();
+				  mui('.mui-bar').on('tap', 'a', function (e)
+				  {
+					  mui.openWindow({
+										 url: this.getAttribute('href'),
+										 id: 'info'
+									 });
+				  });  
+				  
+				   mui('.mui-table-view').on('tap', 'button', function (e)
+				  {
+					  mui.openWindow({
+										 url: this.getAttribute('data-url'),
+										 id: 'info'
+									 });
+				  });  
+  		  		mui('.mui-content-padded').on('tap','a',function(e){
+  		  			mui.openWindow({
+  		  				url: this.getAttribute('href'),
+  		  				id: 'info'
+  		  			});
+  		  		}); 
+			  }); 
+
+	{/literal}
+</script> 
+<script src="/public/js/baidu.js?_=20140821" type="text/javascript"></script>
+</body>
+</html>

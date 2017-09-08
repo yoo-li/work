@@ -1,0 +1,155 @@
+<!DOCTYPE html>
+   <html> 
+   <head>
+       <meta charset="utf-8">
+       <meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
+       <title>喝水节</title>
+       <link href="public/css/mui.css" rel="stylesheet" />
+       <link href="public/css/common.css" rel="stylesheet" />
+       <link href="public/css/public.css" rel="stylesheet" />
+       <link href="public/css/iconfont.css" rel="stylesheet" />
+       <script src="public/js/mui.min.js" type="text/javascript" charset="utf-8"></script>
+       <script src="public/js/zepto.min.js" type="text/javascript" charset="utf-8"></script>
+       <script type="text/javascript">
+         {literal}
+            !function(){function a(){document.documentElement.style.fontSize=document.documentElement.clientWidth/6.4+"px"}var b=null;window.addEventListener("resize",function(){clearTimeout(b),b=setTimeout(a,300)},!1),a()}(window);
+         {/literal}
+       </script> 
+     	 <style>
+           {literal}
+               .main_bg{
+                height:18.1rem;
+               }
+               .main_bg img{
+                 width:100%;
+               }
+               .mui-scroll{
+                  position:relative;
+               }
+               .tbb_img{
+                  position:absolute;
+               }
+               .tbb_img1 img,.tbb_img2 img,.tbb_img3 img{
+                  width:4rem;
+                  height:2rem;
+               }
+               .tbb_img4 img,.tbb_img5 img{
+                  width:1.9rem;
+                  height:1.96rem;
+               }
+               .tbb_img6 img,.tbb_img7 img,.tbb_img8 img,.tbb_img9 img,.tbb_img10 img,.tbb_img11 img{
+                  width:1.26rem;
+                  height:1.74rem;
+               }
+               .tbb_img1{
+                  top:4.38rem;
+                  left:1.15rem;
+               }
+               .tbb_img2{
+                  top:6.5rem;
+                  left:1.15rem;
+               }
+               .tbb_img3{
+                  top:8.5rem;
+                  left:1.15rem;
+               }
+               .tbb_img4{
+                  top:11.7rem;
+                  left:1.14rem;
+               }
+               .tbb_img5{
+                  top:11.7rem;
+                  left:3.34rem;
+               }
+               .tbb_img6{
+                  top:13.94rem;
+                  left:1.12rem;
+               }
+               .tbb_img7{
+                  top:13.94rem;
+                  left:2.58rem;
+               }
+               .tbb_img8{
+                  top:13.94rem;
+                  left:4.03rem;
+               }
+               .tbb_img9{
+                  top:15.9rem;
+                  left:1.12rem;
+               }
+               .tbb_img10{
+                  top:15.9rem;
+                  left:2.58rem;
+               }
+               .tbb_img11{
+                  top:15.9rem;
+                  left:4.03rem;
+               }
+           {/literal}
+       </style>
+    </head>
+    <body>
+        <div id="pullrefresh" class="mui-content mui-scroll-wrapper" style="padding:0">
+            <div class="mui-scroll">
+                <div class="main_bg">
+                    <img src="public/images/tbb_drink.jpg" alt="">
+                </div>
+                <a class="tbb_img tbb_img1" href="detail.php?from=index&productid=377058">
+                    <img src="public/images/tbb_img1.jpg" alt="">
+                </a>
+                <a class="tbb_img tbb_img2" href="detail.php?from=index&productid=361998">
+                    <img src="public/images/tbb_img2.jpg" alt="">
+                </a>
+                <a class="tbb_img tbb_img3" href="detail.php?from=index&productid=361701">
+                    <img src="public/images/tbb_img3.jpg" alt="">
+                </a>
+                <a class="tbb_img tbb_img4" href="detail.php?from=index&productid=362203">
+                    <img src="public/images/tbb_img4.jpg" alt="">
+                </a>
+                <a class="tbb_img tbb_img5" href="detail.php?from=index&productid=362282">
+                    <img src="public/images/tbb_img5.jpg" alt="">
+                </a>
+                <a class="tbb_img tbb_img6" href="detail.php?from=index&productid=360296">
+                    <img src="public/images/tbb_img6.jpg" alt="">
+                </a>
+                <a class="tbb_img tbb_img7" href="detail.php?from=index&productid=362243">
+                    <img src="public/images/tbb_img7.jpg" alt="">
+                </a>
+                <a class="tbb_img tbb_img8" href="detail.php?from=index&productid=362092">
+                    <img src="public/images/tbb_img8.jpg" alt="">
+                </a>
+                <a class="tbb_img tbb_img9" href="detail.php?from=index&productid=362011">
+                    <img src="public/images/tbb_img9.jpg" alt="">
+                </a>
+                <a class="tbb_img tbb_img10" href="detail.php?from=index&productid=362051">
+                    <img src="public/images/tbb_img10.jpg" alt="">
+                </a>
+                <a class="tbb_img tbb_img11" href="detail.php?from=index&productid=361870">
+                    <img src="public/images/tbb_img11.jpg" alt="">
+                </a>
+            </div>
+        </div>
+    <script type="text/javascript">
+        {literal}
+              mui.init();
+              mui.ready(function() {
+                mui('#pullrefresh').scroll({
+                  scrollX: false,
+                  scrollY: true,
+                  indicators: false, //是否显示滚动条
+                  deceleration:0.0005, //阻尼系数,系数越小滑动越灵敏
+                  bounce: false //是否启用回弹
+                });
+                mui('#list').on('tap','a',function(e){
+                  mui.openWindow({
+                    url: this.getAttribute('href'),
+                    id: 'info'
+                  });
+                });
+              });
+          {/literal}
+    </script>  
+  
+    </body>
+   {include file='weixin.tpl'}
+</html>

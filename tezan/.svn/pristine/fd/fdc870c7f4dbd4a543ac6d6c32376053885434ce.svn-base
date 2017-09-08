@@ -1,0 +1,1 @@
+<?php$Create = false;$Delete = true;$MassEdit = false;$CustomMassDelete = false;$actionmapping = array ();?>

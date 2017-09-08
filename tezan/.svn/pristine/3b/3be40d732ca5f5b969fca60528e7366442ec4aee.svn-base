@@ -1,0 +1,34 @@
+<?php
+
+ 
+ 
+$Config_Assemblys_Tabs = array (
+		"Vehicle_Apply" => "VehicleSchedule",
+		"Vehicle_Activity" => "VehicleSchedule",
+		"Vehicle_Attendance" => "VehicleSchedule",
+		"Vehicle_Driver" => "VehicleInfoManagement",
+		"Vehicle_Vehicle" => "VehicleInfoManagement",
+		"Vehicle_Quota" => "VehicleInfoManagement",
+		"Vehicle_Query" => "VehicleInfoManagement",
+		"Vehicle_RefuelRecord" =>"VehicleInfoManagement",
+		"Vehicle_ViolateRecord" =>"VehicleInfoManagement",
+		"Vehicle_AccidentRecord" =>"VehicleInfoManagement",
+		"Vehicle_Insurance" =>"VehicleInfoManagement",
+		"Vehicle_Maintenance" =>"VehicleInfoManagement",
+		"Vehicle_DriverQuery" =>"VehicleInfoManagement",
+);
+ 
+ 
+ 
+$Config_ShortCut_Tabs = array (
+	    "Vehicle_Apply" => array(
+	    			"AddVehicleApply" =>"EditView",
+	    		),  
+		"Vehicle_Query" => array( 			 
+	    			"VehicleStatistics" =>"VehicleStatistics",
+	    		), 
+); 
+ 
+
+
+?>

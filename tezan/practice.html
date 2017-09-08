@@ -1,0 +1,35 @@
+<?php
+/**
+ * Created by PhpStorm.
+ * User: xingyun
+ * Date: 2017/7/17
+ * Time: 17:03
+ */
+//事件获取
+<script>
+{literal}
+var btn = document.getElementById("rob_click");
+                                                //添加监听事件
+btn.addEventlistenner("tap",function(){
+    mui.ajax('/rob_confirmrob.php,{             //路由
+    data:{
+        salesactivityid:salesactivityid,
+        productid:pro_id,
+        record:rec
+    },
+    type:'get',                                 //http请求类型
+    success:function(data){
+        eval("var arr =" +data);                //将请求文件返回的json字符串转为对象
+        if(arr.status ==1){
+            mui.alert("恭喜您，抢单成功",“限时秒杀”,“下次再来”,function(){
+                location.href = history.back();
+            })
+        }
+
+    }
+}')
+
+});
+{/literal}
+</script>
+

@@ -1,0 +1,172 @@
+<script type="text/javascript" src="modules/CustomView/CustomView.js"></script>
+<div class="bjui-pageContent tableContent">
+	<form id="customviewform" method="post" action="index.php" data-toggle="validate" data-validator-option="{ldelim}focusCleanup:true,timely:false{rdelim}" data-alertmsg="false">
+		<input type="hidden" name="module" value="CustomView">
+		<input type="hidden" name="action" value="Save">
+		<input type="hidden" name="parenttab" value="{$CATEGORY}">
+		<input type="hidden" name="cvmodule" value="{$CVMODULE}">
+		<input type="hidden" id="record" name="record" value="{$CUSTOMVIEWID}">
+		<table class="table table-none" width="100%" style="margin-top:2px;">
+			<tr>
+				<td colspan="2" style="width:50%">
+					<label for="viewName" class="control-label x110">视图名称：</label>
+					<input type="text" class="required" id="viewName" value="{$VIEWNAME}" name="viewName" placeholder="输入视的名称">
+				</td>
+				<td colspan="2" style="width:50%">
+					<label for="setStatus" class="control-label x100">设为公用视图：</label>
+					<input type="checkbox" data-toggle="icheck" value="1" id="setStatus" {if $STATUS eq '3'}checked{/if} name="setStatus">
+				</td>
+			</tr>
+			<tr><td colspan="4" style="height:1px;"><div class="nav-tabs"></div></td></tr>
+			<tr>
+				<td colspan="4" style="height:30px;">
+					<label class="control-label x110">选择需显示的列：</label>
+					<span class="msg-box" id="msgHolder"></span>
+				</td>
+			</tr>
+			{if $CHOOSECOL|@count > 0}
+				{assign var=colindex value=0}
+				{foreach name="choosecol" item=col key=i from=$CHOOSECOL}
+					{assign var=index value=$smarty.foreach.choosecol.iteration}
+					{if $colindex eq 4}
+						{assign var=colindex value=0}
+						</tr>
+					{/if}
+					{assign var=colindex value=$colindex+1}
+					{if $colindex eq 1}
+						<tr>
+							<td style="width:25%;">
+								<select data-toggle="selectpicker" name="column{$index}" id="column" data-width="95%" onChange="checkDuplicate(this);">
+									<option value="">{$MOD.LBL_NONE}</option>
+									{foreach item=filteroption key=label from=$col}
+										<optgroup label="{$label}">
+										{foreach item=text from=$filteroption}
+											{assign var=option_values value=$text.text}
+											<option {$text.selected} value={$text.value}>
+											{if $DATATYPE.$option_values eq 'M'}
+												{$option_values}   *
+											{else}
+												{$option_values}
+											{/if}
+											</option>
+										{/foreach}
+									{/foreach}
+								</select>
+							</td>
+					{else}
+						<td style="width:25%;">
+							<select data-toggle="selectpicker" name="column{$index}" id="column" data-width="{if $colindex eq 4}100{else}95{/if}%" onChange="checkDuplicate(this);">
+								<option value="">{$MOD.LBL_NONE}</option>
+								{foreach item=filteroption key=label from=$col}
+									<optgroup label="{$label}">
+									{foreach item=text from=$filteroption}
+										{assign var=option_values value=$text.text}
+										<option {$text.selected} value={$text.value}>
+										{if $DATATYPE.$option_values eq 'M'}
+											{$option_values}   *
+										{else}
+											{$option_values}
+										{/if}
+										</option>
+									{/foreach}
+								{/foreach}
+							</select>
+						</td>
+					{/if}
+				{/foreach}
+				{if $colindex eq 4}
+					{assign var=colindex value=0}
+					</tr>
+				{/if}
+				{if $CVMODULE neq 'ApprovalCenters'}
+					{assign var=colindex value=$colindex+1}
+					{assign var=index value=$index+1}
+					{if $colindex eq 1}
+						<tr>
+							<td style="width:25%;">
+								<select data-toggle="selectpicker" name="column{$index}" id="column" data-width="95%" onChange="checkDuplicate(this);">
+									<option value="oper">{$MOD.LBL_OPER}</option>
+								</select>
+							</td>
+					{else}
+						<td style="width:25%;">
+							<select data-toggle="selectpicker" name="column{$index}" id="column" data-width="{if $colindex eq 4}100{else}95{/if}%" onChange="checkDuplicate(this);">
+								<option value="oper">{$MOD.LBL_OPER}</option>
+							</select>
+						</td>
+					{/if}
+				{/if}
+				{if $colindex mod 4 neq 0}
+					{capture name="loop"}
+						{math equation="y - ( x % y )" x=$colindex y=4}
+					{/capture}
+					{section name=foo start=0 loop=$smarty.capture.loop}
+						<td style="width:25%;">&nbsp;</td>
+					{/section}
+					</tr>
+				{/if}
+			{/if}
+		</table>
+	</form>
+</div>
+<div class="bjui-pageFooter">
+    <ul>
+        <li><button type="button" class="btn-close" data-icon="close">关闭</button></li>
+		<li><button type="submit" class="btn-green" data-icon="save">保存</button></li>
+    </ul>
+</div>
+
+<script language="javascript" type="text/javascript">
+var k;
+var colOpts;
+var manCheck = new Array({$MANDATORYCHECK});
+var chcols = "{$VALIDATOR}";
+
+{literal}
+if($('#record').val() == '')
+{
+  for(k=0;k<manCheck.length;k++)
+  {
+		selname = "column"+(k+1);
+		$("select[name="+selname+"] option[value="+manCheck[k]+"]").attr("selected","selected");
+  }
+}
+
+$('#customviewform').validator({
+	rules:{
+		isall: function(obj){
+			return $(obj).val().toLowerCase() != 'all' || '视图名称被占用，请更换！'
+		}
+	},
+	fields:{
+		viewName:"名称:required;isall"
+	},
+	groups: [{
+		target: "#msgHolder",
+		fields: chcols,
+		callback: function($elements){
+			var me = this,count = 0;
+			$elements.each(function(){
+				if($(this).val() != "oper" && $(this).val() != ""){
+					count += 1;
+				}
+			});
+			return count >= 1 || '至少选至一个需显示的列！';
+		},
+	}]
+})
+
+function checkDuplicate(obj)
+{
+	$("select[id=column]").each(function(e,sel){
+		if(sel != obj && $(obj).val() == $(sel).val() && $(obj).val() != ""){
+			$(this).alertmsg('info', '显示列不能重复!', {mask:true,title:'自定义视图'})
+			$(obj).selectpicker('val',"");
+			$(obj).selectpicker('render');
+			return false;
+		}
+	})
+    return true;
+}
+{/literal}
+</script>

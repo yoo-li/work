@@ -1,0 +1,172 @@
+<?php
+
+global $currentModule;
+require_once('Smarty_setup.php');
+require_once('include/utils/utils.php');
+require_once('include/utils/DataSearch.php');
+require_once('modules/CustomView/CustomView.php');
+
+
+global $app_strings,$mod_strings,$current_language;
+$current_module_strings = return_module_language($current_language, $currentModule);
+
+
+$smarty = new vtigerCRM_Smarty;
+
+if($_REQUEST['errormsg'] != '')
+{
+        $errormsg = $_REQUEST['errormsg'];
+        $smarty->assign("ERROR",$errormsg);
+}else
+{
+        $smarty->assign("ERROR","");
+}
+if($_REQUEST['numPerPage'] != '' && $_REQUEST['numPerPage'] != $_SESSION['numPerPage'])
+{
+	$numperpage = $_REQUEST['numPerPage'];
+	$_SESSION['numPerPage'] = $numperpage;
+} 
+else if(isset($_SESSION['numPerPage']) && $_SESSION['numPerPage'] != "")
+{
+	$numperpage = $_SESSION['numPerPage'];
+}
+else
+{
+	$numperpage = 50;
+}
+$smarty->assign("NUMPERPAGE", $numperpage);
+
+$upperModule = 'POPULARIZESTATISTICS';
+
+
+//<<<<<<<<<<<<<<<<<<< sorting - stored in session >>>>>>>>>>>>>>>>>>>>
+
+if($_REQUEST['_order'] != '' && $_REQUEST['_order'] != $_SESSION[$upperModule.'_ORDER_BY'])
+{
+	$order_by = $_REQUEST['_order'];
+	$_SESSION[$upperModule.'_ORDER_BY'] = $order_by;
+} 
+else if(isset($_SESSION[$upperModule.'_ORDER_BY']) && $_SESSION[$upperModule.'_ORDER_BY'] != "")
+{
+	$order_by = $_SESSION[$upperModule.'_ORDER_BY'];
+}
+else
+{
+	$order_by = "published";
+}
+////////////////////////////////
+if($_REQUEST['_sort'] != '' && $_REQUEST['_sort'] != $_SESSION[$upperModule.'_SORT_ORDER'])
+{
+	$sorder= $_REQUEST['_sort'];
+	$_SESSION[$upperModule.'_SORT_ORDER'] = $sorder;
+} 
+else if(isset($_SESSION[$upperModule.'_SORT_ORDER']) && $_SESSION[$upperModule.'_SORT_ORDER'] != "")
+{
+	$sorder = $_SESSION[$upperModule.'_SORT_ORDER'];
+}
+else
+{
+	$sorder = "DESC";
+}
+
+
+//<<<<<<<<<<<<<<<<<<< sorting - stored in session >>>>>>>>>>>>>>>>>>>>
+
+
+$smarty->assign("MOD", $mod_strings);
+$smarty->assign("APP", $app_strings);
+$smarty->assign("MODULE",$currentModule);
+//Retreive the list from Database
+//<<<<<<<<<customview>>>>>>>>>
+global  $supplierid;
+$query = XN_Query::create('YearContent_Count')->tag('mall_searchlog')
+    ->filter('type','=','mall_searchlog')
+    ->filter ( 'my.deleted', '=', 0 ); 
+    if (isset($supplierid) &&  $supplierid != "" && $supplierid != "0")
+    { 
+        $query->filter ( 'my.supplierid', '=', $supplierid);
+    }
+$query->rollup()
+    ->group('my.keywords')
+    ->order("my.count",XN_Order::DESC);
+    
+ 
+$smarty->assign("PAGENUM", 1);
+if(isset($_REQUEST['pageNum']) && $_REQUEST['pageNum'] != "")
+{
+	$pagenum = $_REQUEST['pageNum'];
+}
+else
+{
+	$pagenum = 1;
+}
+
+$smarty->assign("PAGENUM", $pagenum);
+
+$limit_start_rec = ($pagenum-1) * $numperpage;
+if ($limit_start_rec < 0) $limit_start_rec = 0;
+$query->begin($limit_start_rec);
+$query->end($numperpage+$limit_start_rec);
+
+$list_result = $query->execute();
+$noofrows = $query->getTotalCount();
+$smarty->assign('NOOFROWS',$noofrows);
+
+$list_entries = array();
+
+
+
+$list_entries['keywords'] = array('label' => '搜索关键字','sort'=> true,'width' => 60,'align' => "center" );
+$list_entries['searchcount'] = array('label' => '搜索次数','sort'=> false,'width' => 40,'align' => "center" );
+
+$smarty->assign("LISTHEADER",$list_entries);
+
+
+function getStdOutput($list_result, $list_entries,$start,$end)
+{ 
+	$return_data = array();
+	$pos = 0;
+	foreach($list_result as $info)
+	{
+	    $keywords = $info->my->keywords;
+	    if($keywords != ""){
+    		$standCustFld = array();
+    		foreach(array_keys($list_entries) as $field)
+    		{
+    			if ($field != 'oper')
+    			{
+    				if($field == "searchcount"){
+    				    $standCustFld[]= $info->my->count; 
+    				}elseif($field == 'keywords'){
+    				    
+    				    $standCustFld[] =  $info->my->keywords; 
+    				}else
+    				{
+    					$standCustFld[]= $info->my->$field;
+    				}
+    			}
+    		}
+    		$return_data[]=$standCustFld;
+	    }
+		if ($pos > 100) break;
+		$pos++;
+	}
+	return $return_data;
+}
+
+
+$smarty->assign("LISTENTITY",getStdOutput($list_result, $list_entries,$published_startdate,$published_enddate));
+
+
+$smarty->assign('SEARCHPANEL',$searchpanel);
+
+$listview_check_button = array();
+
+
+$smarty->assign("LISTVIEW_CHECK_BUTTON", $listview_check_button);
+$smarty->assign("ACTION", "CollectKeywords");
+$smarty->display("Settings/ListTabView.tpl");
+
+
+
+?>

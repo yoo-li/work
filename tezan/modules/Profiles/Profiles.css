@@ -1,0 +1,108 @@
+
+.bjui-doc {
+	margin: 10px;
+}
+.bjui-doc .page-header {
+	border-bottom-color: #ccc;
+	margin-top: 0;
+}
+.bjui-doc ul, ol {
+	margin-bottom: 10px;
+	margin-left: 22px;
+	margin-top: 0;
+}
+.bjui-doc ul {
+	list-style: outside none disc;
+}
+.bjui-doc ol {
+	list-style: outside none decimal;
+}
+.bjui-doc p, .bjui-doc li, .bjui-doc code, .bjui-doc blockquote * {
+	font-size: 14px;
+	line-height: 1.7;
+}
+.bjui-doc blockquote.point {
+	border-left-color: #ff6600;
+}
+.bjui-doc blockquote {
+	border-bottom: 1px solid #eee;
+	border-radius: 5px;
+	border-right: 1px solid #eee;
+	border-top: 1px solid #eee;
+	padding: 5px 15px;
+}
+.bjui-doc code.h4 {
+	color: #c7254e;
+	font-size: 18px;
+	font-weight: 500;
+	margin: 10px 0;
+}
+.bjui-doc .table {
+	margin-bottom: 15px;
+}
+.bjui-doc td {
+	line-height: 1.7;
+}
+.bjui-doc .syntaxhighlighter * {
+	font-size: 12px !important;
+	line-height: 1.5 !important;
+}
+.bjui-doc .bjui-tablefixed .table {
+	margin-bottom: 0;
+}
+
+
+.showTable{
+	display:inline-table;
+}
+.hideTable{
+	display:none;
+}
+
+.listTable {
+	border-bottom: 1px solid #CCCCCC;
+	border-left: 1px solid #CCCCCC;
+	border-right: 1px solid #CCCCCC;
+}
+
+.settingsSelectedUI {
+	background: url("/Public/images/settingsSelUIBg.gif") repeat-x scroll 0 0 transparent;
+	padding: 15px 25px;
+}
+.dvtCellLabel, .cellLabel {
+	padding-left: 10px;
+	white-space: nowrap;
+}
+.cellLabel {
+	background-color: #F5F5FF;
+	border-bottom: 1px solid #DADADA;
+	border-top: 1px solid #EFEFEF;
+	color: #555555;
+	text-align: left;
+}
+.big {
+	color: #000000;
+	font-family: "Microsoft Yahei",微软雅黑,arial,宋体,Arial Narrow,serif;
+	font-size: 12px;
+	font-weight: bold;
+	line-height: 18px;
+}
+.small {
+	color: #000000;
+	font-family: "Microsoft Yahei",微软雅黑,arial,宋体,Arial Narrow,serif;
+	font-size: 12px;
+}
+.cellText {
+	border-bottom: 1px solid #DADADA;
+	color: #333333;
+}
+.colHeader {
+	background-color: #FFFFFF;
+	background-image: url("/Public/images/mailSubHeaderBg-grey.gif");
+	background-repeat: repeat-x;
+	border-color: #DDDDDD #DDDDDD #DDDDDD #FFFFFF;
+	border-left: 1px solid #FFFFFF;
+	border-style: solid;
+	border-width: 1px;
+	font-weight: bold;
+}

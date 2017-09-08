@@ -1,0 +1,64 @@
+<?php
+//var_dump(11);die();
+session_start();
+require_once (dirname(__FILE__) . "/config.error.php");
+header("Content-type:text/html;charset=utf-8");
+//$_GET['profileid'] = 'blenp8c6dvv';
+$profileid = $_GET['profileid'];
+$supplier_profile = XN_Query::create('MainContent')->tag("supplier_profile")      //根据profileid 查询店铺ID   supplier_profile blenp8c6dvv
+    ->filter('type', 'eic', "supplier_profile")
+    ->filter('my.deleted', '=', '0')
+    ->filter('my.official', '=', '0')
+    ->filter('my.profileid', '=',$profileid)
+    ->end(1)
+    ->execute();
+$_GET["supplierid"] = $supplier_profile[0]->my->supplierid;
+$_SESSION["supplierid"] = $supplier_profile[0]->my->supplierid;
+//var_dump($_SESSION["supplierid"] );
+//var_dump($_GET["supplierid"] );die();//
+
+if(isset($_GET['profileid']) && $_GET['profileid'] !='' &&
+	isset($_GET['supplierid']) && $_GET['supplierid'] !='' &&
+	isset($_GET['token']) && $_GET['token'] !='')
+{
+	try 
+	{
+		$token = $_GET['token'];
+		try
+		{ 
+			   $takecash_token = XN_MemCache::get("goto_supplier_".$profileid);
+//			   var_dump($takecash_token);die;
+			   XN_MemCache::put("","goto_supplier_".$profileid,"120");
+			   if ($takecash_token == $token)
+			   {
+				    $_SESSION['supplierid'] = $supplierid;
+					$_SESSION['profileid'] = $profileid;
+					$_SESSION['u'] = $profileid;
+					unset($_SESSION['accessprofileid']);
+					header("Location: index.php");
+					die();
+			   }
+//            var_dump($takecash_token );die();
+//			   var_dump(11111111);die;
+			   messagebox('错误',"token已经过期！",'http://mall.tezan.cn/home.php',5);
+			   die();
+		}
+
+		catch (XN_Exception $e)
+		{
+//		    var_dump($e);die();
+			 messagebox('错误',"token已经过期！",'http://mall.tezan.cn/home.php',10);
+			 die();
+		}
+
+	}
+	catch ( XN_Exception $e )
+	{
+		errorprint('错误',$e->getMessage());
+		die();
+	}
+}
+else
+{
+	errorprint('错误','系统禁止的调用!');
+}

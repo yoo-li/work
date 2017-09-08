@@ -1,0 +1,799 @@
+﻿<?php
+
+
+global $blockid;
+global $fieldid;
+
+$blockid = 0;
+$fieldid = 0;
+
+echo 'Application:'.XN_Application::$CURRENT_URL.'<br>';
+
+$modules = $_GET['module']?array($_GET['module']):modules_list();
+
+foreach ( $modules as $module)
+{
+	/*if (!isset($_REQUEST['module']))
+	{
+		init_module($module);
+	}
+	else */
+	if(isset($_REQUEST['module'])  && $_REQUEST['module'] == $module) 
+	{
+	    init_module($module);
+	}	
+}
+XN_MemCache::delete("tabdata_".XN_Application::$CURRENT_URL);
+
+echo 'initdata running is ok!';
+die();
+
+function init_module($module)
+{
+    $datafile = $_SERVER['DOCUMENT_ROOT'].'/modules/'.$module.'/config.data.php';
+    if (@file_exists($datafile))
+	{
+	   echo 'init data for module ('.$module.')<br>';
+	   require($datafile);
+	   if (is_array($config_tabs )){
+           $tabs=XN_Query::create("Content")
+               ->tag("tabs")
+               ->filter("type","eic","tabs")
+               ->filter("my.tabid","=",$tabid)
+               ->end(-1)
+               ->execute();
+            if(count($tabs)){
+                XN_Content::delete($tabs,"tabs");
+            }
+            $tabfields=XN_Query::create("Content")
+                ->tag("fields")
+                ->filter("type","eic","fields")
+                ->filter("my.tabid","=",$tabid)
+                ->end(-1)
+                ->execute();
+            if(count($tabs)){
+                XN_Content::delete($tabfields,"fields");
+            }
+
+	  		 create_tabs($tabid,$module,$config_tabs);
+        }
+	   if (is_array($Config_Blocks ))
+	   {
+		   $blockarray = create_blocks($tabid,$module,$Config_Blocks);
+		   if (count($blockarray) > 0 && is_array($Config_Fields ))
+		   {
+		   		create_fields($tabid,$module,$blockarray,$Config_Fields);
+
+		   }		   
+	   }
+	   if (is_array($Config_CustomViews ))
+	   		create_customviews($tabid,$module,$Config_CustomViews);
+	   if (is_array($Config_Ws_Entitys ))
+	   		create_ws_entitys($tabid,$module,$Config_Ws_Entitys);
+	   if (is_array($Config_Entitynames ))
+	   		create_ws_entitynames($tabid,$module,$Config_Entitynames);
+	   if (is_array($config_searchcolumn)) create_searchcolumn($tabid,$module,$config_searchcolumn);
+	   if (is_array($config_advancesearch)) create_advancesearch($tabid, $module, $config_advancesearch);
+	   if (is_array($config_modentity_nums)) create_modentity_nums($tabid,$module,$config_modentity_nums);	  
+	   if (is_array($config_fieldmodulerels)) create_fieldmodulerels($tabid,$module,$config_fieldmodulerels);
+	   if (is_array($config_ws_fieldtypes)) create_ws_fieldtypes($tabid,$module,$config_ws_fieldtypes);
+	   if (is_array($config_ws_referencetypes)) create_ws_referencetypes($tabid,$module,$config_ws_referencetypes);
+	   if (is_array($config_picklists)) create_picklists($tabid,$module,$config_picklists);
+	   if (is_array($config_initdata) && $_GET['initdata']) create_initdata($module,$multi_db,$config_initdata);
+        initprofile($tabid,$module);
+        session_start();
+	    session_destroy();
+		XN_Profile::signOut();
+		setcookie("xn_id_".XN_Application::$CURRENT_URL,"", time()-3600,'/');
+	}
+}
+
+function  create_picklists($tabid,$module,$config_picklists)
+{
+	try {				
+	      
+		 foreach ($config_picklists as $picklists_info)
+	     {			
+			     $name = $picklists_info['name'];
+
+				 $picklists = XN_Query::create ( 'Content' )
+					->filter ( 'type', 'eic', 'picklists' )
+					->filter ( 'my.name', '=', $name )
+					->begin(0)->end(-1)	
+					->execute ();
+
+				foreach ( array_chunk($picklists,50,true) as $chunk_picklists)
+				{
+					 XN_Content::delete($chunk_picklists,'picklists');
+				}
+				
+				
+				 $sequence = 1;
+
+				 foreach ($picklists_info['picklist'] as  $picklist_info){
+					$newcontent = XN_Content::create('picklists','',false)->my->add('name',$name);
+					$newcontent->my->$name = $picklist_info[0];
+					$newcontent->my->presence = $picklist_info[1];
+					$newcontent->my->sequence = $sequence;
+					$newcontent->my->tabid = $tabid;
+					$newcontent->my->picklist_valueid = $picklist_info[2];
+					$newcontent->save('Picklists');
+					$sequence = $sequence + 1;
+				}
+				
+		 }	
+		 echo $module."的picklists已经重建成功!<br>";
+
+	} catch ( XN_Exception $e ) {
+		echo $e->getMessage () . "<br>";
+	}
+}
+
+function create_fieldmodulerels($tabid,$module,$config_fieldmodulerels)
+{
+   try {		
+		 $fieldmodulerels = XN_Query::create ( 'Content' )
+			->filter ( 'type', 'eic', 'fieldmodulerels' )
+			->filter ( 'my.tabid', '=', $tabid )
+			->execute ();
+	     foreach ($fieldmodulerels as $fieldmodulerel_info)
+	     {
+	     	XN_Content::delete($fieldmodulerel_info,'fieldmodulerels');
+	     }
+	      
+		 foreach ($config_fieldmodulerels as $fieldmodulerel_info)
+	     {			
+			     $fieldname = $fieldmodulerel_info['fieldname'];
+
+				 $fields = XN_Query::create ( 'Content' )
+					   ->filter ( 'type', 'eic', 'fields' )
+					   ->filter ( 'my.tabid', '=', $tabid )
+					   ->filter ( 'my.fieldname', '=', $fieldname )
+					   ->execute ();
+				 if ( count($fields) > 0)
+			     {
+				        $field_info = $fields[0];
+					    $fieldid = $field_info->my->fieldid;
+					    $newcontent = XN_Content::create('fieldmodulerels','',false);
+						foreach ($fieldmodulerel_info as $k => $v){
+							$newcontent->my->$k = $v;
+						}
+						$newcontent->my->fieldid = $fieldid;
+						$newcontent->my->tabid = $tabid;
+						$newcontent->save('fieldmodulerels');
+				 }
+		 }	
+		 echo $module."的fieldmodulerels已经重建成功!<br>";
+
+	} catch ( XN_Exception $e ) {
+		echo $e->getMessage () . "<br>";
+	}
+}
+
+
+function create_ws_fieldtypes($tabid,$module,$config_ws_fieldtypes)
+{
+   try {		
+		 foreach ($config_ws_fieldtypes as $ws_fieldtypes_info)
+	     {		
+				 $ws_fieldtypes = XN_Query::create ( 'Content' )
+						->filter ( 'type', 'eic', 'ws_fieldtypes' )
+						->filter ( 'my.uitype', '=', $ws_fieldtypes_info['uitype'] )
+						->execute ();
+				 if ( count($ws_fieldtypes) == 0)
+			     {
+					    $newcontent = XN_Content::create('ws_fieldtypes','',false);						
+						$newcontent->my->uitype = $ws_fieldtypes_info['uitype'];
+						$newcontent->my->fieldtype = $ws_fieldtypes_info['fieldtype'];
+						$newcontent->save('ws_fieldtypes');
+				 }else if ( count($ws_fieldtypes) > 0)
+			     {
+						XN_Content::delete($ws_fieldtypes,'ws_fieldtypes');
+					    $newcontent = XN_Content::create('ws_fieldtypes','',false);						
+						$newcontent->my->uitype = $ws_fieldtypes_info['uitype'];
+						$newcontent->my->fieldtype = $ws_fieldtypes_info['fieldtype'];
+						$newcontent->save('ws_fieldtypes');
+				 }
+
+		 }	
+		 echo $module."的ws_fieldtypes已经校验成功!<br>";
+
+	} catch ( XN_Exception $e ) {
+		echo $e->getMessage () . "<br>";
+	}
+}
+
+function create_ws_referencetypes($tabid,$module,$config_ws_referencetypes)
+{
+   try {		
+		foreach ($config_ws_referencetypes as $ws_referencetype_info)
+	     {		
+				 $ws_fieldtypes = XN_Query::create ( 'Content' )
+						->filter ( 'type', 'eic', 'ws_fieldtypes' )
+						->filter ( 'my.uitype', '=', $ws_referencetype_info['uitype'] )
+						->execute ();
+				if ( count($ws_fieldtypes) > 0)
+			    {
+						$ws_fieldtype_info = $ws_fieldtypes[0];
+						$fieldtypeid = $ws_fieldtype_info->id;
+
+						 $ws_referencetypes = XN_Query::create ( 'Content' )
+								->filter ( 'type', 'eic', 'ws_referencetypes' )
+								->filter ( 'my.uitype', '=', $ws_referencetype_info['uitype'] )
+								->filter ( 'my.type', '=', $ws_referencetype_info['type'] )
+							    ->filter ( 'my.fieldtypeid', '=', $fieldtypeid )
+								->execute();
+						 if ( count($ws_referencetypes) == 0)
+						 {
+								$newcontent = XN_Content::create('ws_referencetypes','',false);						
+								$newcontent->my->uitype = $ws_referencetype_info['uitype'];
+								$newcontent->my->type = $ws_referencetype_info['type'];
+								$newcontent->my->fieldtypeid = $fieldtypeid;
+								$newcontent->save('ws_referencetypes');
+						 }
+				}
+		 }	
+		 echo $module."的ws_referencetypes已经校验成功!<br>";
+	} catch ( XN_Exception $e ) {
+		echo $e->getMessage () . "<br>";
+	}
+}
+function create_modentity_nums($tabid,$module,$config_modentity_nums)
+{
+   try {		
+		 $modentity_nums = XN_Query::create ( 'Content' )
+			->filter ( 'type', 'eic', 'modentity_nums' )
+			->filter ( XN_Filter::any(XN_Filter ('my.semodule', '=', $module ),XN_Filter( 'my.tabid', '=', $tabid )))
+			->execute ();
+
+		 XN_Content::delete($modentity_nums,'modentity_nums');
+
+ 
+	     
+			 foreach ($config_modentity_nums as $modentity_num_info)
+			 {			
+					$prefix = $modentity_num_info['prefix'];
+					$semodule = $modentity_num_info['semodule'];
+
+					$modentity_nums = XN_Query::create ( 'Content' )
+								->filter ( 'type', 'eic', 'modentity_nums' )
+								->filter ( XN_Filter::any(XN_Filter ('my.semodule', '=', $semodule ),XN_Filter( 'my.tabid', '=', $tabid )))
+								->filter ( 'my.prefix', '=', $prefix)
+								->execute ();
+					 if (count($modentity_nums) == 0)
+					 {
+
+						$newcontent = XN_Content::create('modentity_nums','',false);
+						foreach ($modentity_num_info as $k => $v){
+							$newcontent->my->$k = $v;
+						}
+						$newcontent->my->tabid = $tabid;
+						$newcontent->my->semodule = $module;
+						$newcontent->save('modentity_nums');
+					 }
+			 }	 
+
+		 echo $module."的modentity_nums已经校验成功!<br>";
+
+	} catch ( XN_Exception $e ) {
+		echo $e->getMessage () . "<br>";
+	}
+	
+}
+
+function create_ws_entitynames($tabid,$module,$Config_Entitynames)
+{
+try {		
+		 $entitynames = XN_Query::create ( 'Content' )
+			->filter ( 'type', 'eic', 'entitynames' )
+			->filter ( XN_Filter::any(XN_Filter ('my.tabid', '=', $tabid ),XN_Filter( 'my.modulename', '=', $module )))
+			->execute ();
+	     foreach ($entitynames as $entityname_info)
+	     {
+	     	XN_Content::delete($entityname_info,'entitynames');
+	     }
+		 
+	      
+		 foreach ($Config_Entitynames as $field_info)
+	     {			
+				$newcontent = XN_Content::create('entitynames','',false);
+				foreach ($field_info as $k => $v){
+					$newcontent->my->$k = $v;
+				}
+				$newcontent->my->tabid = $tabid;
+				$newcontent->my->modulename = $module;
+				$newcontent->save('entitynames');
+		 }	
+		 echo $module."的entitynames已经重建成功!<br>";
+
+	} catch ( XN_Exception $e ) {
+		echo $e->getMessage () . "<br>";
+	}
+	
+}
+
+
+function create_ws_entitys($tabid,$module,$Config_Ws_Entitys)
+{
+try {		
+		 $ws_entityss = XN_Query::create ( 'Content' )
+			->filter ( 'type', 'eic', 'ws_entitys' )
+			->filter ( XN_Filter::any(XN_Filter ('my.name', '=', $module ),XN_Filter( 'my.tabid', '=', $tabid )))
+			->execute ();
+	     foreach ($ws_entityss as $ws_entitys_info)
+	     {
+	     	XN_Content::delete($ws_entitys_info,'ws_entitys');
+	     }
+	      
+		 foreach ($Config_Ws_Entitys as $ws_entitys_info)
+	     {			
+				$newcontent = XN_Content::create('ws_entitys','',false);
+				foreach ($ws_entitys_info as $k => $v){
+					$newcontent->my->$k = $v;
+				}
+				$newcontent->my->tabid = $tabid;
+				$newcontent->my->name = $module;
+				$newcontent->save('ws_entitys');
+		 }	
+		 echo $module."的ws_entitys已经重建成功!<br>";
+
+	} catch ( XN_Exception $e ) {
+		echo $e->getMessage () . "<br>";
+	}
+	
+	
+}
+
+
+
+function create_customviews($tabid,$module,$Config_CustomViews)
+{
+	try {		
+		 $customviews = XN_Query::create ( 'Content' )
+			->filter ( 'type', 'eic', 'customviews' )
+			->filter ( XN_Filter::any(XN_Filter ('my.entitytype', '=', $module ),XN_Filter( 'my.tabid', '=', $tabid )))
+			->execute ();
+	     foreach ($customviews as $customview_info)
+	     {
+	     	XN_Content::delete($customview_info,'customviews');
+	     }
+	     $cvcolumnlists = XN_Query::create ( 'Content' )
+			->filter ( 'type', 'eic', 'cvcolumnlists' )
+			->filter ( 'my.tabid', '=', $tabid )
+			->execute ();
+	     foreach ($cvcolumnlists as $cvcolumnlist_info)
+	     {
+	     	XN_Content::delete($cvcolumnlist_info,'customviews');
+	     }	     
+		
+		 foreach ($Config_CustomViews as  $customview_info){
+				$newcontent = XN_Content::create('customviews','',false);
+				$newcontent->my->viewname = $customview_info['viewname'];
+				$newcontent->my->setdefault = $customview_info['setdefault'];
+				$newcontent->my->setmetrics = $customview_info['setmetrics'];
+				$newcontent->my->entitytype = $customview_info['entitytype'];
+				$newcontent->my->status = $customview_info['status'];
+				$profile = XN_Profile::current();
+				$newcontent->my->userid = $profile->screenName;
+				$newcontent->my->tabid = $tabid;
+				$newcontent->my->init = '1';
+				$newcontent->my->entitytype = $module;
+				$newcontent->save('Customviews');
+				$cvid = $newcontent->id;
+				foreach ($customview_info['cvcolumnlist'] as  $key=>$cvcolumnlist_info){
+						$newcontent = XN_Content::create('cvcolumnlists','',false);
+						$newcontent->my->columnindex = $key;
+						$newcontent->my->columnname = $cvcolumnlist_info;
+						$newcontent->my->cvid = $cvid;
+						$newcontent->my->tabid = $tabid;				
+						$newcontent->save('Cvcolumnlists');
+				}				
+			}	
+			echo $module."的customviews已经重建成功!<br>";
+
+	} catch ( XN_Exception $e ) {
+		echo $e->getMessage () . "<br>";
+	}
+}
+
+function create_advancesearch($tabid,$module,$config_advancesearch) {
+	try {		
+		 $result = XN_Query::create ( 'Content' )
+			->filter ( 'type', 'eic', 'advancesearch' )
+			->filter ( XN_Filter::any(XN_Filter ('my.entitytype', '=', $module ),XN_Filter( 'my.tabid', '=', $tabid )))
+			->execute ();
+	     foreach ($result as $info)
+	     {
+	     	XN_Content::delete($info,'advancesearch');
+	     }
+	     $searchcondition = XN_Query::create ( 'Content' )
+			->filter ( 'type', 'eic', 'searchcondition' )
+			->filter ( 'my.tabid', '=', $tabid )
+			->execute ();
+	     foreach ($searchcondition as $searchcondition_info)
+	     {
+	     	XN_Content::delete($searchcondition_info,'searchcondition');
+	     }	     
+		
+		 foreach ($config_advancesearch as  $advancesearch_info){
+				$newcontent = XN_Content::create('advancesearch','',false);
+				$newcontent->my->searchname = $advancesearch_info['searchname'];
+				$newcontent->my->setdefault = $advancesearch_info['setdefault'];
+				$newcontent->my->entitytype = $advancesearch_info['entitytype'];
+				$profile = XN_Profile::current();
+				$newcontent->my->userid = $profile->screenName;
+				$newcontent->my->tabid = $tabid;
+				$newcontent->save('Advancesearch');
+				$searchid = $newcontent->id;
+				foreach ($advancesearch_info['searchcondition'] as  $searchcondition_info){
+						$newcontent = XN_Content::create('searchcondition','',false);
+						$newcontent->my->searchcondition = $searchcondition_info;
+						$newcontent->my->searchid = $searchid;
+						$newcontent->my->tabid = $tabid;				
+						$newcontent->save('Searchcondition');
+				}				
+			}	
+			echo $module."的advancesearch已经重建成功!<br>";
+
+	} catch ( XN_Exception $e ) {
+		echo $e->getMessage () . "<br>";
+	}
+}
+
+
+function create_fields($tabid,$module,$blockarray,$Config_Fields)
+{
+  global $fieldid;
+  global $fieldinfo;
+  try {
+
+		 $fields = XN_Query::create ( 'Content' )
+			   ->filter ( 'type', 'eic', 'fields' )
+			   ->filter ( 'my.tabid', '=', $tabid )
+			   ->execute ();
+	     XN_Content::delete($fields,'fields');
+
+
+         $profile2fields = XN_Query::create ( 'Content' )->tag('profile2fields')
+              ->filter ( 'type', 'eic', 'profile2fields' )
+              ->filter ( 'my.tabid', '=', $tabid)
+              ->begin(0)->end(-1)
+              ->execute ();
+         if(count($profile2fields)){
+             XN_Content::delete($profile2fields,"profile2fields");
+         }
+
+         $profile2standardpermissions = XN_Query::create ( 'Content' )->tag('profile2standardpermissions')
+              ->filter ( 'type', 'eic', 'profile2standardpermissions' )
+              ->filter ( 'my.tabid', '=', $tabid)
+              ->begin(0)->end(-1)
+              ->execute ();
+         if(count($profile2standardpermissions)){
+              XN_Content::delete($profile2standardpermissions,"profile2standardpermissions");
+         }
+
+         $profile2utilitys = XN_Query::create ( 'Content' )->tag('profile2utilitys')
+              ->filter ( 'type', 'eic', 'profile2utilitys' )
+              ->filter ( 'my.tabid', '=', $tabid)
+              ->execute ();
+         if(count($profile2utilitys)){
+            XN_Content::delete($profile2utilitys,"profile2utilitys");
+         }
+
+         $fieldid = $tabid * 200;
+         $newcontents=array();
+	     foreach ($Config_Fields as $field_info)
+	     {			
+				$newcontent = XN_Content::create('fields','',false);
+				foreach ($field_info as $k => $v){
+					$newcontent->my->$k = $v;
+				}
+				$newcontent->my->tabid = $tabid;
+				
+				$fieldid = $fieldid + 1;
+				$newcontent->my->fieldid = $fieldid;
+				$blockid = $field_info['block'];
+				$newcontent->my->block = $blockarray[$blockid];
+                $newcontents[]=$newcontent;
+                $fieldinfo[$fieldid] = $newcontent->my->fieldname;
+		 }
+        XN_Content::batchsave($newcontents,"fields");
+		 echo $module."的fields已经重建成功!<br>";		
+	     
+	}catch ( XN_Exception $e ) 
+	{
+		echo $e->getMessage () . "<br>";
+	}
+	
+}
+
+function create_blocks($tabid,$module,$Config_Blocks) 
+{
+	
+	global $blockid;
+
+	try {
+		$blocks = XN_Query::create ( 'Content' )
+			   ->filter ( 'type', 'eic', 'blocks' )
+			   ->filter ( 'my.tabid', '=', $tabid )
+			   ->execute ();
+	     foreach ($blocks as $block_info)
+	     {
+	     	XN_Content::delete($block_info,'blocks');
+	     }     
+	     
+	     $blockarray = array();
+	     foreach ($Config_Blocks as $key => $block_info)
+	     {			
+				$newcontent = XN_Content::create('blocks','',false);
+				foreach ($block_info as $k => $v){
+					$newcontent->my->$k = $v;
+				}
+				$newcontent->my->tabid = $tabid;
+				$blockid = $blockid + 1;
+				$newcontent->my->blockid = $blockid;
+				$newcontent->save('blocks');
+				$blockarray[$key]=$blockid;
+		 }	
+		 echo $module."的blocks已经重建成功!<br>";
+		 return $blockarray;
+	     
+	}catch ( XN_Exception $e ) 
+	{
+		echo $e->getMessage () . "<br>";
+		return array();
+	}
+}
+function create_tabs($tabid,$module,$config_tabs) 
+{
+	try {
+			$tabs = XN_Query::create ( 'Content' )
+			   ->filter ( 'type', 'eic', 'tabs' )
+			   ->filter ( 'my.tabid', '=', $tabid )
+				->end(-1)
+			   ->execute ();
+			if (count ( $tabs ) > 0) 
+			{
+					$tab_info = $tabs[0];
+					$update = false;
+					foreach ($config_tabs as $k => $v)
+					{
+						if($tab_info->my->$k != $v) 
+						{
+							$update = true;
+							$tab_info->my->$k  = $v;
+						}						
+					}	
+					if ($update)
+					{
+						$tab_info->save('tabs');
+						echo $module."的tabs已经更新成功!<br>";
+					}
+					else 
+					{
+						echo $module."的tabs校验通过!<br>";
+					}
+			} else 
+			{
+				    $newcontent = XN_Content::create('tabs','',false);
+				    $newcontent->my->tabid = $tabid;
+					foreach ($config_tabs as $k => $v)
+					{
+							$newcontent->my->$k = $v;
+					}
+					$newcontent->save('tabs');
+					echo $module."的tabs已经创建成功!<br>";
+			}
+		} catch ( XN_Exception $e ) 
+		{
+			echo $e->getMessage () . "<br>";
+		}
+}
+
+function create_searchcolumn($tabid,$module,$config_searchcolumn)
+{
+try {		
+		 $searchcolumn = XN_Query::create ( 'Content' )
+			->filter ( 'type', 'eic', 'searchcolumn' )
+			->filter ( 'my.tabid', 'eic', $tabid)
+			->execute ();
+	     foreach ($searchcolumn as $searchcolumn_info)
+	     {
+	     	XN_Content::delete($searchcolumn,'searchcolumn');
+	     }
+	      
+		 foreach ($config_searchcolumn as $searchcolumn_info)
+	     {			
+				$newcontent = XN_Content::create('searchcolumn','',false);
+				foreach ($searchcolumn_info as $k => $v){
+					$newcontent->my->$k = $v;
+				}
+				$newcontent->my->tabid = $tabid;
+				$newcontent->save('searchcolumn');
+		 }	
+		 echo $module."的searchcolumn已经重建成功!<br>";
+
+	} catch ( XN_Exception $e ) {
+		echo $e->getMessage () . "<br>";
+	}
+	
+	
+}
+
+function create_initdata_on_db($module,$config_initdata)
+{
+try {		
+		 $data = XN_Query::create ( 'Content' )
+			->filter ( 'type', 'eic', strtolower($module) )
+			->execute ();
+		 if (count($data_info) == 0)
+		 {
+			 /*foreach ($data as $data_info)
+			 {
+				XN_Content::delete($data_info,strtolower($module));
+			 }*/
+			  
+			 foreach ($config_initdata as $data_info)
+			 {			
+					$newcontent = XN_Content::create(strtolower($module),'',false);
+					foreach ($data_info as $k => $v){
+						$newcontent->my->$k = $v;
+					}
+					$newcontent->save(strtolower($module));
+			 }	
+			 echo $module."的initdata已经重建成功!<br>";
+		 }
+
+	} catch ( XN_Exception $e ) {
+		echo $e->getMessage () . "<br>";
+	}
+}
+
+function create_initdata($module,$multi_db,$config_initdata)
+{
+try {
+	if($multi_db){
+		foreach ($config_initdata as $tabname => $data_value){
+			create_initdata_on_db($tabname,$data_value);
+		}
+	}else
+		create_initdata_on_db($module,$config_initdata);
+
+	} catch ( XN_Exception $e ) {
+		echo $e->getMessage () . "<br>";
+	}
+}
+
+function modules_list()
+{
+  $path = $_SERVER['DOCUMENT_ROOT'].'/modules/';
+  $dir = opendir($path);
+  $filelist = array();
+  while (false !== ($file = readdir($dir))) 
+  {
+		if ($file != 'CVS' && $file[0] != '.' && is_dir(($path . $file)) )
+		{
+			$filelist[] = $file;
+		} 
+  } 
+  closedir($dir);
+  asort($filelist);
+  return $filelist;
+}
+
+function initprofile($tabid,$module)
+{
+     
+    $profiles = XN_Query::create ( 'Content' )->tag('profiles')
+        ->filter ( 'type', 'eic', 'profiles' )
+        ->filter ( 'my.profilename', '!=', 'Admin' )
+		->filter ( 'my.profilename', '!=', 'Boss' )
+        ->begin(0)->end(-1)
+        ->execute ();
+    if(count($profiles)){
+        foreach($profiles as $profiles_info){
+            $profileid=$profiles_info->id;
+            init_profile($profileid,$tabid,$module);
+            echo '初始化['.$profiles_info->my->profilename.']权限成功</br>';
+        }
+    }
+}
+
+function init_profile($profileid,$tabid,$module)
+{
+	
+    $profile2tabs = XN_Query::create ( 'Content' )->tag('profile2tabs')
+        ->filter ( 'type', 'eic', 'profile2tabs' )
+        ->filter ( 'my.profileid', '=', $profileid)
+		->filter ( 'my.tabid', '=', $tabid)
+        ->end(1)
+        ->execute ();
+	if (count($profile2tabs) == 0)
+	{
+        XN_Content::create ( 'profile2tabs', '', false )
+	           ->my->add ( 'tabid', $tabid )
+	           ->my->add ( 'profileid', $profileid )
+	           ->my->add ( 'permissions', '1' )
+			   ->save('profile2tabs');
+	} 
+			
+    global $fieldinfo;
+
+    $objs = array();
+    $permissions =  array ( 'EditView' => 0,  'Delete' => 0, 'Index' => 0,);
+    foreach ( $permissions as   $actionname => $permissions )
+    {
+        $objs[] = XN_Content::create ( 'profile2standardpermissions', '', false )
+            ->my->add ( 'tabid', $tabid )
+            ->my->add ( 'profileid', $profileid )
+            ->my->add ( 'actionname', $actionname )
+            ->my->add ( 'permissions', $permissions );
+    }
+
+
+    if (count($objs) > 0)
+    {
+        XN_Content::batchsave($objs,"profile2standardpermissions");
+    }
+
+
+    $objs = array();
+    $fielddata = $fieldinfo;
+    if (isset($fielddata) && is_array($fielddata))
+    {
+        foreach ($fielddata as $field_id => $field_v)
+        {
+            $objs[] = XN_Content::create ( 'profile2fields', '', false )
+                ->my->add ( 'tabid', $tabid )
+                ->my->add ( 'profileid', $profileid )
+                ->my->add ( 'fieldid', $field_id )
+                ->my->add ( 'fieldname', $field_v )
+                ->my->add ( 'visible', '0' )
+                ->my->add ( 'readonly', '1' );
+        }
+    }
+
+
+    if (count($objs) > 0)
+    {
+        foreach ( array_chunk($objs,50,true) as $chunk_objs)
+        {
+            XN_Content::batchsave($chunk_objs,'profile2fields');
+        }
+    }
+
+    $objs = array();
+    $datafile = $_SERVER['DOCUMENT_ROOT'].'/modules/'.$module.'/config.inc.php';
+    if (@file_exists($datafile))
+    {
+        require($datafile);
+        if(isset($actionmapping) && count($actionmapping) > 0)
+        {
+            foreach ($actionmapping as $actionmapping_info)
+            {
+                $activity = $actionmapping_info['actionname'];
+                $securitycheck = $actionmapping_info['securitycheck'];
+                $type = $actionmapping_info['type'];
+                if (($type == 'ajax' || $type == 'button' || $type == 'listview') && $securitycheck == '0')
+                {
+                    $objs[] = XN_Content::create('profile2utilitys','',false)
+                        ->my->add('tabid',$tabid)
+                        ->my->add('profileid', $profileid )
+                        ->my->add('permission','0')
+                        ->my->add('activity',$activity) ;
+                }
+            }
+        }
+    }
+
+    if (count($objs) > 0)
+    {
+        foreach ( array_chunk($objs,50,true) as $chunk_objs)
+        {
+            XN_Content::batchsave($chunk_objs,'profile2utilitys');
+        }
+    }
+
+
+}
+?>

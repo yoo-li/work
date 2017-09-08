@@ -1,0 +1,6 @@
+rm -fr Ma_*
+rm -fr Local_*
+rm -fr Vehicle_*
+rm -fr Tezan_*  
+rm -fr Official* 
+rm -fr Wcs_*

@@ -1,0 +1,48 @@
+<div class="bjui-pageContent">
+    <form id="{$SUBMODULE}_{$SUBACTION}_frm"  method="post" action="index.php" data-toggle="validate" data-validator-option="{ldelim}focusCleanup:true,timely:false{rdelim}" data-callback="{$SUBMODULE}_{$SUBACTION}_callback" data-alertmsg="false">
+        <input type="hidden" value="{$RECORD}" id="record" name="record">
+        <input type="hidden" value="{$SUBMODULE}" name="module">
+        <input type="hidden" value="{$SUBACTION}" id="action" name="action">
+        <input type="hidden" value="submit" id="type" name="type">
+        <input type="hidden" value="" name="__hash__">
+        {$MSG}
+    </form>
+</div>
+<div class="bjui-pageFooter">
+    <ul>
+        <li><button type="button" class="btn-close" data-icon="close">关闭</button></li>
+        {if $ALERTMSG neq ''}
+            {if $OKBUTTON neq ''}<li><button type="button" onclick="{$SUBMODULE}_{$SUBACTION}_submit();" class="btn-green" data-icon="save">{$OKBUTTON}</button></li>{/if}
+        {else}
+            {if $OKBUTTON neq ''}<li><button type="submit" class="btn-green" data-icon="save">{$OKBUTTON}</button></li>{/if}
+        {/if}
+        {if $BUTTONS neq ''}
+            {foreach item=data from=$BUTTONS}
+                <li>{$data}</li>
+            {/foreach}
+        {/if}
+
+    </ul>
+</div>
+
+<script type="text/javascript" defer="defer">
+    {if $ALERTMSG neq ''}
+    function {$SUBMODULE}_{$SUBACTION}_submit()
+    {ldelim}
+        $("#{$SUBMODULE}_{$SUBACTION}_frm").isValid(function(v)
+        {ldelim}
+            if (v)
+            {ldelim}
+                $(this).alertmsg("confirm", "{$ALERTMSG}", {ldelim}
+                    displayMode:"slide", displayPosition:"middlecenter",
+                    okCall: function ()
+                    {ldelim}
+                        $("#{$SUBMODULE}_{$SUBACTION}_frm").trigger("submit");
+                        {rdelim}
+                    {rdelim});
+                {rdelim}
+            {rdelim});
+        {rdelim}
+    {/if}
+    {$SCRIPT}
+</script>

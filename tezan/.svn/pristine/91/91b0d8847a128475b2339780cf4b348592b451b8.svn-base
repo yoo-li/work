@@ -1,0 +1,5083 @@
+/**
+ * Created by Clubs-Mac on 17/1/23.
+ */
+Gef.ns("Gef.figure");
+Gef.figure.Figure = Gef.extend(Object, {
+	constructor : function($) {
+		this.children = [];
+		$ = $ ? $ : {};
+		Gef.apply(this, $)
+	},
+	setParent : function($) {
+		this.parent = $
+	},
+	getParent : function() {
+		return this.parent
+	},
+	getParentEl : function() {
+		return this.parent.el
+	},
+	getChildren : function() {
+		return this.children
+	},
+	addChild : function($) {
+		this.children.push($);
+		$.setParent(this)
+	},
+	removeChild : function($) {
+		$.remove()
+	},
+	render : function() {
+		if (!this.el)
+			if (Gef.isVml) {
+				this.renderVml();
+				this.onRenderVml()
+			} else {
+				this.renderSvg();
+				this.onRenderSvg()
+			}
+		for (var $ = 0; $ < this.children.length; $++)
+			this.children[$].render()
+	},
+	renderSvg : Gef.emptyFn,
+	renderVml : Gef.emptyFn,
+	onRenderVml : function() {
+		this.el.setAttribute("id", Gef.id());
+		this.el.style.position = "absolute";
+		this.el.style.cursor = "pointer";
+		this.getParentEl().appendChild(this.el)
+	},
+	onRenderSvg : function() {
+		this.el.setAttribute("id", Gef.id());
+		this.el.setAttribute("fill", "white");
+		this.el.setAttribute("stroke", "black");
+		this.el.setAttribute("stroke-width", "1");
+		this.el.setAttribute("cursor", "pointer");
+		this.getParentEl().appendChild(this.el)
+	},
+	getId : function() {
+		return this.el.getAttribute("id")
+	},
+	remove : function() {
+		this.parent.getChildren().remove(this);
+		this.getParentEl().removeChild(this.el)
+	},
+	show : function() {
+		this.el.style.display = ""
+	},
+	hide : function() {
+		this.el.style.display = "none"
+	},
+	moveTo : Gef.emptyFn,
+	update : Gef.emptyFn
+});
+Gef.figure.GroupFigure = Gef.extend(Gef.figure.Figure, {
+	renderVml : function() {
+		var $ = document.createElement("div");
+		$.id = this.id;
+		this.el = $;
+		this.getParentEl().appendChild($)
+	},
+	renderSvg : function() {
+		var $ = document.createElementNS(Gef.svgns, "g");
+		$.setAttribute("id", this.id);
+		this.el = $;
+		this.getParentEl().appendChild($)
+	},
+	onRenderVml : function() {
+	},
+	onRenderSvg : function() {
+	}
+});
+Gef.figure.LineFigure = Gef.extend(Gef.figure.Figure, {
+	renderVml : function() {
+		var $ = document.createElement("v:line");
+		$.from = this.x1 + "," + this.y1;
+		$.to = this.x2 + "," + this.y2;
+		this.el = $
+	},
+	renderSvg : function() {
+		var $ = document.createElementNS(Gef.svgns, "line");
+		$.setAttribute("x1", this.x1 + "px");
+		$.setAttribute("y1", this.y1 + "px");
+		$.setAttribute("x2", this.x2 + "px");
+		$.setAttribute("y2", this.y2 + "px");
+		this.el = $
+	},
+	onRenderVml : function() {
+		this.el.setAttribute("id", Gef.id());
+		this.el.style.position = "absolute";
+		this.el.style.cursor = "pointer";
+		this.el.setAttribute("strokeweight", 2);
+		this.el.setAttribute("strokecolor", "blue");
+		this.getParentEl().appendChild(this.el)
+	},
+	onRenderSvg : function() {
+		this.el.setAttribute("id", Gef.id());
+		this.el.setAttribute("fill", "white");
+		this.el.setAttribute("stroke", "blue");
+		this.el.setAttribute("stroke-width", "2");
+		this.el.setAttribute("cursor", "pointer");
+		this.getParentEl().appendChild(this.el)
+	},
+	update : function(B, $, A, _) {
+		this.x1 = B;
+		this.y1 = $;
+		this.x2 = A;
+		this.y2 = _;
+		if (Gef.isVml)
+			this.updateVml();
+		else
+			this.updateSvg()
+	},
+	updateVml : function() {
+		this.el.from = this.x1 + "," + this.y1;
+		this.el.to = this.x2 + "," + this.y2
+	},
+	updateSvg : function() {
+		this.el.setAttribute("x1", this.x1 + "px");
+		this.el.setAttribute("y1", this.y1 + "px");
+		this.el.setAttribute("x2", this.x2 + "px");
+		this.el.setAttribute("y2", this.y2 + "px")
+	}
+});
+Gef.figure.PolylineFigure = Gef.extend(Gef.figure.Figure, {
+	getPoint : function(_, A) {
+		var $ = "";
+		for (var C = 0; C < this.points.length; C++) {
+			var B = this.points[C];
+			$ += (B[0] + _) + "," + (B[1] + A) + " "
+		}
+		return $
+	},
+	renderVml : function() {
+		var $ = document.createElement("v:polyline");
+		$.setAttribute("points", this.getPoint(0, 0));
+		this.el = $
+	},
+	renderSvg : function() {
+		var $ = document.createElementNS(Gef.svgns, "polyline");
+		$.setAttribute("points", this.getPoint(0, 0));
+		this.el = $
+	},
+	onRenderVml : function() {
+		this.el.setAttribute("id", Gef.id());
+		this.el.style.position = "absolute";
+		this.el.style.cursor = "pointer";
+		this.el.setAttribute("strokeweight", 2);
+		this.el.setAttribute("strokecolor", "blue");
+		Gef.model.root.appendChild(this.el)
+	},
+	onRenderSvg : function() {
+		this.el.setAttribute("id", Gef.id());
+		this.el.setAttribute("fill", "none");
+		this.el.setAttribute("stroke", "blue");
+		this.el.setAttribute("stroke-width", "2");
+		this.el.setAttribute("cursor", "pointer");
+		Gef.model.root.appendChild(this.el)
+	},
+	onSelectVml : function() {
+		this.el.setAttribute("strokeweight", "4");
+		this.el.setAttribute("strokecolor", "green")
+	},
+	onSelectSvg : function() {
+		this.el.setAttribute("stroke-width", "4");
+		this.el.setAttribute("stroke", "green")
+	},
+	onDeselectVml : function() {
+		this.el.setAttribute("strokeweight", "2");
+		this.el.setAttribute("strokecolor", "blue")
+	},
+	onDeselectSvg : function() {
+		this.el.setAttribute("stroke-width", "2");
+		this.el.setAttribute("stroke", "blue")
+	}
+});
+Gef.figure.PolygonFigure = Gef.extend(Gef.figure.Figure, {
+	getPoint : function(_, A) {
+		var $ = "";
+		for (var C = 0; C < this.points.length; C++) {
+			var B = this.points[C];
+			$ += (B[0] + _) + "," + (B[1] + A) + " "
+		}
+		return $
+	},
+	renderVml : function() {
+		var $ = document.createElement("v:polyline");
+		$.setAttribute("points", this.getPoint(0, 0));
+		this.el = $
+	},
+	renderSvg : function() {
+		var $ = document.createElementNS(Gef.svgns, "polygon");
+		$.setAttribute("points", this.getPoint(0, 0));
+		this.el = $
+	},
+	move : function($, _) {
+		this.moveTo(this.x + $, this.y + _)
+	},
+	moveTo : function(_, $) {
+		this.x = _;
+		this.y = $;
+		if (Gef.isVml)
+			this.moveToVml();
+		else
+			this.moveToSvg()
+	},
+	moveToVml : function() {
+		this.el.style.left = this.x + "px";
+		this.el.style.top = this.y + "px"
+	},
+	moveToSvg : function(_, $) {
+		this.el.setAttribute("x", this.x);
+		this.el.setAttribute("y", this.y)
+	},
+	update : function(B, A, $, _) {
+		this.x = B;
+		this.y = A;
+		this.w = $;
+		this.h = _;
+		if (Gef.isVml)
+			this.updateVml();
+		else
+			this.updateSvg()
+	},
+	updateVml : function() {
+		this.moveToVml();
+		this.el.style.width = this.w + "px";
+		this.el.style.height = this.h + "px"
+	},
+	updateSvg : function() {
+		this.moveToSvg();
+		this.el.setAttribute("width", this.w);
+		this.el.setAttribute("height", this.h)
+	},
+	resize : function(B, _, A) {
+		var E = this.x, D = this.y, $ = this.w, C = this.h;
+		if (B == "n") {
+			D = D + A;
+			C = C - A
+		} else if (B == "s")
+			C = C + A;
+		else if (B == "w") {
+			E = E + _;
+			$ = $ - _
+		} else if (B == "e")
+			$ = $ + _;
+		else if (B == "nw") {
+			E = E + _;
+			$ = $ - _;
+			D = D + A;
+			C = C - A
+		} else if (B == "ne") {
+			$ = $ + _;
+			D = D + A;
+			C = C - A
+		} else if (B == "sw") {
+			E = E + _;
+			$ = $ - _;
+			C = C + A
+		} else if (B == "se") {
+			$ = $ + _;
+			C = C + A
+		}
+		this.update(E, D, $, C);
+		return {
+			x : E,
+			y : D,
+			w : $,
+			h : C
+		}
+	}
+});
+Gef.figure.RectFigure = Gef.extend(Gef.figure.Figure, {
+	renderVml : function() {
+		var $ = document.createElement("v:rect");
+		$.style.left = this.x + "px";
+		$.style.top = this.y + "px";
+		$.style.width = this.w + "px";
+		$.style.height = this.h + "px";
+		this.el = $
+	},
+	renderSvg : function() {
+		var $ = document.createElementNS(Gef.svgns, "rect");
+		$.setAttribute("x", this.x + "px");
+		$.setAttribute("y", this.y + "px");
+		$.setAttribute("width", this.w + "px");
+		$.setAttribute("height", this.h + "px");
+		this.el = $
+	},
+	move : function($, _) {
+		this.moveTo(this.x + $, this.y + _)
+	},
+	moveTo : function(_, $) {
+		this.x = _;
+		this.y = $;
+		if (Gef.isVml)
+			this.moveToVml();
+		else
+			this.moveToSvg()
+	},
+	moveToVml : function() {
+		this.el.style.left = this.x + "px";
+		this.el.style.top = this.y + "px"
+	},
+	moveToSvg : function(_, $) {
+		this.el.setAttribute("x", this.x);
+		this.el.setAttribute("y", this.y)
+	},
+	update : function(B, A, $, _) {
+		this.x = B;
+		this.y = A;
+		this.w = $;
+		this.h = _;
+		if (Gef.isVml)
+			this.updateVml();
+		else
+			this.updateSvg()
+	},
+	updateVml : function() {
+		this.moveToVml();
+		this.el.style.width = this.w + "px";
+		this.el.style.height = this.h + "px"
+	},
+	updateSvg : function() {
+		this.moveToSvg();
+		this.el.setAttribute("width", this.w);
+		this.el.setAttribute("height", this.h)
+	},
+	resize : function(B, _, A) {
+		var E = this.x, D = this.y, $ = this.w, C = this.h;
+		if (B == "n") {
+			D = D + A;
+			C = C - A
+		} else if (B == "s")
+			C = C + A;
+		else if (B == "w") {
+			E = E + _;
+			$ = $ - _
+		} else if (B == "e")
+			$ = $ + _;
+		else if (B == "nw") {
+			E = E + _;
+			$ = $ - _;
+			D = D + A;
+			C = C - A
+		} else if (B == "ne") {
+			$ = $ + _;
+			D = D + A;
+			C = C - A
+		} else if (B == "sw") {
+			E = E + _;
+			$ = $ - _;
+			C = C + A
+		} else if (B == "se") {
+			$ = $ + _;
+			C = C + A
+		}
+		this.update(E, D, $, C);
+		return {
+			x : E,
+			y : D,
+			w : $,
+			h : C
+		}
+	}
+});
+Gef.figure.CircleFigure = Gef.extend(Gef.figure.Figure,{
+	renderVml : function() {
+		var $ = document.createElement("v:circle");
+		$.style.left = this.x + "px";
+		$.style.top = this.y + "px";
+		$.style.width = this.w + "px";
+		$.style.height = this.h + "px";
+		this.el = $
+	},
+	renderSvg : function() {
+		var $ = document.createElementNS(Gef.svgns, "circle");
+		$.setAttribute("cx", this.x + "px");
+		$.setAttribute("cy", this.y + "px");
+		$.setAttribute("r", this.r + "px");
+		this.el = $
+	},
+	move : function($, _) {
+		this.moveTo(this.x + $, this.y + _)
+	},
+	moveTo : function(_, $) {
+		this.x = _;
+		this.y = $;
+		if (Gef.isVml)
+			this.moveToVml();
+		else
+			this.moveToSvg()
+	},
+	moveToVml : function() {
+		this.el.style.left = this.x + "px";
+		this.el.style.top = this.y + "px"
+	},
+	moveToSvg : function() {
+		this.el.setAttribute("cx", this.x);
+		this.el.setAttribute("cy", this.y)
+	},
+	update : function(B, A, $) {
+		this.x = B;
+		this.y = A;
+		this.r = $;
+		if (Gef.isVml)
+			this.updateVml();
+		else
+			this.updateSvg()
+	},
+	updateVml : function() {
+		this.moveToVml();
+		this.el.style.width = this.w + "px";
+		this.el.style.height = this.h + "px"
+	},
+	updateSvg : function() {
+		this.moveToSvg();
+		this.el.setAttribute("r", this.r);
+	},
+	resize : function(B, _, A) {
+		var E = this.x, D = this.y, $ = this.w, C = this.h;
+		if (B == "n") {
+			D = D + A;
+			C = C - A
+		} else if (B == "s")
+			C = C + A;
+		else if (B == "w") {
+			E = E + _;
+			$ = $ - _
+		} else if (B == "e")
+			$ = $ + _;
+		else if (B == "nw") {
+			E = E + _;
+			$ = $ - _;
+			D = D + A;
+			C = C - A
+		} else if (B == "ne") {
+			$ = $ + _;
+			D = D + A;
+			C = C - A
+		} else if (B == "sw") {
+			E = E + _;
+			$ = $ - _;
+			C = C + A
+		} else if (B == "se") {
+			$ = $ + _;
+			C = C + A
+		}
+		if (Gef.isVml)
+			this.resizeVml(E, D, $, C);
+		else
+			this.resizeSvg(E, D, $, C);
+		return {
+			x : E,
+			y : D,
+			w : $,
+			h : C
+		}
+	}
+});
+Gef.figure.RoundRectFigure = Gef.extend(Gef.figure.RectFigure, {
+	renderVml : function() {
+		Gef.figure.RoundRectFigure.superclass.renderVml.call(this);
+		this.el.arcsize = 0.1
+	},
+	renderSvg : function() {
+		Gef.figure.RoundRectFigure.superclass.renderSvg.call(this);
+		this.el.setAttribute("rx", 10);
+		this.el.setAttribute("ry", 10)
+	}
+});
+Gef.figure.ImageFigure = Gef.extend(Gef.figure.RectFigure, {
+	renderVml : function() {
+		var $ = document.createElement("img");
+		$.style.left = this.x + "px";
+		$.style.top = this.y + "px";
+		$.setAttribute("src", this.url);
+		this.el = $
+	},
+	renderSvg : function() {
+		var $ = document.createElementNS(Gef.svgns, "image");
+		$.setAttribute("x", this.x + "px");
+		$.setAttribute("y", this.y + "px");
+		$.setAttribute("width", "48px");
+		$.setAttribute("height", "48px");
+		$.setAttributeNS(Gef.linkns, "xlink:href", this.url);
+		this.el = $
+	},
+	update : function(B, A, $, _) {
+		this.moveTo(B, A)
+	},
+	onRenderVml : function() {
+		this.el.setAttribute("id", Gef.id());
+		this.el.style.position = "absolute";
+		this.el.style.cursor = "pointer";
+		this.getParentEl().appendChild(this.el)
+	},
+	onRenderSvg : function() {
+		this.el.setAttribute("id", Gef.id());
+		this.el.setAttribute("cursor", "pointer");
+		this.getParentEl().appendChild(this.el)
+	}
+});
+Gef.figure.RootFigure = Gef.extend(Gef.figure.Figure, {
+	render : function() {
+		this.getParentEl().onselectstart = function() {
+			return false
+		};
+		Gef.figure.RootFigure.superclass.render.call(this)
+	},
+	renderVml : function() {
+		var $ = document.createElement("div");
+		this.getParentEl().appendChild($);
+		this.el = $
+	},
+	renderSvg : function() {
+		var E = this.getParentEl(), _ = E.ownerDocument.createElementNS(Gef.svgns, "svg");
+		_.setAttribute("id", Gef.id());
+		_.setAttribute("width", E.style.width.replace(/px/, ""));
+		_.setAttribute("height", E.style.height.replace(/px/, ""));
+		_.style.fontFamily = "Verdana";
+		_.style.fontSize = "12px";
+		E.appendChild(_);
+		var $ = _.ownerDocument.createElementNS(Gef.svgns, "defs");
+		_.appendChild($);
+		var B = _.ownerDocument.createElementNS(Gef.svgns, "marker");
+		B.setAttribute("id", "markerArrow");
+		B.setAttribute("markerUnits", "userSpaceOnUse");
+		B.setAttribute("markerWidth", 8);
+		B.setAttribute("markerHeight", 8);
+		B.setAttribute("refX", 8);
+		B.setAttribute("refY", 4);
+		B.setAttribute("orient", "auto");
+		var A = _.ownerDocument.createElementNS(Gef.svgns, "path");
+		A.setAttribute("d", "M 0 0 L 8 4 L 0 8 z");
+		A.setAttribute("stroke", "#909090");
+		A.setAttribute("fill", "#909090");
+		B.appendChild(A);
+		$.appendChild(B);
+		var D = _.ownerDocument.createElementNS(Gef.svgns, "marker");
+		D.setAttribute("id", "markerDiamond");
+		D.setAttribute("markerUnits", "userSpaceOnUse");
+		D.setAttribute("markerWidth", 16);
+		D.setAttribute("markerHeight", 8);
+		D.setAttribute("refX", 0);
+		D.setAttribute("refY", 4);
+		D.setAttribute("orient", "auto");
+		var C = _.ownerDocument.createElementNS(Gef.svgns, "path");
+		C.setAttribute("d", "M 0 4 L 8 8 L 16 4 L 8 0 z");
+		C.setAttribute("stroke", "#909090");
+		C.setAttribute("fill", "#FFFFFF");
+		D.appendChild(C);
+		$.appendChild(D);
+		this.el = _
+	},
+	onRenderVml : function() {
+	},
+	onRenderSvg : function() {
+	}
+});
+Gef.figure.NoFigure = Gef.extend(Gef.figure.Figure, {
+	render : Gef.emptyFn,
+	update : Gef.emptyFn
+});
+Gef.figure.NodeFigure = Gef.extend(Gef.figure.RoundRectFigure, {
+	constructor : function($) {
+		this.outputs = [];
+		this.incomes = [];
+		Gef.figure.NodeFigure.superclass.constructor.call(this, $);
+		this.w = 90;
+		this.h = 50
+	},
+	renderVml : function() {
+		var $ = document.createElement("v:group");
+		$.style.left = this.x;
+		$.style.top = this.y;
+		$.style.width = this.w;
+		$.style.height = this.h;
+		$.setAttribute("coordsize", this.w + "," + this.h);
+		this.el = $;
+		var B = document.createElement("v:roundrect");
+		B.style.position = "absolute";
+		B.style.left = "5px";
+		B.style.top = "5px";
+		B.style.width = (this.w - 10) + "px";
+		B.style.height = (this.h - 10) + "px";
+		B.setAttribute("arcsize", 0.2);
+		B.setAttribute("fillcolor", Gef.CANVAS_FILL);
+		B.setAttribute("strokecolor", Gef.CANVAS_STROKE);
+		B.setAttribute("strokeweight", "1");
+		B.style.verticalAlign = "middle";
+
+		//加上阴影
+		//<v:shadow on="T" type="single" color="#b3b3b3" offset="5px,5px"/>
+		this.shadow = document.createElement("v:shadow");
+		this.shadow.setAttribute("on", "T");
+		this.shadow.setAttribute("type", "single");
+		this.shadow.setAttribute("color", "#b3b3b3");
+		this.shadow.setAttribute("offset", "3px,3px");
+		B.appendChild(this.shadow);
+		$.appendChild(B);
+		this.rectEl = B;
+		var _ = this.getTextPosition(this.w, this.h), A = document
+			.createElement("v:textbox");
+		A.style.textAlign = "center";
+		A.style.fontFamily = "Verdana";
+		A.style.fontSize = "12px";
+		A.innerHTML = this.name;
+		B.appendChild(A);
+		this.textEl = A
+	},
+	renderSvg : function() {
+		var $ = document.createElementNS(Gef.svgns, "g");
+		$.setAttribute("transform", "translate(" + this.x + "," + this.y + ")");
+		this.el = $;
+
+		//加上阴影
+		this.def = document.createElementNS(Gef.svgns, "defs");
+		this.svgfilter = document.createElementNS(Gef.svgns, "filter");
+		this.svgfilter.setAttribute("id", "roundRectFilter");
+		this.svgfilter.setAttribute("x", "0");
+		this.svgfilter.setAttribute("y", "0");
+
+		var fe1 = document.createElementNS(Gef.svgns, "feGaussianBlur");
+		fe1.setAttribute("stdDeviation", 2);
+		var fe2 = document.createElementNS(Gef.svgns, "feOffset");
+		fe2.setAttribute("dx", 8);
+		fe2.setAttribute("dy", 8);
+		this.svgfilter.appendChild(fe1);
+		this.svgfilter.appendChild(fe2);
+		this.def.appendChild(this.svgfilter);
+
+		this.shadow = document.createElementNS(Gef.svgns, "rect");
+		this.shadow.setAttribute("width", (this.w - 10) + "px");
+		this.shadow.setAttribute("height", (this.h - 10) + "px");
+		this.shadow.setAttribute("rx", 5);
+		this.shadow.setAttribute("ry", 5);
+		this.shadow.setAttribute("fill", "grey");
+		this.shadow.setAttribute("filter", "url(#roundRectFilter)");
+
+		$.appendChild(this.def);
+		$.appendChild(this.shadow);
+		//-------------------------------------------------------------------------
+		var B = document.createElementNS(Gef.svgns, "rect");
+		B.setAttribute("x", 5);
+		B.setAttribute("y", 5);
+		B.setAttribute("width", (this.w - 10) + "px");
+		B.setAttribute("height", (this.h - 10) + "px");
+		B.setAttribute("rx", 6);
+		B.setAttribute("ry", 6);
+		B.setAttribute("fill", Gef.CANVAS_FILL);
+		B.setAttribute("stroke", Gef.CANVAS_STROKE);
+		B.setAttribute("stroke-width", "2");
+		$.appendChild(B);
+		this.rectEl = B;
+		var _ = this.getTextPosition(this.w, this.h),
+			A = document.createElementNS(Gef.svgns, "text");
+		A.setAttribute("x", _.x);
+		A.setAttribute("y", _.y);
+		A.setAttribute("text-anchor", "middle");
+		A.textContent = this.name;
+		$.appendChild(A);
+
+		this.textEl = A
+	},
+	onRenderVml : function() {
+		this.el.setAttribute("id", Gef.id());
+		this.el.style.position = "absolute";
+		this.el.style.cursor = "pointer";
+		this.getParentEl().appendChild(this.el)
+	},
+	onRenderSvg : function() {
+		this.el.setAttribute("id", Gef.id());
+		this.el.setAttribute("cursor", "pointer");
+		this.getParentEl().appendChild(this.el)
+	},
+	getTextPosition : function($, _) {
+		if (Gef.isVml)
+			return this.getTextPositionVml($, _);
+		else
+			return this.getTextPositionSvg($, _)
+	},
+	getTextPositionVml : function($, B) {
+		var _ = Gef.getTextSize(this.name), C = $ / 2, A = B / 2;
+		return {
+			x : C + "px",
+			y : A + "px"
+		}
+	},
+	getTextPositionSvg : function($, B) {
+		var _ = Gef.getTextSize(this.name), C = $ / 2, A = B / 2 + _.h / 4;
+		return {
+			x : C + "px",
+			y : A + "px"
+		}
+	},
+	moveTo : function(B, _) {
+		Gef.NodeFigure.superclass.moveTo.call(this, B, _);
+		for (var A = 0; A < this.incomes.length; A++) {
+			var $ = this.incomes[A];
+			$.refresh()
+		}
+		for (A = 0; A < this.outputs.length; A++) {
+			$ = this.outputs[A];
+			$.refresh()
+		}
+	},
+	moveToVml : function() {
+		this.el.style.left = this.x + "px";
+		this.el.style.top = this.y + "px"
+	},
+	moveToSvg : function($, _) {
+		this.el.setAttribute("transform", "translate(" + this.x + "," + this.y + ")")
+	},
+	update : function(B, A, $, _) {
+		this.x = B;
+		this.y = A;
+		this.w = $;
+		this.h = _;
+		if (Gef.isVml)
+			this.resizeVml(B, A, $, _);
+		else
+			this.resizeSvg(B, A, $, _)
+	},
+	remove : function() {
+		for (var _ = this.outputs.length - 1; _ >= 0; _--) {
+			var $ = this.outputs[_];
+			$.remove()
+		}
+		for (_ = this.incomes.length - 1; _ >= 0; _--) {
+			$ = this.incomes[_];
+			$.remove()
+		}
+		Gef.figure.NodeFigure.superclass.remove.call(this)
+	},
+	hideText : function() {
+		this.textEl.style.display = "none"
+	},
+	updateAndShowText : function($) {
+		this.name = $;
+		if (Gef.isVml)
+			this.textEl.innerHTML = $;
+		else
+			this.textEl.textContent = $;
+		this.textEl.style.display = ""
+	},
+	cancelEditText : function() {
+		this.textEl.style.display = ""
+	},
+	resize : function(B, _, A) {
+		var E = this.x, D = this.y, $ = this.w, C = this.h;
+		if (B == "n") {
+			D = D + A;
+			C = C - A
+		} else if (B == "s")
+			C = C + A;
+		else if (B == "w") {
+			E = E + _;
+			$ = $ - _
+		} else if (B == "e")
+			$ = $ + _;
+		else if (B == "nw") {
+			E = E + _;
+			$ = $ - _;
+			D = D + A;
+			C = C - A
+		} else if (B == "ne") {
+			$ = $ + _;
+			D = D + A;
+			C = C - A
+		} else if (B == "sw") {
+			E = E + _;
+			$ = $ - _;
+			C = C + A
+		} else if (B == "se") {
+			$ = $ + _;
+			C = C + A
+		}
+		if (Gef.isVml)
+			this.resizeVml(E, D, $, C);
+		else
+			this.resizeSvg(E, D, $, C);
+		return {
+			x : E,
+			y : D,
+			w : $,
+			h : C
+		}
+	},
+	resizeVml : function(B, A, $, _) {
+		this.el.style.left = B + "px";
+		this.el.style.top = A + "px";
+		this.el.style.width = $ + "px";
+		this.el.style.height = _ + "px";
+		this.el.coordsize = $ + "," + _;
+		this.rectEl.style.width = ($ - 10) + "px";
+		this.rectEl.style.height = (_ - 10) + "px"
+	},
+	resizeSvg : function(C, B, $, A) {
+		this.el.setAttribute("transform", "translate(" + C + "," + B + ")");
+		this.rectEl.setAttribute("width", ($ - 10) + "px");
+		this.rectEl.setAttribute("height", (A - 10) + "px");
+		var _ = this.getTextPosition($, A);
+		this.textEl.setAttribute("x", _.x);
+		this.textEl.setAttribute("y", _.y)
+		//阴影也要跟着resize。Jacky-----------------------------------------
+		this.shadow.setAttribute("width", (this.w - 10) + "px");
+		this.shadow.setAttribute("height", (this.h - 10) + "px");
+	},
+	getTools : function() {
+		return []
+	}
+});
+Gef.figure.LogicNodeFigure = Gef.extend(Gef.figure.RoundRectFigure, {
+	constructor : function($) {
+		this.outputs = [];
+		this.incomes = [];
+		Gef.figure.NodeFigure.superclass.constructor.call(this, $);
+		this.w = 100;
+		this.h = 60
+	},
+	renderVml : function() {
+		var $ = document.createElement("v:group");
+		$.style.left = this.x;
+		$.style.top = this.y;
+		$.style.width = this.w;
+		$.style.height = this.h;
+		$.setAttribute("coordsize", this.w + "," + this.h);
+		this.el = $;
+
+		var B = document.createElement("v:image");
+		B.setAttribute("src", this.url);
+		B.style.position = "absolute";
+		B.style.left = "5px";
+		B.style.top = "5px";
+		B.style.width = (this.w - 10) + "px";
+		B.style.height = (this.h - 10) + "px";
+
+		//加上阴影
+		//<v:shadow on="T" type="single" color="#b3b3b3" offset="5px,5px"/>
+		this.shadow = document.createElement("v:shadow");
+		this.shadow.setAttribute("on", "T");
+		this.shadow.setAttribute("type", "single");
+		this.shadow.setAttribute("color", "#b3b3b3");
+		this.shadow.setAttribute("offset", "3px,3px");
+		$.appendChild(B);
+		this.rectEl = B;
+
+		var _ = this.getTextPosition(this.w, this.h),
+			A = document.createElement("v:textbox");
+		A.style.textAlign = "center";
+		A.style.fontFamily = "Verdana";
+		A.style.fontSize = "12px";
+		A.innerHTML = this.name;
+		B.appendChild(A);
+		this.textEl = A
+	},
+	renderSvg : function() {
+		var $ = document.createElementNS(Gef.svgns, "g");
+		$.setAttribute("transform", "translate(" + this.x + "," + this.y + ")");
+		this.el = $;
+
+		this.def = document.createElementNS(Gef.svgns, "defs");
+		this.svgfilter = document.createElementNS(Gef.svgns, "filter");
+		this.svgfilter.setAttribute("id", "roundRectFilter");
+		this.svgfilter.setAttribute("x", "0");
+		this.svgfilter.setAttribute("y", "0");
+
+		var fe1 = document.createElementNS(Gef.svgns, "feGaussianBlur");
+		fe1.setAttribute("stdDeviation", 2);
+		var fe2 = document.createElementNS(Gef.svgns, "feOffset");
+		fe2.setAttribute("dx", 8);
+		fe2.setAttribute("dy", 8);
+		this.svgfilter.appendChild(fe1);
+		this.svgfilter.appendChild(fe2);
+		this.def.appendChild(this.svgfilter);
+
+		this.shadow = document.createElementNS(Gef.svgns, "rect");
+		this.shadow.setAttribute("width", (this.w - 10) + "px");
+		this.shadow.setAttribute("height", (this.h - 10) + "px");
+		this.shadow.setAttribute("rx", 5);
+		this.shadow.setAttribute("ry", 5);
+		this.shadow.setAttribute("fill", "grey");
+		this.shadow.setAttribute("filter", "url(#roundRectFilter)");
+		$.appendChild(this.def);
+
+		var B = document.createElementNS(Gef.svgns, "image");
+		B.setAttribute("x", 5);
+		B.setAttribute("y", 5);
+		B.setAttribute("width", (this.w - 10) + "px");
+		B.setAttribute("height", (this.h - 10) + "px");
+		B.setAttributeNS(Gef.linkns, "xlink:href", this.url);
+		$.appendChild(B);
+		this.rectEl = B;
+
+		var _ = this.getTextPosition(this.w, this.h),
+			A = document.createElementNS(Gef.svgns, "text");
+		A.setAttribute("x", _.x);
+		A.setAttribute("y", _.y);
+		A.setAttribute("text-anchor", "middle");
+		A.textContent = this.name;
+		$.appendChild(A);
+
+		this.textEl = A
+	},
+	onRenderVml : function() {
+		this.el.setAttribute("id", Gef.id());
+		this.el.style.position = "absolute";
+		this.el.style.cursor = "pointer";
+		this.getParentEl().appendChild(this.el)
+	},
+	onRenderSvg : function() {
+		this.el.setAttribute("id", Gef.id());
+		this.el.setAttribute("cursor", "pointer");
+		this.getParentEl().appendChild(this.el)
+	},
+	getTextPosition : function($, _) {
+		if (Gef.isVml)
+			return this.getTextPositionVml($, _);
+		else
+			return this.getTextPositionSvg($, _)
+	},
+	getTextPositionVml : function($, B) {
+		var _ = Gef.getTextSize(this.name), C = $ / 2, A = B / 2;
+		return {
+			x : C + "px",
+			y : A + "px"
+		}
+	},
+	getTextPositionSvg : function($, B) {
+		var _ = Gef.getTextSize(this.name), C = $ / 2, A = B / 2 + _.h / 4;
+		return {
+			x : C + "px",
+			y : A + "px"
+		}
+	},
+	moveTo : function(B, _) {
+		Gef.NodeFigure.superclass.moveTo.call(this, B, _);
+		for (var A = 0; A < this.incomes.length; A++) {
+			var $ = this.incomes[A];
+			$.refresh()
+		}
+		for (A = 0; A < this.outputs.length; A++) {
+			$ = this.outputs[A];
+			$.refresh()
+		}
+	},
+	moveToVml : function() {
+		this.el.style.left = this.x + "px";
+		this.el.style.top = this.y + "px"
+	},
+	moveToSvg : function($, _) {
+		this.el.setAttribute("transform", "translate(" + this.x + "," + this.y + ")")
+	},
+	update : function(B, A, $, _) {
+		this.x = B;
+		this.y = A;
+		this.w = $;
+		this.h = _;
+		if (Gef.isVml)
+			this.resizeVml(B, A, $, _);
+		else
+			this.resizeSvg(B, A, $, _)
+	},
+	remove : function() {
+		for (var _ = this.outputs.length - 1; _ >= 0; _--) {
+			var $ = this.outputs[_];
+			$.remove()
+		}
+		for (_ = this.incomes.length - 1; _ >= 0; _--) {
+			$ = this.incomes[_];
+			$.remove()
+		}
+		Gef.figure.NodeFigure.superclass.remove.call(this)
+	},
+	hideText : function() {
+		this.textEl.style.display = "none"
+	},
+	updateAndShowText : function($) {
+		this.name = $;
+		if (Gef.isVml)
+			this.textEl.innerHTML = $;
+		else
+			this.textEl.textContent = $;
+		this.textEl.style.display = ""
+	},
+	cancelEditText : function() {
+		this.textEl.style.display = ""
+	},
+	resize : function(B, _, A) {
+		var E = this.x, D = this.y, $ = this.w, C = this.h;
+		if (B == "n") {
+			D = D + A;
+			C = C - A
+		} else if (B == "s")
+			C = C + A;
+		else if (B == "w") {
+			E = E + _;
+			$ = $ - _
+		} else if (B == "e")
+			$ = $ + _;
+		else if (B == "nw") {
+			E = E + _;
+			$ = $ - _;
+			D = D + A;
+			C = C - A
+		} else if (B == "ne") {
+			$ = $ + _;
+			D = D + A;
+			C = C - A
+		} else if (B == "sw") {
+			E = E + _;
+			$ = $ - _;
+			C = C + A
+		} else if (B == "se") {
+			$ = $ + _;
+			C = C + A
+		}
+		if (Gef.isVml)
+			this.resizeVml(E, D, $, C);
+		else
+			this.resizeSvg(E, D, $, C);
+		return {
+			x : E,
+			y : D,
+			w : $,
+			h : C
+		}
+	},
+	resizeVml : function(B, A, $, _) {
+		this.el.style.left = B + "px";
+		this.el.style.top = A + "px";
+		this.el.style.width = $ + "px";
+		this.el.style.height = _ + "px";
+		this.el.coordsize = $ + "," + _;
+		this.rectEl.style.width = ($ - 10) + "px";
+		this.rectEl.style.height = (_ - 10) + "px"
+	},
+	resizeSvg : function(C, B, $, A) {
+		this.el.setAttribute("transform", "translate(" + C + "," + B + ")");
+		this.rectEl.setAttribute("width", ($ - 10) + "px");
+		this.rectEl.setAttribute("height", (A - 10) + "px");
+		var _ = this.getTextPosition($, A);
+		this.textEl.setAttribute("x", _.x);
+		this.textEl.setAttribute("y", _.y)
+		//阴影也要跟着resize。Jacky-----------------------------------------
+		this.shadow.setAttribute("width", (this.w - 10) + "px");
+		this.shadow.setAttribute("height", (this.h - 10) + "px");
+	},
+	getTools : function() {
+		return []
+	}
+});
+Gef.figure.SignNodeFigure = Gef.extend(Gef.figure.PolygonFigure, {
+	constructor : function($) {
+		this.points = [];
+		this.outputs = [];
+		this.incomes = [];
+		Gef.figure.NodeFigure.superclass.constructor.call(this, $);
+		this.w = 100;
+		this.h = 60
+		this.createPoints(this.w,this.h,5)
+	},
+	createPoints : function(w,h,z){
+		this.points = [];
+		this.points.push([w/3,z]);
+		this.points.push([z,h/2]);
+		this.points.push([w/3,h-z]);
+		this.points.push([w/3*2,h-z]);
+		this.points.push([w-z,h/2]);
+		this.points.push([w/3*2,z]);
+	},
+
+	renderVml : function() {
+		var $ = document.createElement("v:group");
+		$.style.left = this.x;
+		$.style.top = this.y;
+		$.style.width = this.w;
+		$.style.height = this.h;
+		$.setAttribute("coordsize", this.w + "," + this.h);
+		this.el = $;
+
+		var B = document.createElement("v:image");
+		B.setAttribute("src", this.url);
+		B.style.position = "absolute";
+		B.style.left = "5px";
+		B.style.top = "5px";
+		B.style.width = (this.w - 10) + "px";
+		B.style.height = (this.h - 10) + "px";
+
+		//加上阴影
+		//<v:shadow on="T" type="single" color="#b3b3b3" offset="5px,5px"/>
+		this.shadow = document.createElement("v:shadow");
+		this.shadow.setAttribute("on", "T");
+		this.shadow.setAttribute("type", "single");
+		this.shadow.setAttribute("color", "#b3b3b3");
+		this.shadow.setAttribute("offset", "3px,3px");
+		$.appendChild(B);
+		this.rectEl = B;
+
+		var _ = this.getTextPosition(this.w, this.h),
+			A = document.createElement("v:textbox");
+		A.style.textAlign = "center";
+		A.style.fontFamily = "Verdana";
+		A.style.fontSize = "12px";
+		A.innerHTML = this.name;
+		B.appendChild(A);
+		this.textEl = A
+	},
+	renderSvg : function() {
+		var $ = document.createElementNS(Gef.svgns, "g");
+		$.setAttribute("transform", "translate(" + this.x + "," + this.y + ")");
+		this.el = $;
+
+		this.def = document.createElementNS(Gef.svgns, "defs");
+		this.svgfilter = document.createElementNS(Gef.svgns, "filter");
+		this.svgfilter.setAttribute("id", "polygonFilter");
+		this.svgfilter.setAttribute("x", "0");
+		this.svgfilter.setAttribute("y", "0");
+
+		var fe1 = document.createElementNS(Gef.svgns, "feGaussianBlur");
+		fe1.setAttribute("stdDeviation", 2);
+		var fe2 = document.createElementNS(Gef.svgns, "feOffset");
+		fe2.setAttribute("dx", 3);
+		fe2.setAttribute("dy", 3);
+		this.svgfilter.appendChild(fe1);
+		this.svgfilter.appendChild(fe2);
+		this.def.appendChild(this.svgfilter);
+
+		this.shadow = document.createElementNS(Gef.svgns, "polygon");
+		this.shadow.setAttribute("points", this.getPoint(0, 0));
+		this.shadow.setAttribute("fill", "grey");
+		this.shadow.setAttribute("filter", "url(#polygonFilter)");
+		$.appendChild(this.def);
+		$.appendChild(this.shadow);
+
+		var B = document.createElementNS(Gef.svgns, "polygon");
+		B.setAttribute("points", this.getPoint(0, 0));
+		B.setAttribute("fill", Gef.CANVAS_FILL);
+		B.setAttribute("stroke", Gef.CANVAS_STROKE);
+		B.setAttribute("stroke-width", "2");
+		$.appendChild(B);
+		this.rectEl = B;
+
+		var _ = this.getTextPosition(this.w, this.h),
+			A = document.createElementNS(Gef.svgns, "text");
+		A.setAttribute("x", _.x);
+		A.setAttribute("y", _.y);
+		A.setAttribute("text-anchor", "middle");
+		A.textContent = this.name;
+		$.appendChild(A);
+
+		this.textEl = A
+	},
+	onRenderVml : function() {
+		this.el.setAttribute("id", Gef.id());
+		this.el.style.position = "absolute";
+		this.el.style.cursor = "pointer";
+		this.getParentEl().appendChild(this.el)
+	},
+	onRenderSvg : function() {
+		this.el.setAttribute("id", Gef.id());
+		this.el.setAttribute("cursor", "pointer");
+		this.getParentEl().appendChild(this.el)
+	},
+	getTextPosition : function($, _) {
+		if (Gef.isVml)
+			return this.getTextPositionVml($, _);
+		else
+			return this.getTextPositionSvg($, _)
+	},
+	getTextPositionVml : function($, B) {
+		var _ = Gef.getTextSize(this.name), C = $ / 2, A = B / 2;
+		return {
+			x : C + "px",
+			y : A + "px"
+		}
+	},
+	getTextPositionSvg : function($, B) {
+		var _ = Gef.getTextSize(this.name), C = $ / 2, A = B / 2 + _.h / 4;
+		return {
+			x : C + "px",
+			y : A + "px"
+		}
+	},
+	moveTo : function(B, _) {
+		Gef.NodeFigure.superclass.moveTo.call(this, B, _);
+		for (var A = 0; A < this.incomes.length; A++) {
+			var $ = this.incomes[A];
+			$.refresh()
+		}
+		for (A = 0; A < this.outputs.length; A++) {
+			$ = this.outputs[A];
+			$.refresh()
+		}
+	},
+	moveToVml : function() {
+		this.el.style.left = this.x + "px";
+		this.el.style.top = this.y + "px"
+	},
+	moveToSvg : function($, _) {
+		this.el.setAttribute("transform", "translate(" + this.x + "," + this.y + ")")
+	},
+	update : function(B, A, $, _) {
+		this.x = B;
+		this.y = A;
+		this.w = $;
+		this.h = _;
+		if (Gef.isVml)
+			this.resizeVml(B, A, $, _);
+		else
+			this.resizeSvg(B, A, $, _)
+	},
+	remove : function() {
+		for (var _ = this.outputs.length - 1; _ >= 0; _--) {
+			var $ = this.outputs[_];
+			$.remove()
+		}
+		for (_ = this.incomes.length - 1; _ >= 0; _--) {
+			$ = this.incomes[_];
+			$.remove()
+		}
+		Gef.figure.NodeFigure.superclass.remove.call(this)
+	},
+	hideText : function() {
+		this.textEl.style.display = "none"
+	},
+	updateAndShowText : function($) {
+		this.name = $;
+		if (Gef.isVml)
+			this.textEl.innerHTML = $;
+		else
+			this.textEl.textContent = $;
+		this.textEl.style.display = ""
+	},
+	cancelEditText : function() {
+		this.textEl.style.display = ""
+	},
+	resize : function(B, _, A) {
+		var E = this.x, D = this.y, $ = this.w, C = this.h;
+		if (B == "n") {
+			D = D + A;
+			C = C - A
+		} else if (B == "s")
+			C = C + A;
+		else if (B == "w") {
+			E = E + _;
+			$ = $ - _
+		} else if (B == "e")
+			$ = $ + _;
+		else if (B == "nw") {
+			E = E + _;
+			$ = $ - _;
+			D = D + A;
+			C = C - A
+		} else if (B == "ne") {
+			$ = $ + _;
+			D = D + A;
+			C = C - A
+		} else if (B == "sw") {
+			E = E + _;
+			$ = $ - _;
+			C = C + A
+		} else if (B == "se") {
+			$ = $ + _;
+			C = C + A
+		}
+		if (Gef.isVml)
+			this.resizeVml(E, D, $, C);
+		else
+			this.resizeSvg(E, D, $, C);
+		return {
+			x : E,
+			y : D,
+			w : $,
+			h : C
+		}
+	},
+	resizeVml : function(B, A, $, _) {
+		this.el.style.left = B + "px";
+		this.el.style.top = A + "px";
+		this.el.style.width = $ + "px";
+		this.el.style.height = _ + "px";
+		this.el.coordsize = $ + "," + _;
+		this.rectEl.style.width = ($ - 10) + "px";
+		this.rectEl.style.height = (_ - 10) + "px"
+	},
+	resizeSvg : function(C, B, $, A) {
+		this.createPoints($,A,5)
+		this.el.setAttribute("transform", "translate(" + C + "," + B + ")");
+		this.rectEl.setAttribute("points", this.getPoint(0, 0));
+		var _ = this.getTextPosition($, A);
+		this.textEl.setAttribute("x", _.x);
+		this.textEl.setAttribute("y", _.y)
+		//阴影也要跟着resize。Jacky-----------------------------------------
+		this.shadow.setAttribute("points", this.getPoint(0, 0));
+	},
+	getTools : function() {
+		return []
+	}
+});
+Gef.figure.SubprocessNodeFigure = Gef.extend(Gef.figure.RoundRectFigure, {
+	constructor : function($) {
+		this.outputs = [];
+		this.incomes = [];
+		Gef.figure.NodeFigure.superclass.constructor.call(this, $);
+		this.w = 100;
+		this.h = 60
+	},
+	renderVml : function() {
+		var $ = document.createElement("v:group");
+		$.style.left = this.x;
+		$.style.top = this.y;
+		$.style.width = this.w;
+		$.style.height = this.h;
+		$.setAttribute("coordsize", this.w + "," + this.h);
+		this.el = $;
+
+		var B = document.createElement("v:roundrect");
+		B.style.position = "absolute";
+		B.style.left = "5px";
+		B.style.top = "5px";
+		B.style.width = (this.w - 10) + "px";
+		B.style.height = (this.h - 10) + "px";
+		B.setAttribute("arcsize", 0.5);
+		B.setAttribute("fillcolor", Gef.CANVAS_FILL);
+		B.setAttribute("strokecolor", Gef.CANVAS_STROKE);
+		B.setAttribute("strokeweight", "1");
+		B.style.verticalAlign = "middle";
+
+		//加上阴影
+		this.shadow = document.createElement("v:shadow");
+		this.shadow.setAttribute("on", "T");
+		this.shadow.setAttribute("type", "single");
+		this.shadow.setAttribute("color", "#b3b3b3");
+		this.shadow.setAttribute("offset", "3px,3px");
+		$.appendChild(B);
+		this.rectEl = B;
+
+		var _ = this.getTextPosition(this.w, this.h),
+			A = document.createElement("v:textbox");
+		A.style.textAlign = "center";
+		A.style.fontFamily = "Verdana";
+		A.style.fontSize = "12px";
+		A.innerHTML = this.name;
+		B.appendChild(A);
+		this.textEl = A
+	},
+	renderSvg : function() {
+		var $ = document.createElementNS(Gef.svgns, "g");
+		$.setAttribute("transform", "translate(" + this.x + "," + this.y + ")");
+		this.el = $;
+
+		this.def = document.createElementNS(Gef.svgns, "defs");
+		this.svgfilter = document.createElementNS(Gef.svgns, "filter");
+		this.svgfilter.setAttribute("id", "roundRectFilter");
+		this.svgfilter.setAttribute("x", "0");
+		this.svgfilter.setAttribute("y", "0");
+
+		var fe1 = document.createElementNS(Gef.svgns, "feGaussianBlur");
+		fe1.setAttribute("stdDeviation", 2);
+		var fe2 = document.createElementNS(Gef.svgns, "feOffset");
+		fe2.setAttribute("dx", 8);
+		fe2.setAttribute("dy", 8);
+		this.svgfilter.appendChild(fe1);
+		this.svgfilter.appendChild(fe2);
+		this.def.appendChild(this.svgfilter);
+
+		this.shadow = document.createElementNS(Gef.svgns, "rect");
+		this.shadow.setAttribute("width", (this.w - 10) + "px");
+		this.shadow.setAttribute("height", (this.h - 10) + "px");
+		this.shadow.setAttribute("rx", this.h * 0.5);
+		this.shadow.setAttribute("ry", this.h * 0.5);
+		this.shadow.setAttribute("fill", "grey");
+		this.shadow.setAttribute("filter", "url(#roundRectFilter)");
+		$.appendChild(this.def);
+		$.appendChild(this.shadow);
+
+		var B = document.createElementNS(Gef.svgns, "rect");
+		B.setAttribute("x", 5);
+		B.setAttribute("y", 5);
+		B.setAttribute("width", (this.w - 10) + "px");
+		B.setAttribute("height", (this.h - 10) + "px");
+		B.setAttribute("rx", this.h * 0.5);
+		B.setAttribute("ry", this.h * 0.5);
+		B.setAttribute("fill", Gef.CANVAS_FILL);
+		B.setAttribute("stroke", Gef.CANVAS_STROKE);
+		B.setAttribute("stroke-width", "2");
+		$.appendChild(B);
+		this.rectEl = B;
+
+		var _ = this.getTextPosition(this.w, this.h),
+			A = document.createElementNS(Gef.svgns, "text");
+		A.setAttribute("x", _.x);
+		A.setAttribute("y", _.y);
+		A.setAttribute("text-anchor", "middle");
+		A.textContent = this.name;
+		$.appendChild(A);
+
+		this.textEl = A
+	},
+	onRenderVml : function() {
+		this.el.setAttribute("id", Gef.id());
+		this.el.style.position = "absolute";
+		this.el.style.cursor = "pointer";
+		this.getParentEl().appendChild(this.el)
+	},
+	onRenderSvg : function() {
+		this.el.setAttribute("id", Gef.id());
+		this.el.setAttribute("cursor", "pointer");
+		this.getParentEl().appendChild(this.el)
+	},
+	getTextPosition : function($, _) {
+		if (Gef.isVml)
+			return this.getTextPositionVml($, _);
+		else
+			return this.getTextPositionSvg($, _)
+	},
+	getTextPositionVml : function($, B) {
+		var _ = Gef.getTextSize(this.name), C = $ / 2, A = B / 2;
+		return {
+			x : C + "px",
+			y : A + "px"
+		}
+	},
+	getTextPositionSvg : function($, B) {
+		var _ = Gef.getTextSize(this.name), C = $ / 2, A = B / 2 + _.h / 4;
+		return {
+			x : C + "px",
+			y : A + "px"
+		}
+	},
+	moveTo : function(B, _) {
+		Gef.NodeFigure.superclass.moveTo.call(this, B, _);
+		for (var A = 0; A < this.incomes.length; A++) {
+			var $ = this.incomes[A];
+			$.refresh()
+		}
+		for (A = 0; A < this.outputs.length; A++) {
+			$ = this.outputs[A];
+			$.refresh()
+		}
+	},
+	moveToVml : function() {
+		this.el.style.left = this.x + "px";
+		this.el.style.top = this.y + "px"
+	},
+	moveToSvg : function($, _) {
+		this.el.setAttribute("transform", "translate(" + this.x + "," + this.y + ")")
+	},
+	update : function(B, A, $, _) {
+		this.x = B;
+		this.y = A;
+		this.w = $;
+		this.h = _;
+		if (Gef.isVml)
+			this.resizeVml(B, A, $, _);
+		else
+			this.resizeSvg(B, A, $, _)
+	},
+	remove : function() {
+		for (var _ = this.outputs.length - 1; _ >= 0; _--) {
+			var $ = this.outputs[_];
+			$.remove()
+		}
+		for (_ = this.incomes.length - 1; _ >= 0; _--) {
+			$ = this.incomes[_];
+			$.remove()
+		}
+		Gef.figure.NodeFigure.superclass.remove.call(this)
+	},
+	hideText : function() {
+		this.textEl.style.display = "none"
+	},
+	updateAndShowText : function($) {
+		this.name = $;
+		if (Gef.isVml)
+			this.textEl.innerHTML = $;
+		else
+			this.textEl.textContent = $;
+		this.textEl.style.display = ""
+	},
+	cancelEditText : function() {
+		this.textEl.style.display = ""
+	},
+	resize : function(B, _, A) {
+		var E = this.x, D = this.y, $ = this.w, C = this.h;
+		if (B == "n") {
+			D = D + A;
+			C = C - A
+		} else if (B == "s")
+			C = C + A;
+		else if (B == "w") {
+			E = E + _;
+			$ = $ - _
+		} else if (B == "e")
+			$ = $ + _;
+		else if (B == "nw") {
+			E = E + _;
+			$ = $ - _;
+			D = D + A;
+			C = C - A
+		} else if (B == "ne") {
+			$ = $ + _;
+			D = D + A;
+			C = C - A
+		} else if (B == "sw") {
+			E = E + _;
+			$ = $ - _;
+			C = C + A
+		} else if (B == "se") {
+			$ = $ + _;
+			C = C + A
+		}
+		if (Gef.isVml)
+			this.resizeVml(E, D, $, C);
+		else
+			this.resizeSvg(E, D, $, C);
+		return {
+			x : E,
+			y : D,
+			w : $,
+			h : C
+		}
+	},
+	resizeVml : function(B, A, $, _) {
+		this.el.style.left = B + "px";
+		this.el.style.top = A + "px";
+		this.el.style.width = $ + "px";
+		this.el.style.height = _ + "px";
+		this.el.coordsize = $ + "," + _;
+		this.rectEl.style.width = ($ - 10) + "px";
+		this.rectEl.style.height = (_ - 10) + "px"
+	},
+	resizeSvg : function(C, B, $, A) {
+		this.el.setAttribute("transform", "translate(" + C + "," + B + ")");
+		this.rectEl.setAttribute("width", ($ - 10) + "px");
+		this.rectEl.setAttribute("height", (A - 10) + "px");
+		this.rectEl.setAttribute("rx", this.h * 0.5);
+		this.rectEl.setAttribute("ry", this.h * 0.5);
+		var _ = this.getTextPosition($, A);
+		this.textEl.setAttribute("x", _.x);
+		this.textEl.setAttribute("y", _.y)
+		//阴影也要跟着resize。Jacky-----------------------------------------
+		this.shadow.setAttribute("width", (this.w - 10) + "px");
+		this.shadow.setAttribute("height", (this.h - 10) + "px");
+		this.shadow.setAttribute("rx", this.h * 0.5);
+		this.shadow.setAttribute("ry", this.h * 0.5);
+	},
+	getTools : function() {
+		return []
+	}
+});
+Gef.figure.StartNodeFigure = Gef.extend(Gef.figure.CircleFigure,{
+	constructor : function($) {
+		this.points = [];
+		this.outputs = [];
+		this.incomes = [];
+		this.w = 50;
+		this.h = 50;
+		this.r = this.w / 2;
+		Gef.figure.NodeFigure.superclass.constructor.call(this, $);
+		this.createPoints(this.w,this.h)
+	},
+	createPoints : function(w,h){
+		this.points = [];
+		this.points.push([w/5*2+2,h/3]);
+		this.points.push([w/5*2+2,h/3*2]);
+		this.points.push([w/5*3+2,h/2]);
+	},
+	getPoint : function(_, A) {
+		var $ = "";
+		for (var C = 0; C < this.points.length; C++) {
+			var B = this.points[C];
+			$ += (B[0] + _) + "," + (B[1] + A) + " "
+		}
+		return $
+	},
+	renderVml : function() {
+		var $ = document.createElement("v:group");
+		$.style.left = this.x;
+		$.style.top = this.y;
+		$.style.width = this.w;
+		$.style.height = this.h;
+		$.setAttribute("coordsize", this.w + "," + this.h);
+		this.el = $;
+
+		var B = document.createElement("v:image");
+		B.setAttribute("src", this.url);
+		B.style.position = "absolute";
+		B.style.left = "5px";
+		B.style.top = "5px";
+		B.style.width = (this.w - 10) + "px";
+		B.style.height = (this.h - 10) + "px";
+
+		//加上阴影
+		//<v:shadow on="T" type="single" color="#b3b3b3" offset="5px,5px"/>
+		this.shadow = document.createElement("v:shadow");
+		this.shadow.setAttribute("on", "T");
+		this.shadow.setAttribute("type", "single");
+		this.shadow.setAttribute("color", "#b3b3b3");
+		this.shadow.setAttribute("offset", "3px,3px");
+		$.appendChild(B);
+		this.rectEl = B;
+
+		var _ = this.getTextPosition(this.w, this.h),
+			A = document.createElement("v:textbox");
+		A.style.textAlign = "center";
+		A.style.fontFamily = "Verdana";
+		A.style.fontSize = "12px";
+		A.innerHTML = this.name;
+		B.appendChild(A);
+		this.textEl = A
+	},
+	renderSvg : function() {
+		var $ = document.createElementNS(Gef.svgns, "g");
+		$.setAttribute("transform", "translate(" + this.x + "," + this.y + ")");
+		this.el = $;
+
+		this.def = document.createElementNS(Gef.svgns, "defs");
+		this.svgfilter = document.createElementNS(Gef.svgns, "filter");
+		this.svgfilter.setAttribute("id", "circleFilter");
+		this.svgfilter.setAttribute("x", "0");
+		this.svgfilter.setAttribute("y", "0");
+
+		var fe1 = document.createElementNS(Gef.svgns, "feGaussianBlur");
+		fe1.setAttribute("stdDeviation", 2);
+		var fe2 = document.createElementNS(Gef.svgns, "feOffset");
+		fe2.setAttribute("dx", 3);
+		fe2.setAttribute("dy", 3);
+		this.svgfilter.appendChild(fe1);
+		this.svgfilter.appendChild(fe2);
+		this.def.appendChild(this.svgfilter);
+
+		this.shadow = document.createElementNS(Gef.svgns, "circle");
+		this.shadow.setAttribute("cx", this.r + "px");
+		this.shadow.setAttribute("cy", this.r + "px");
+		this.shadow.setAttribute("r", (this.r - 5) + "px");
+		this.shadow.setAttribute("fill", "grey");
+		this.shadow.setAttribute("filter", "url(#circleFilter)");
+		$.appendChild(this.def);
+		$.appendChild(this.shadow);
+
+		var B = document.createElementNS(Gef.svgns, "circle");
+		B.setAttribute("cx", this.r + "px");
+		B.setAttribute("cy", this.r + "px");
+		B.setAttribute("r", (this.r - 5) + "px");
+		B.setAttribute("fill", Gef.CANVAS_FILL);
+		B.setAttribute("stroke", Gef.CANVAS_STROKE);
+		B.setAttribute("stroke-width", "2");
+		$.appendChild(B);
+		this.rectEl = B;
+
+		var C = document.createElementNS(Gef.svgns, "polygon");
+		C.setAttribute("points", this.getPoint(0, 0));
+		C.setAttribute("fill", "#408dbe");
+		C.setAttribute("stroke", "#408dbe");
+		C.setAttribute("stroke-width", "2");
+		$.appendChild(C);
+
+	},
+	onRenderVml : function() {
+		this.el.setAttribute("id", Gef.id());
+		this.el.style.position = "absolute";
+		this.el.style.cursor = "pointer";
+		this.getParentEl().appendChild(this.el)
+	},
+	onRenderSvg : function() {
+		this.el.setAttribute("id", Gef.id());
+		this.el.setAttribute("cursor", "pointer");
+		this.getParentEl().appendChild(this.el)
+	},
+	moveTo : function(B, _) {
+		Gef.NodeFigure.superclass.moveTo.call(this, B, _);
+		for (var A = 0; A < this.incomes.length; A++) {
+			var $ = this.incomes[A];
+			$.refresh()
+		}
+		for (A = 0; A < this.outputs.length; A++) {
+			$ = this.outputs[A];
+			$.refresh()
+		}
+	},
+	moveToVml : function() {
+		this.el.style.left = this.x + "px";
+		this.el.style.top = this.y + "px"
+	},
+	moveToSvg : function($, _) {
+		this.el.setAttribute("transform", "translate(" + this.x + "," + this.y + ")")
+	},
+	update : function(B, A, $, _) {
+		this.x = B;
+		this.y = A;
+		if($ > _){
+			this.w = $;
+			this.h = $;
+		}else{
+			this.w = _;
+			this.h = _;
+		}
+		if (Gef.isVml)
+			this.resizeVml(B, A, $, _);
+		else
+			this.resizeSvg(B, A, $, _)
+	},
+	remove : function() {
+		for (var _ = this.outputs.length - 1; _ >= 0; _--) {
+			var $ = this.outputs[_];
+			$.remove()
+		}
+		for (_ = this.incomes.length - 1; _ >= 0; _--) {
+			$ = this.incomes[_];
+			$.remove()
+		}
+		Gef.figure.NodeFigure.superclass.remove.call(this)
+	},
+	resize : function(B, _, A) {
+		var E = this.x, D = this.y, $ = this.w, C = this.h;
+		if (B == "n") {
+			D = D + A;
+			C = C - A
+		} else if (B == "s")
+			C = C + A;
+		else if (B == "w") {
+			E = E + _;
+			$ = $ - _
+		} else if (B == "e")
+			$ = $ + _;
+		else if (B == "nw") {
+			E = E + _;
+			$ = $ - _;
+			D = D + A;
+			C = C - A
+		} else if (B == "ne") {
+			$ = $ + _;
+			D = D + A;
+			C = C - A
+		} else if (B == "sw") {
+			E = E + _;
+			$ = $ - _;
+			C = C + A
+		} else if (B == "se") {
+			$ = $ + _;
+			C = C + A
+		}
+		if (Gef.isVml)
+			this.resizeVml(E, D, $, C);
+		else
+			this.resizeSvg(E, D, $, C);
+		return {
+			x : E,
+			y : D,
+			w : $,
+			h : C
+		}
+	},
+	resizeVml : function(B, A, $, _) {
+		this.el.style.left = B + "px";
+		this.el.style.top = A + "px";
+		this.el.style.width = $ + "px";
+		this.el.style.height = _ + "px";
+		this.el.coordsize = $ + "," + _;
+		this.rectEl.style.width = ($ - 10) + "px";
+		this.rectEl.style.height = (_ - 10) + "px"
+	},
+	resizeSvg : function(C, B, $, A) {
+		var R = $ / 2;
+		if($ < A){
+			R = A / 2;
+		}
+		this.el.setAttribute("transform", "translate(" + C + "," + B + ")");
+		this.rectEl.setAttribute("cx", R);
+		this.rectEl.setAttribute("cy", R);
+		this.rectEl.setAttribute("r", R - 5);
+		//阴影也要跟着resize。Jacky----------------------------------------
+		this.shadow.setAttribute("cx", R);
+		this.shadow.setAttribute("cy", R);
+		this.shadow.setAttribute("r", R - 5);
+	},
+	getTools : function() {
+		return []
+	}
+});
+Gef.figure.EndNodeFigure = Gef.extend(Gef.figure.CircleFigure,{
+	constructor : function($) {
+		this.outputs = [];
+		this.incomes = [];
+		this.w = 50;
+		this.h = 50;
+		this.r = this.w / 2;
+		Gef.figure.NodeFigure.superclass.constructor.call(this, $);
+	},
+	renderVml : function() {
+		var $ = document.createElement("v:group");
+		$.style.left = this.x;
+		$.style.top = this.y;
+		$.style.width = this.w;
+		$.style.height = this.h;
+		$.setAttribute("coordsize", this.w + "," + this.h);
+		this.el = $;
+
+		var B = document.createElement("v:image");
+		B.setAttribute("src", this.url);
+		B.style.position = "absolute";
+		B.style.left = "5px";
+		B.style.top = "5px";
+		B.style.width = (this.w - 10) + "px";
+		B.style.height = (this.h - 10) + "px";
+
+		//加上阴影
+		//<v:shadow on="T" type="single" color="#b3b3b3" offset="5px,5px"/>
+		this.shadow = document.createElement("v:shadow");
+		this.shadow.setAttribute("on", "T");
+		this.shadow.setAttribute("type", "single");
+		this.shadow.setAttribute("color", "#b3b3b3");
+		this.shadow.setAttribute("offset", "3px,3px");
+		$.appendChild(B);
+		this.rectEl = B;
+
+		var _ = this.getTextPosition(this.w, this.h),
+			A = document.createElement("v:textbox");
+		A.style.textAlign = "center";
+		A.style.fontFamily = "Verdana";
+		A.style.fontSize = "12px";
+		A.innerHTML = this.name;
+		B.appendChild(A);
+		this.textEl = A
+	},
+	renderSvg : function() {
+		var $ = document.createElementNS(Gef.svgns, "g");
+		$.setAttribute("transform", "translate(" + this.x + "," + this.y + ")");
+		this.el = $;
+
+		this.def = document.createElementNS(Gef.svgns, "defs");
+		this.svgfilter = document.createElementNS(Gef.svgns, "filter");
+		this.svgfilter.setAttribute("id", "circleFilter");
+		this.svgfilter.setAttribute("x", "0");
+		this.svgfilter.setAttribute("y", "0");
+
+		var fe1 = document.createElementNS(Gef.svgns, "feGaussianBlur");
+		fe1.setAttribute("stdDeviation", 2);
+		var fe2 = document.createElementNS(Gef.svgns, "feOffset");
+		fe2.setAttribute("dx", 3);
+		fe2.setAttribute("dy", 3);
+		this.svgfilter.appendChild(fe1);
+		this.svgfilter.appendChild(fe2);
+		this.def.appendChild(this.svgfilter);
+
+		this.shadow = document.createElementNS(Gef.svgns, "circle");
+		this.shadow.setAttribute("cx", this.r + "px");
+		this.shadow.setAttribute("cy", this.r + "px");
+		this.shadow.setAttribute("r", (this.r - 5) + "px");
+		this.shadow.setAttribute("fill", "grey");
+		this.shadow.setAttribute("filter", "url(#circleFilter)");
+		$.appendChild(this.def);
+		$.appendChild(this.shadow);
+
+		var B = document.createElementNS(Gef.svgns, "circle");
+		B.setAttribute("cx", this.r + "px");
+		B.setAttribute("cy", this.r + "px");
+		B.setAttribute("r", (this.r - 5) + "px");
+		B.setAttribute("fill", "#f8d5d3");
+		B.setAttribute("stroke", "#e94735");
+		B.setAttribute("stroke-width", "2");
+		$.appendChild(B);
+		this.rectEl = B;
+
+		var C = document.createElementNS(Gef.svgns, "rect");
+		C.setAttribute("x", (this.w / 4 + this.w / 8) + "px");
+		C.setAttribute("y", (this.h / 4 + this.h / 8) + "px");
+		C.setAttribute("width", this.w / 4 + "px");
+		C.setAttribute("height", this.h / 4 + "px");
+		C.setAttribute("fill", "#ea4f3f");
+		C.setAttribute("stroke", "#ea4f3f");
+		C.setAttribute("stroke-width", "2");
+		$.appendChild(C);
+		this.centerEl = C;
+
+	},
+	onRenderVml : function() {
+		this.el.setAttribute("id", Gef.id());
+		this.el.style.position = "absolute";
+		this.el.style.cursor = "pointer";
+		this.getParentEl().appendChild(this.el)
+	},
+	onRenderSvg : function() {
+		this.el.setAttribute("id", Gef.id());
+		this.el.setAttribute("cursor", "pointer");
+		this.getParentEl().appendChild(this.el)
+	},
+	moveTo : function(B, _) {
+		Gef.NodeFigure.superclass.moveTo.call(this, B, _);
+		for (var A = 0; A < this.incomes.length; A++) {
+			var $ = this.incomes[A];
+			$.refresh()
+		}
+		for (A = 0; A < this.outputs.length; A++) {
+			$ = this.outputs[A];
+			$.refresh()
+		}
+	},
+	moveToVml : function() {
+		this.el.style.left = this.x + "px";
+		this.el.style.top = this.y + "px"
+	},
+	moveToSvg : function($, _) {
+		this.el.setAttribute("transform", "translate(" + this.x + "," + this.y + ")")
+	},
+	update : function(B, A, $, _) {
+		this.x = B;
+		this.y = A;
+		if($ > _){
+			this.w = $;
+			this.h = $;
+		}else{
+			this.w = _;
+			this.h = _;
+		}
+		if (Gef.isVml)
+			this.resizeVml(B, A, $, _);
+		else
+			this.resizeSvg(B, A, $, _)
+	},
+	remove : function() {
+		for (var _ = this.outputs.length - 1; _ >= 0; _--) {
+			var $ = this.outputs[_];
+			$.remove()
+		}
+		for (_ = this.incomes.length - 1; _ >= 0; _--) {
+			$ = this.incomes[_];
+			$.remove()
+		}
+		Gef.figure.NodeFigure.superclass.remove.call(this)
+	},
+	resize : function(B, _, A) {
+		var E = this.x, D = this.y, $ = this.w, C = this.h;
+		if (B == "n") {
+			D = D + A;
+			C = C - A
+		} else if (B == "s")
+			C = C + A;
+		else if (B == "w") {
+			E = E + _;
+			$ = $ - _
+		} else if (B == "e")
+			$ = $ + _;
+		else if (B == "nw") {
+			E = E + _;
+			$ = $ - _;
+			D = D + A;
+			C = C - A
+		} else if (B == "ne") {
+			$ = $ + _;
+			D = D + A;
+			C = C - A
+		} else if (B == "sw") {
+			E = E + _;
+			$ = $ - _;
+			C = C + A
+		} else if (B == "se") {
+			$ = $ + _;
+			C = C + A
+		}
+		if (Gef.isVml)
+			this.resizeVml(E, D, $, C);
+		else
+			this.resizeSvg(E, D, $, C);
+		return {
+			x : E,
+			y : D,
+			w : $,
+			h : C
+		}
+	},
+	resizeVml : function(B, A, $, _) {
+		this.el.style.left = B + "px";
+		this.el.style.top = A + "px";
+		this.el.style.width = $ + "px";
+		this.el.style.height = _ + "px";
+		this.el.coordsize = $ + "," + _;
+		this.rectEl.style.width = ($ - 10) + "px";
+		this.rectEl.style.height = (_ - 10) + "px"
+	},
+	resizeSvg : function(C, B, $, A) {
+		var R = $ / 2;
+		if($ < A){
+			R = A / 2;
+		}
+
+		this.el.setAttribute("transform", "translate(" + C + "," + B + ")");
+		this.rectEl.setAttribute("cx", R);
+		this.rectEl.setAttribute("cy", R);
+		this.rectEl.setAttribute("r", R - 5);
+
+		this.centerEl.setAttribute("x", ($ / 4 + $ / 8) + "px");
+		this.centerEl.setAttribute("y", (A / 4 + A / 8) + "px");
+
+		//阴影也要跟着resize。Jacky----------------------------------------
+		this.shadow.setAttribute("cx", R);
+		this.shadow.setAttribute("cy", R);
+		this.shadow.setAttribute("r", R - 5);
+	},
+	getTools : function() {
+		return []
+	}
+});
+Gef.figure.CancelNodeFigure = Gef.extend(Gef.figure.CircleFigure,{
+	constructor : function($) {
+		this.points = [];
+		this.outputs = [];
+		this.incomes = [];
+		this.w = 50;
+		this.h = 50;
+		this.r = this.w / 2;
+		Gef.figure.NodeFigure.superclass.constructor.call(this, $);
+		this.createPoints(this.w,this.h)
+	},
+	createPoints : function(w,h){
+		this.points = [];
+		var nw = w,
+			nh = h;
+		this.points.push([nw/3+2,nh/3-1]);
+		this.points.push([nw/3-1,nh/3+2]);
+		this.points.push([nw/2-1,nh/2+1]);
+		this.points.push([nw/3-1,nh/3*2]);
+		this.points.push([nw/3+2,nh/3*2+2]);
+		this.points.push([nw/2+1,nh/2+4]);
+		this.points.push([nw/3*2,nh/3*2+2]);
+		this.points.push([nw/3*2+2,nh/3*2-1]);
+		this.points.push([nw/2+4,nh/2+1]);
+		this.points.push([nw/3*2+3,nh/3+2]);
+		this.points.push([nw/3*2,nh/3]);
+		this.points.push([nw/2+1,nh/2-2]);
+	},
+	getPoint : function(_, A) {
+		var $ = "";
+		for (var C = 0; C < this.points.length; C++) {
+			var B = this.points[C];
+			$ += (B[0] + _) + "," + (B[1] + A) + " "
+		}
+		return $
+	},
+	renderVml : function() {
+		var $ = document.createElement("v:group");
+		$.style.left = this.x;
+		$.style.top = this.y;
+		$.style.width = this.w;
+		$.style.height = this.h;
+		$.setAttribute("coordsize", this.w + "," + this.h);
+		this.el = $;
+
+		var B = document.createElement("v:image");
+		B.setAttribute("src", this.url);
+		B.style.position = "absolute";
+		B.style.left = "5px";
+		B.style.top = "5px";
+		B.style.width = (this.w - 10) + "px";
+		B.style.height = (this.h - 10) + "px";
+
+		//加上阴影
+		//<v:shadow on="T" type="single" color="#b3b3b3" offset="5px,5px"/>
+		this.shadow = document.createElement("v:shadow");
+		this.shadow.setAttribute("on", "T");
+		this.shadow.setAttribute("type", "single");
+		this.shadow.setAttribute("color", "#b3b3b3");
+		this.shadow.setAttribute("offset", "3px,3px");
+		$.appendChild(B);
+		this.rectEl = B;
+
+		var _ = this.getTextPosition(this.w, this.h),
+			A = document.createElement("v:textbox");
+		A.style.textAlign = "center";
+		A.style.fontFamily = "Verdana";
+		A.style.fontSize = "12px";
+		A.innerHTML = this.name;
+		B.appendChild(A);
+		this.textEl = A
+	},
+	renderSvg : function() {
+		var $ = document.createElementNS(Gef.svgns, "g");
+		$.setAttribute("transform", "translate(" + this.x + "," + this.y + ")");
+		this.el = $;
+
+		this.def = document.createElementNS(Gef.svgns, "defs");
+		this.svgfilter = document.createElementNS(Gef.svgns, "filter");
+		this.svgfilter.setAttribute("id", "circleFilter");
+		this.svgfilter.setAttribute("x", "0");
+		this.svgfilter.setAttribute("y", "0");
+
+		var fe1 = document.createElementNS(Gef.svgns, "feGaussianBlur");
+		fe1.setAttribute("stdDeviation", 2);
+		var fe2 = document.createElementNS(Gef.svgns, "feOffset");
+		fe2.setAttribute("dx", 3);
+		fe2.setAttribute("dy", 3);
+		this.svgfilter.appendChild(fe1);
+		this.svgfilter.appendChild(fe2);
+		this.def.appendChild(this.svgfilter);
+
+		this.shadow = document.createElementNS(Gef.svgns, "circle");
+		this.shadow.setAttribute("cx", this.r + "px");
+		this.shadow.setAttribute("cy", this.r + "px");
+		this.shadow.setAttribute("r", (this.r - 5) + "px");
+		this.shadow.setAttribute("fill", "grey");
+		this.shadow.setAttribute("filter", "url(#circleFilter)");
+		$.appendChild(this.def);
+		$.appendChild(this.shadow);
+
+		var B = document.createElementNS(Gef.svgns, "circle");
+		B.setAttribute("cx", this.r + "px");
+		B.setAttribute("cy", this.r + "px");
+		B.setAttribute("r", (this.r - 5) + "px");
+		B.setAttribute("fill", "#f8d5d3");
+		B.setAttribute("stroke", "#e94735");
+		B.setAttribute("stroke-width", "2");
+		$.appendChild(B);
+		this.rectEl = B;
+
+		var C = document.createElementNS(Gef.svgns, "polygon");
+		C.setAttribute("points", this.getPoint(0, 0));
+		C.setAttribute("fill", "#ea4f3f");
+		C.setAttribute("stroke", "#ea4f3f");
+		$.appendChild(C);
+		this.centerEl = C;
+
+	},
+	onRenderVml : function() {
+		this.el.setAttribute("id", Gef.id());
+		this.el.style.position = "absolute";
+		this.el.style.cursor = "pointer";
+		this.getParentEl().appendChild(this.el)
+	},
+	onRenderSvg : function() {
+		this.el.setAttribute("id", Gef.id());
+		this.el.setAttribute("cursor", "pointer");
+		this.getParentEl().appendChild(this.el)
+	},
+	moveTo : function(B, _) {
+		Gef.NodeFigure.superclass.moveTo.call(this, B, _);
+		for (var A = 0; A < this.incomes.length; A++) {
+			var $ = this.incomes[A];
+			$.refresh()
+		}
+		for (A = 0; A < this.outputs.length; A++) {
+			$ = this.outputs[A];
+			$.refresh()
+		}
+	},
+	moveToVml : function() {
+		this.el.style.left = this.x + "px";
+		this.el.style.top = this.y + "px"
+	},
+	moveToSvg : function($, _) {
+		this.el.setAttribute("transform", "translate(" + this.x + "," + this.y + ")")
+	},
+	update : function(B, A, $, _) {
+		this.x = B;
+		this.y = A;
+		if($ > _){
+			this.w = $;
+			this.h = $;
+		}else{
+			this.w = _;
+			this.h = _;
+		}
+		if (Gef.isVml)
+			this.resizeVml(B, A, $, _);
+		else
+			this.resizeSvg(B, A, $, _)
+	},
+	remove : function() {
+		for (var _ = this.outputs.length - 1; _ >= 0; _--) {
+			var $ = this.outputs[_];
+			$.remove()
+		}
+		for (_ = this.incomes.length - 1; _ >= 0; _--) {
+			$ = this.incomes[_];
+			$.remove()
+		}
+		Gef.figure.NodeFigure.superclass.remove.call(this)
+	},
+	resize : function(B, _, A) {
+		var E = this.x, D = this.y, $ = this.w, C = this.h;
+		if (B == "n") {
+			D = D + A;
+			C = C - A
+		} else if (B == "s")
+			C = C + A;
+		else if (B == "w") {
+			E = E + _;
+			$ = $ - _
+		} else if (B == "e")
+			$ = $ + _;
+		else if (B == "nw") {
+			E = E + _;
+			$ = $ - _;
+			D = D + A;
+			C = C - A
+		} else if (B == "ne") {
+			$ = $ + _;
+			D = D + A;
+			C = C - A
+		} else if (B == "sw") {
+			E = E + _;
+			$ = $ - _;
+			C = C + A
+		} else if (B == "se") {
+			$ = $ + _;
+			C = C + A
+		}
+		if (Gef.isVml)
+			this.resizeVml(E, D, $, C);
+		else
+			this.resizeSvg(E, D, $, C);
+		return {
+			x : E,
+			y : D,
+			w : $,
+			h : C
+		}
+	},
+	resizeVml : function(B, A, $, _) {
+		this.el.style.left = B + "px";
+		this.el.style.top = A + "px";
+		this.el.style.width = $ + "px";
+		this.el.style.height = _ + "px";
+		this.el.coordsize = $ + "," + _;
+		this.rectEl.style.width = ($ - 10) + "px";
+		this.rectEl.style.height = (_ - 10) + "px"
+	},
+	resizeSvg : function(C, B, $, A) {
+		var R = $ / 2;
+		if($ < A){
+			R = A / 2;
+		}
+		this.createPoints($,A)
+		this.el.setAttribute("transform", "translate(" + C + "," + B + ")");
+		this.rectEl.setAttribute("cx", R);
+		this.rectEl.setAttribute("cy", R);
+		this.rectEl.setAttribute("r", R - 5);
+
+		this.centerEl.setAttribute("points", this.getPoint(0, 0));
+		//阴影也要跟着resize。Jacky----------------------------------------
+		this.shadow.setAttribute("cx", R);
+		this.shadow.setAttribute("cy", R);
+		this.shadow.setAttribute("r", R - 5);
+	},
+	getTools : function() {
+		return []
+	}
+});
+Gef.figure.DecisionNodeFigure = Gef.extend(Gef.figure.PolygonFigure, {
+	constructor : function($) {
+		this.rotate = 0;
+		this.points = [];
+		this.outputs = [];
+		this.incomes = [];
+		Gef.figure.NodeFigure.superclass.constructor.call(this, $);
+		this.w = 100;
+		this.h = 60
+		this.createPoints(this.w, this.h, 5)
+	},
+	setRotate : function(rotate){
+		this.editPart.model.rotate = rotate;
+		if (Gef.isVml)
+			this.resizeVml(this.x, this.y, this.w, this.h);
+		else
+			this.resizeSvg(this.x, this.y, this.w, this.h)
+	},
+	createPoints : function(w,h,z){
+		this.points = [];
+		if(typeof this.editPart == "undefined"){
+			this.rotate = 0;
+		}else{
+			this.rotate = this.editPart.model.rotate;
+		}
+		var nw = w, nh = h;
+		if(this.rotate == 0)
+		{
+			if(nw < nh){
+				this.w = nh;
+				this.h = nw;
+				w = nh;
+				h = nw;
+			}
+			this.points.push([z, z]);
+			this.points.push([w / 2, h - z]);
+			this.points.push([w - z, z]);
+		}else if(this.rotate == 1){
+			if(nw > nh){
+				this.w = nh;
+				this.h = nw;
+				w = nh;
+				h = nw;
+			}
+			this.points.push([z, z]);
+			this.points.push([z, h - z]);
+			this.points.push([w - z, h / 2]);
+		}else if(this.rotate == 2){
+			if(nw < nh){
+				this.w = nh;
+				this.h = nw;
+				w = nh;
+				h = nw;
+			}
+			this.points.push([w / 2, z]);
+			this.points.push([z, h - z]);
+			this.points.push([w - z, h - z]);
+		}else if(this.rotate == 3){
+			if(nw > nh){
+				this.w = nh;
+				this.h = nw;
+				w = nh;
+				h = nw;
+			}
+			this.points.push([z, h / 2]);
+			this.points.push([w - z, h - z]);
+			this.points.push([w - z, z]);
+		}
+	},
+	renderVml : function() {
+		var $ = document.createElement("v:group");
+		$.style.left = this.x;
+		$.style.top = this.y;
+		$.style.width = this.w;
+		$.style.height = this.h;
+		$.setAttribute("coordsize", this.w + "," + this.h);
+		this.el = $;
+
+		var B = document.createElement("v:image");
+		B.setAttribute("src", this.url);
+		B.style.position = "absolute";
+		B.style.left = "5px";
+		B.style.top = "5px";
+		B.style.width = (this.w - 10) + "px";
+		B.style.height = (this.h - 10) + "px";
+
+		//加上阴影
+		//<v:shadow on="T" type="single" color="#b3b3b3" offset="5px,5px"/>
+		this.shadow = document.createElement("v:shadow");
+		this.shadow.setAttribute("on", "T");
+		this.shadow.setAttribute("type", "single");
+		this.shadow.setAttribute("color", "#b3b3b3");
+		this.shadow.setAttribute("offset", "3px,3px");
+		$.appendChild(B);
+		this.rectEl = B;
+
+		var _ = this.getTextPosition(this.w, this.h),
+			A = document.createElement("v:textbox");
+		A.style.textAlign = "center";
+		A.style.fontFamily = "Verdana";
+		A.style.fontSize = "12px";
+		A.innerHTML = this.name;
+		B.appendChild(A);
+		this.textEl = A
+	},
+	renderSvg : function() {
+		var $ = document.createElementNS(Gef.svgns, "g");
+		$.setAttribute("transform", "translate(" + this.x + "," + this.y + ")");
+		this.el = $;
+
+		this.def = document.createElementNS(Gef.svgns, "defs");
+		this.svgfilter = document.createElementNS(Gef.svgns, "filter");
+		this.svgfilter.setAttribute("id", "polygonFilter");
+		this.svgfilter.setAttribute("x", "0");
+		this.svgfilter.setAttribute("y", "0");
+
+		var fe1 = document.createElementNS(Gef.svgns, "feGaussianBlur");
+		fe1.setAttribute("stdDeviation", 2);
+		var fe2 = document.createElementNS(Gef.svgns, "feOffset");
+		fe2.setAttribute("dx", 3);
+		fe2.setAttribute("dy", 3);
+		this.svgfilter.appendChild(fe1);
+		this.svgfilter.appendChild(fe2);
+		this.def.appendChild(this.svgfilter);
+
+		this.shadow = document.createElementNS(Gef.svgns, "polygon");
+		this.shadow.setAttribute("points", this.getPoint(0, 0));
+		this.shadow.setAttribute("fill", "grey");
+		this.shadow.setAttribute("filter", "url(#polygonFilter)");
+		$.appendChild(this.def);
+		$.appendChild(this.shadow);
+
+		var B = document.createElementNS(Gef.svgns, "polygon");
+		B.setAttribute("points", this.getPoint(0, 0));
+		B.setAttribute("fill", Gef.CANVAS_FILL);
+		B.setAttribute("stroke", Gef.CANVAS_STROKE);
+		B.setAttribute("stroke-width", "2");
+		$.appendChild(B);
+		this.rectEl = B;
+
+		var _ = this.getTextPosition(this.w, this.h),
+			A = document.createElementNS(Gef.svgns, "text");
+		A.setAttribute("x", _.x);
+		A.setAttribute("y", _.y);
+		A.setAttribute("text-anchor", "middle");
+		A.textContent = "判断";
+		$.appendChild(A);
+
+		this.textEl = A
+	},
+	onRenderVml : function() {
+		this.el.setAttribute("id", Gef.id());
+		this.el.style.position = "absolute";
+		this.el.style.cursor = "pointer";
+		this.getParentEl().appendChild(this.el)
+	},
+	onRenderSvg : function() {
+		this.el.setAttribute("id", Gef.id());
+		this.el.setAttribute("cursor", "pointer");
+		this.getParentEl().appendChild(this.el)
+	},
+	getTextPosition : function($, _) {
+		if (Gef.isVml)
+			return this.getTextPositionVml($, _);
+		else
+			return this.getTextPositionSvg($, _)
+	},
+	getTextPositionVml : function($, B) {
+		var _ = Gef.getTextSize("判断"), C = $ / 2, A = B / 2;
+		return {
+			x : C + "px",
+			y : A + "px"
+		}
+	},
+	getTextPositionSvg : function($, B) {
+		var _ = Gef.getTextSize("判断"), C = $ / 2, A = B / 2 + _.h / 4;
+		if(this.rotate == 0){
+			A = A / 3 * 2;
+		}else if(this.rotate == 1){
+			C = C / 3 * 2;
+		}else if(this.rotate == 2){
+			A = A + A / 3;
+		}else if(this.rotate == 3){
+			C = C + C / 4;
+		}
+		return {
+			x : C + "px",
+			y : A + "px"
+		}
+	},
+	moveTo : function(B, _) {
+		Gef.NodeFigure.superclass.moveTo.call(this, B, _);
+		for (var A = 0; A < this.incomes.length; A++) {
+			var $ = this.incomes[A];
+			$.refresh()
+		}
+		for (A = 0; A < this.outputs.length; A++) {
+			$ = this.outputs[A];
+			$.refresh()
+		}
+	},
+	moveToVml : function() {
+		this.el.style.left = this.x + "px";
+		this.el.style.top = this.y + "px"
+	},
+	moveToSvg : function($, _) {
+		this.el.setAttribute("transform", "translate(" + this.x + "," + this.y + ")")
+	},
+	update : function(B, A, $, _) {
+		this.x = B;
+		this.y = A;
+		this.w = $;
+		this.h = _;
+		if (Gef.isVml)
+			this.resizeVml(B, A, $, _);
+		else
+			this.resizeSvg(B, A, $, _)
+	},
+	remove : function() {
+		for (var _ = this.outputs.length - 1; _ >= 0; _--) {
+			var $ = this.outputs[_];
+			$.remove()
+		}
+		for (_ = this.incomes.length - 1; _ >= 0; _--) {
+			$ = this.incomes[_];
+			$.remove()
+		}
+		Gef.figure.NodeFigure.superclass.remove.call(this)
+	},
+	hideText : function() {
+		this.textEl.style.display = "none"
+	},
+	// 去掉此函数将不能修改文本
+	// updateAndShowText : function($) {
+	// 	this.name = $;
+	// 	if (Gef.isVml)
+	// 		this.textEl.innerHTML = $;
+	// 	else
+	// 		this.textEl.textContent = $;
+	// 	this.textEl.style.display = ""
+	// },
+	// cancelEditText : function() {
+	// 	this.textEl.style.display = ""
+	// },
+	resize : function(B, _, A) {
+		var E = this.x, D = this.y, $ = this.w, C = this.h;
+		if (B == "n") {
+			D = D + A;
+			C = C - A
+		} else if (B == "s")
+			C = C + A;
+		else if (B == "w") {
+			E = E + _;
+			$ = $ - _
+		} else if (B == "e")
+			$ = $ + _;
+		else if (B == "nw") {
+			E = E + _;
+			$ = $ - _;
+			D = D + A;
+			C = C - A
+		} else if (B == "ne") {
+			$ = $ + _;
+			D = D + A;
+			C = C - A
+		} else if (B == "sw") {
+			E = E + _;
+			$ = $ - _;
+			C = C + A
+		} else if (B == "se") {
+			$ = $ + _;
+			C = C + A
+		}
+		if (Gef.isVml)
+			this.resizeVml(E, D, $, C);
+		else
+			this.resizeSvg(E, D, $, C);
+		return {
+			x : E,
+			y : D,
+			w : $,
+			h : C
+		}
+	},
+	resizeVml : function(B, A, $, _) {
+		this.el.style.left = B + "px";
+		this.el.style.top = A + "px";
+		this.el.style.width = $ + "px";
+		this.el.style.height = _ + "px";
+		this.el.coordsize = $ + "," + _;
+		this.rectEl.style.width = ($ - 10) + "px";
+		this.rectEl.style.height = (_ - 10) + "px"
+	},
+	resizeSvg : function(C, B, $, A) {
+		this.createPoints($,A,5)
+		this.el.setAttribute("transform", "translate(" + C + "," + B + ")");
+		this.rectEl.setAttribute("points", this.getPoint(0, 0));
+		var _ = this.getTextPosition(this.w, this.h);
+		this.textEl.setAttribute("x", _.x);
+		this.textEl.setAttribute("y", _.y)
+		this.shadow.setAttribute("points", this.getPoint(0, 0));
+	},
+	getTools : function() {
+		return []
+	}
+});
+Gef.figure.ForkNodeFigure = Gef.extend(Gef.figure.RoundRectFigure,{
+	constructor : function($) {
+		this.outputs = [];
+		this.incomes = [];
+		Gef.figure.NodeFigure.superclass.constructor.call(this, $);
+		this.w = 100;
+		this.h = 60
+	},
+	renderVml : function() {
+		var $ = document.createElement("v:group");
+		$.style.left = this.x;
+		$.style.top = this.y;
+		$.style.width = this.w;
+		$.style.height = this.h;
+		$.setAttribute("coordsize", this.w + "," + this.h);
+		this.el = $;
+		var B = document.createElement("v:roundrect");
+		B.style.position = "absolute";
+		B.style.left = "5px";
+		B.style.top = "5px";
+		B.style.width = (this.w - 10) + "px";
+		B.style.height = (this.h - 10) + "px";
+		B.setAttribute("arcsize", 0.2);
+		B.setAttribute("fillcolor", Gef.CANVAS_FILL);
+		B.setAttribute("strokecolor", Gef.CANVAS_STROKE);
+		B.setAttribute("strokeweight", "1");
+		B.style.verticalAlign = "middle";
+
+		//加上阴影
+		//<v:shadow on="T" type="single" color="#b3b3b3" offset="5px,5px"/>
+		this.shadow = document.createElement("v:shadow");
+		this.shadow.setAttribute("on", "T");
+		this.shadow.setAttribute("type", "single");
+		this.shadow.setAttribute("color", "#b3b3b3");
+		this.shadow.setAttribute("offset", "3px,3px");
+		B.appendChild(this.shadow);
+		$.appendChild(B);
+		this.rectEl = B;
+		var _ = this.getTextPosition(this.w, this.h), A = document
+			.createElement("v:textbox");
+		A.style.textAlign = "center";
+		A.style.fontFamily = "Verdana";
+		A.style.fontSize = "12px";
+		A.innerHTML = this.name;
+		B.appendChild(A);
+		this.textEl = A
+	},
+	renderSvg : function() {
+		var $ = document.createElementNS(Gef.svgns, "g");
+		$.setAttribute("transform", "translate(" + this.x + "," + this.y + ")");
+		this.el = $;
+
+		//加上阴影
+		this.def = document.createElementNS(Gef.svgns, "defs");
+		this.svgfilter = document.createElementNS(Gef.svgns, "filter");
+		this.svgfilter.setAttribute("id", "roundRectFilter");
+		this.svgfilter.setAttribute("x", "0");
+		this.svgfilter.setAttribute("y", "0");
+
+		var fe1 = document.createElementNS(Gef.svgns, "feGaussianBlur");
+		fe1.setAttribute("stdDeviation", 2);
+		var fe2 = document.createElementNS(Gef.svgns, "feOffset");
+		fe2.setAttribute("dx", 8);
+		fe2.setAttribute("dy", 8);
+		this.svgfilter.appendChild(fe1);
+		this.svgfilter.appendChild(fe2);
+		this.def.appendChild(this.svgfilter);
+
+		var ma = document.createElementNS(Gef.svgns, "marker");
+		ma.setAttribute("id", "forkArrow");
+		ma.setAttribute("markerUnits", "userSpaceOnUse");
+		ma.setAttribute("markerWidth", 8);
+		ma.setAttribute("markerHeight", 8);
+		ma.setAttribute("refX", 8);
+		ma.setAttribute("refY", 4);
+		ma.setAttribute("orient", "auto");
+		var map = document.createElementNS(Gef.svgns, "path");
+		map.setAttribute("d", "M 0 0 L 8 4 L 0 8 z");
+		map.setAttribute("stroke", Gef.CANVAS_STROKE);
+		map.setAttribute("fill", Gef.CANVAS_STROKE);
+		ma.appendChild(map);
+		this.def.appendChild(ma);
+
+
+		this.shadow = document.createElementNS(Gef.svgns, "rect");
+		this.shadow.setAttribute("width", (this.w - 10) + "px");
+		this.shadow.setAttribute("height", (this.h - 40) + "px");
+		this.shadow.setAttribute("y", 19);
+		this.shadow.setAttribute("rx", 5);
+		this.shadow.setAttribute("ry", 5);
+		this.shadow.setAttribute("fill", "grey");
+		this.shadow.setAttribute("filter", "url(#roundRectFilter)");
+
+		$.appendChild(this.def);
+		$.appendChild(this.shadow);
+		//-------------------------------------------------------------------------
+		var B = document.createElementNS(Gef.svgns, "rect");
+		B.setAttribute("x", 5);
+		B.setAttribute("y", 20);
+		B.setAttribute("width", (this.w - 10) + "px");
+		B.setAttribute("height", (this.h - 40) + "px");
+		B.setAttribute("rx", 6);
+		B.setAttribute("ry", 6);
+		B.setAttribute("fill", Gef.CANVAS_FILL);
+		B.setAttribute("stroke", Gef.CANVAS_STROKE);
+		B.setAttribute("stroke-width", "2");
+		$.appendChild(B);
+		this.rectEl = B;
+
+		var L1 = document.createElementNS(Gef.svgns, "line");
+		L1.setAttribute("x1", this.w / 2);
+		L1.setAttribute("y1", 5);
+		L1.setAttribute("x2", this.w / 2);
+		L1.setAttribute("y2", 20);
+		L1.setAttribute("fill", Gef.CANVAS_STROKE);
+		L1.setAttribute("stroke", Gef.CANVAS_STROKE);
+		L1.setAttribute("stroke-width", "2");
+		L1.setAttribute("marker-end", "url(#forkArrow)");
+		$.appendChild(L1);
+
+		var L2 = document.createElementNS(Gef.svgns, "line");
+		L2.setAttribute("x1", this.w / 2);
+		L2.setAttribute("y1", this.h - 20);
+		L2.setAttribute("x2", this.w / 2);
+		L2.setAttribute("y2", this.h - 5);
+		L2.setAttribute("fill", Gef.CANVAS_STROKE);
+		L2.setAttribute("stroke", Gef.CANVAS_STROKE);
+		L2.setAttribute("stroke-width", "2");
+		L2.setAttribute("marker-end", "url(#forkArrow)");
+		$.appendChild(L2);
+
+		var L3 = document.createElementNS(Gef.svgns, "line");
+		L3.setAttribute("x1", this.w / 3);
+		L3.setAttribute("y1", this.h - 20);
+		L3.setAttribute("x2", 5);
+		L3.setAttribute("y2", this.h - 5);
+		L3.setAttribute("fill", Gef.CANVAS_STROKE);
+		L3.setAttribute("stroke", Gef.CANVAS_STROKE);
+		L3.setAttribute("stroke-width", "2");
+		L3.setAttribute("marker-end", "url(#forkArrow)");
+		$.appendChild(L3);
+
+		var L4 = document.createElementNS(Gef.svgns, "line");
+		L4.setAttribute("x1", this.w / 3 * 2);
+		L4.setAttribute("y1", this.h - 20);
+		L4.setAttribute("x2", this.w - 5);
+		L4.setAttribute("y2", this.h - 5);
+		L4.setAttribute("fill", Gef.CANVAS_STROKE);
+		L4.setAttribute("stroke", Gef.CANVAS_STROKE);
+		L4.setAttribute("stroke-width", "2");
+		L4.setAttribute("marker-end", "url(#forkArrow)");
+		$.appendChild(L4);
+
+		var _ = this.getTextPosition(this.w, this.h),
+			A = document.createElementNS(Gef.svgns, "text");
+		A.setAttribute("x", _.x);
+		A.setAttribute("y", _.y);
+		A.setAttribute("text-anchor", "middle");
+		A.textContent = "分散";
+		$.appendChild(A);
+
+		this.textEl = A
+	},
+	onRenderVml : function() {
+		this.el.setAttribute("id", Gef.id());
+		this.el.style.position = "absolute";
+		this.el.style.cursor = "pointer";
+		this.getParentEl().appendChild(this.el)
+	},
+	onRenderSvg : function() {
+		this.el.setAttribute("id", Gef.id());
+		this.el.setAttribute("cursor", "pointer");
+		this.getParentEl().appendChild(this.el)
+	},
+	getTextPosition : function($, _) {
+		if (Gef.isVml)
+			return this.getTextPositionVml($, _);
+		else
+			return this.getTextPositionSvg($, _)
+	},
+	getTextPositionVml : function($, B) {
+		var _ = Gef.getTextSize(this.name), C = $ / 2, A = B / 2;
+		return {
+			x : C + "px",
+			y : A + "px"
+		}
+	},
+	getTextPositionSvg : function($, B) {
+		var _ = Gef.getTextSize(this.name), C = $ / 2, A = B / 2 + _.h / 4;
+		return {
+			x : C + "px",
+			y : A + "px"
+		}
+	},
+	moveTo : function(B, _) {
+		Gef.NodeFigure.superclass.moveTo.call(this, B, _);
+		for (var A = 0; A < this.incomes.length; A++) {
+			var $ = this.incomes[A];
+			$.refresh()
+		}
+		for (A = 0; A < this.outputs.length; A++) {
+			$ = this.outputs[A];
+			$.refresh()
+		}
+	},
+	moveToVml : function() {
+		this.el.style.left = this.x + "px";
+		this.el.style.top = this.y + "px"
+	},
+	moveToSvg : function($, _) {
+		this.el.setAttribute("transform", "translate(" + this.x + "," + this.y + ")")
+	},
+	update : function(B, A, $, _) {
+		this.x = B;
+		this.y = A;
+		this.w = $;
+		this.h = _;
+		if (Gef.isVml)
+			this.resizeVml(B, A, $, _);
+		else
+			this.resizeSvg(B, A, $, _)
+	},
+	remove : function() {
+		for (var _ = this.outputs.length - 1; _ >= 0; _--) {
+			var $ = this.outputs[_];
+			$.remove()
+		}
+		for (_ = this.incomes.length - 1; _ >= 0; _--) {
+			$ = this.incomes[_];
+			$.remove()
+		}
+		Gef.figure.NodeFigure.superclass.remove.call(this)
+	},
+	hideText : function() {
+		this.textEl.style.display = "none"
+	},
+	// updateAndShowText : function($) {
+	// 	this.name = $;
+	// 	if (Gef.isVml)
+	// 		this.textEl.innerHTML = $;
+	// 	else
+	// 		this.textEl.textContent = $;
+	// 	this.textEl.style.display = ""
+	// },
+	// cancelEditText : function() {
+	// 	this.textEl.style.display = ""
+	// },
+	resize : function(B, _, A) {
+		var E = this.x, D = this.y, $ = this.w, C = this.h;
+		if (B == "n") {
+			D = D + A;
+			C = C - A
+		} else if (B == "s")
+			C = C + A;
+		else if (B == "w") {
+			E = E + _;
+			$ = $ - _
+		} else if (B == "e")
+			$ = $ + _;
+		else if (B == "nw") {
+			E = E + _;
+			$ = $ - _;
+			D = D + A;
+			C = C - A
+		} else if (B == "ne") {
+			$ = $ + _;
+			D = D + A;
+			C = C - A
+		} else if (B == "sw") {
+			E = E + _;
+			$ = $ - _;
+			C = C + A
+		} else if (B == "se") {
+			$ = $ + _;
+			C = C + A
+		}
+		if (Gef.isVml)
+			this.resizeVml(E, D, $, C);
+		else
+			this.resizeSvg(E, D, $, C);
+		return {
+			x : E,
+			y : D,
+			w : $,
+			h : C
+		}
+	},
+	resizeVml : function(B, A, $, _) {
+		this.el.style.left = B + "px";
+		this.el.style.top = A + "px";
+		this.el.style.width = $ + "px";
+		this.el.style.height = _ + "px";
+		this.el.coordsize = $ + "," + _;
+		this.rectEl.style.width = ($ - 10) + "px";
+		this.rectEl.style.height = (_ - 10) + "px"
+	},
+	resizeSvg : function(C, B, $, A) {
+		this.el.setAttribute("transform", "translate(" + C + "," + B + ")");
+		var _ = this.getTextPosition($, A);
+		this.textEl.setAttribute("x", _.x);
+		this.textEl.setAttribute("y", _.y)
+	},
+	getTools : function() {
+		return []
+	}
+});
+Gef.figure.JoinNodeFigure = Gef.extend(Gef.figure.RoundRectFigure,{
+	constructor : function($) {
+		this.outputs = [];
+		this.incomes = [];
+		Gef.figure.NodeFigure.superclass.constructor.call(this, $);
+		this.w = 100;
+		this.h = 60
+	},
+	renderVml : function() {
+		var $ = document.createElement("v:group");
+		$.style.left = this.x;
+		$.style.top = this.y;
+		$.style.width = this.w;
+		$.style.height = this.h;
+		$.setAttribute("coordsize", this.w + "," + this.h);
+		this.el = $;
+		var B = document.createElement("v:roundrect");
+		B.style.position = "absolute";
+		B.style.left = "5px";
+		B.style.top = "5px";
+		B.style.width = (this.w - 10) + "px";
+		B.style.height = (this.h - 10) + "px";
+		B.setAttribute("arcsize", 0.2);
+		B.setAttribute("fillcolor", Gef.CANVAS_FILL);
+		B.setAttribute("strokecolor", Gef.CANVAS_STROKE);
+		B.setAttribute("strokeweight", "1");
+		B.style.verticalAlign = "middle";
+
+		//加上阴影
+		//<v:shadow on="T" type="single" color="#b3b3b3" offset="5px,5px"/>
+		this.shadow = document.createElement("v:shadow");
+		this.shadow.setAttribute("on", "T");
+		this.shadow.setAttribute("type", "single");
+		this.shadow.setAttribute("color", "#b3b3b3");
+		this.shadow.setAttribute("offset", "3px,3px");
+		B.appendChild(this.shadow);
+		$.appendChild(B);
+		this.rectEl = B;
+		var _ = this.getTextPosition(this.w, this.h), A = document
+			.createElement("v:textbox");
+		A.style.textAlign = "center";
+		A.style.fontFamily = "Verdana";
+		A.style.fontSize = "12px";
+		A.innerHTML = this.name;
+		B.appendChild(A);
+		this.textEl = A
+	},
+	renderSvg : function() {
+		var $ = document.createElementNS(Gef.svgns, "g");
+		$.setAttribute("transform", "translate(" + this.x + "," + this.y + ")");
+		this.el = $;
+
+		//加上阴影
+		this.def = document.createElementNS(Gef.svgns, "defs");
+		this.svgfilter = document.createElementNS(Gef.svgns, "filter");
+		this.svgfilter.setAttribute("id", "roundRectFilter");
+		this.svgfilter.setAttribute("x", "0");
+		this.svgfilter.setAttribute("y", "0");
+
+		var fe1 = document.createElementNS(Gef.svgns, "feGaussianBlur");
+		fe1.setAttribute("stdDeviation", 2);
+		var fe2 = document.createElementNS(Gef.svgns, "feOffset");
+		fe2.setAttribute("dx", 8);
+		fe2.setAttribute("dy", 8);
+		this.svgfilter.appendChild(fe1);
+		this.svgfilter.appendChild(fe2);
+		this.def.appendChild(this.svgfilter);
+
+		var ma = document.createElementNS(Gef.svgns, "marker");
+		ma.setAttribute("id", "forkArrow");
+		ma.setAttribute("markerUnits", "userSpaceOnUse");
+		ma.setAttribute("markerWidth", 8);
+		ma.setAttribute("markerHeight", 8);
+		ma.setAttribute("refX", 8);
+		ma.setAttribute("refY", 4);
+		ma.setAttribute("orient", "auto");
+		var map = document.createElementNS(Gef.svgns, "path");
+		map.setAttribute("d", "M 0 0 L 8 4 L 0 8 z");
+		map.setAttribute("stroke", Gef.CANVAS_STROKE);
+		map.setAttribute("fill", Gef.CANVAS_STROKE);
+		ma.appendChild(map);
+		this.def.appendChild(ma);
+
+
+		this.shadow = document.createElementNS(Gef.svgns, "rect");
+		this.shadow.setAttribute("width", (this.w - 10) + "px");
+		this.shadow.setAttribute("height", (this.h - 40) + "px");
+		this.shadow.setAttribute("y", 19);
+		this.shadow.setAttribute("rx", 5);
+		this.shadow.setAttribute("ry", 5);
+		this.shadow.setAttribute("fill", "grey");
+		this.shadow.setAttribute("filter", "url(#roundRectFilter)");
+
+		$.appendChild(this.def);
+		$.appendChild(this.shadow);
+		//-------------------------------------------------------------------------
+		var B = document.createElementNS(Gef.svgns, "rect");
+		B.setAttribute("x", 5);
+		B.setAttribute("y", 20);
+		B.setAttribute("width", (this.w - 10) + "px");
+		B.setAttribute("height", (this.h - 40) + "px");
+		B.setAttribute("rx", 6);
+		B.setAttribute("ry", 6);
+		B.setAttribute("fill", Gef.CANVAS_FILL);
+		B.setAttribute("stroke", Gef.CANVAS_STROKE);
+		B.setAttribute("stroke-width", "2");
+		$.appendChild(B);
+		this.rectEl = B;
+
+		var L1 = document.createElementNS(Gef.svgns, "line");
+		L1.setAttribute("x1", this.w / 2);
+		L1.setAttribute("y1", 5);
+		L1.setAttribute("x2", this.w / 2);
+		L1.setAttribute("y2", 20);
+		L1.setAttribute("fill", Gef.CANVAS_STROKE);
+		L1.setAttribute("stroke", Gef.CANVAS_STROKE);
+		L1.setAttribute("stroke-width", "2");
+		L1.setAttribute("marker-end", "url(#forkArrow)");
+		$.appendChild(L1);
+
+		var L2 = document.createElementNS(Gef.svgns, "line");
+		L2.setAttribute("x1", this.w / 2);
+		L2.setAttribute("y1", this.h - 20);
+		L2.setAttribute("x2", this.w / 2);
+		L2.setAttribute("y2", this.h - 5);
+		L2.setAttribute("fill", Gef.CANVAS_STROKE);
+		L2.setAttribute("stroke", Gef.CANVAS_STROKE);
+		L2.setAttribute("stroke-width", "2");
+		L2.setAttribute("marker-end", "url(#forkArrow)");
+		$.appendChild(L2);
+
+		var L3 = document.createElementNS(Gef.svgns, "line");
+		L3.setAttribute("x1", 16);
+		L3.setAttribute("y1", 5);
+		L3.setAttribute("x2", this.w / 3);
+		L3.setAttribute("y2", 18);
+		L3.setAttribute("fill", Gef.CANVAS_STROKE);
+		L3.setAttribute("stroke", Gef.CANVAS_STROKE);
+		L3.setAttribute("stroke-width", "2");
+		L3.setAttribute("marker-end", "url(#forkArrow)");
+		$.appendChild(L3);
+
+		var L4 = document.createElementNS(Gef.svgns, "line");
+		L4.setAttribute("x1", this.w - 16);
+		L4.setAttribute("y1", 5);
+		L4.setAttribute("x2", this.w / 3 * 2);
+		L4.setAttribute("y2", 18);
+		L4.setAttribute("fill", Gef.CANVAS_STROKE);
+		L4.setAttribute("stroke", Gef.CANVAS_STROKE);
+		L4.setAttribute("stroke-width", "2");
+		L4.setAttribute("marker-end", "url(#forkArrow)");
+		$.appendChild(L4);
+
+		var _ = this.getTextPosition(this.w, this.h),
+			A = document.createElementNS(Gef.svgns, "text");
+		A.setAttribute("x", _.x);
+		A.setAttribute("y", _.y);
+		A.setAttribute("text-anchor", "middle");
+		A.textContent = "合并";
+		$.appendChild(A);
+
+		this.textEl = A
+	},
+	onRenderVml : function() {
+		this.el.setAttribute("id", Gef.id());
+		this.el.style.position = "absolute";
+		this.el.style.cursor = "pointer";
+		this.getParentEl().appendChild(this.el)
+	},
+	onRenderSvg : function() {
+		this.el.setAttribute("id", Gef.id());
+		this.el.setAttribute("cursor", "pointer");
+		this.getParentEl().appendChild(this.el)
+	},
+	getTextPosition : function($, _) {
+		if (Gef.isVml)
+			return this.getTextPositionVml($, _);
+		else
+			return this.getTextPositionSvg($, _)
+	},
+	getTextPositionVml : function($, B) {
+		var _ = Gef.getTextSize(this.name), C = $ / 2, A = B / 2;
+		return {
+			x : C + "px",
+			y : A + "px"
+		}
+	},
+	getTextPositionSvg : function($, B) {
+		var _ = Gef.getTextSize(this.name), C = $ / 2, A = B / 2 + _.h / 4;
+		return {
+			x : C + "px",
+			y : A + "px"
+		}
+	},
+	moveTo : function(B, _) {
+		Gef.NodeFigure.superclass.moveTo.call(this, B, _);
+		for (var A = 0; A < this.incomes.length; A++) {
+			var $ = this.incomes[A];
+			$.refresh()
+		}
+		for (A = 0; A < this.outputs.length; A++) {
+			$ = this.outputs[A];
+			$.refresh()
+		}
+	},
+	moveToVml : function() {
+		this.el.style.left = this.x + "px";
+		this.el.style.top = this.y + "px"
+	},
+	moveToSvg : function($, _) {
+		this.el.setAttribute("transform", "translate(" + this.x + "," + this.y + ")")
+	},
+	update : function(B, A, $, _) {
+		this.x = B;
+		this.y = A;
+		this.w = $;
+		this.h = _;
+		if (Gef.isVml)
+			this.resizeVml(B, A, $, _);
+		else
+			this.resizeSvg(B, A, $, _)
+	},
+	remove : function() {
+		for (var _ = this.outputs.length - 1; _ >= 0; _--) {
+			var $ = this.outputs[_];
+			$.remove()
+		}
+		for (_ = this.incomes.length - 1; _ >= 0; _--) {
+			$ = this.incomes[_];
+			$.remove()
+		}
+		Gef.figure.NodeFigure.superclass.remove.call(this)
+	},
+	hideText : function() {
+		this.textEl.style.display = "none"
+	},
+	// updateAndShowText : function($) {
+	// 	this.name = $;
+	// 	if (Gef.isVml)
+	// 		this.textEl.innerHTML = $;
+	// 	else
+	// 		this.textEl.textContent = $;
+	// 	this.textEl.style.display = ""
+	// },
+	// cancelEditText : function() {
+	// 	this.textEl.style.display = ""
+	// },
+	resize : function(B, _, A) {
+		var E = this.x, D = this.y, $ = this.w, C = this.h;
+		if (B == "n") {
+			D = D + A;
+			C = C - A
+		} else if (B == "s")
+			C = C + A;
+		else if (B == "w") {
+			E = E + _;
+			$ = $ - _
+		} else if (B == "e")
+			$ = $ + _;
+		else if (B == "nw") {
+			E = E + _;
+			$ = $ - _;
+			D = D + A;
+			C = C - A
+		} else if (B == "ne") {
+			$ = $ + _;
+			D = D + A;
+			C = C - A
+		} else if (B == "sw") {
+			E = E + _;
+			$ = $ - _;
+			C = C + A
+		} else if (B == "se") {
+			$ = $ + _;
+			C = C + A
+		}
+		if (Gef.isVml)
+			this.resizeVml(E, D, $, C);
+		else
+			this.resizeSvg(E, D, $, C);
+		return {
+			x : E,
+			y : D,
+			w : $,
+			h : C
+		}
+	},
+	resizeVml : function(B, A, $, _) {
+		this.el.style.left = B + "px";
+		this.el.style.top = A + "px";
+		this.el.style.width = $ + "px";
+		this.el.style.height = _ + "px";
+		this.el.coordsize = $ + "," + _;
+		this.rectEl.style.width = ($ - 10) + "px";
+		this.rectEl.style.height = (_ - 10) + "px"
+	},
+	resizeSvg : function(C, B, $, A) {
+		this.el.setAttribute("transform", "translate(" + C + "," + B + ")");
+		var _ = this.getTextPosition($, A);
+		this.textEl.setAttribute("x", _.x);
+		this.textEl.setAttribute("y", _.y)
+	},
+	getTools : function() {
+		return []
+	}
+});
+Gef.figure.ImageNodeFigure = Gef.extend(Gef.figure.ImageFigure, {
+	constructor : function($) {
+		this.w = 48;
+		this.h = 48;
+		this.outputs = [];
+		this.incomes = [];
+		Gef.figure.ImageNodeFigure.superclass.constructor.call(this, $)
+	},
+	move : function(_, A) {
+		Gef.figure.ImageNodeFigure.superclass.move.call(this, _, A);
+		for (var B = 0; B < this.incomes.length; B++) {
+			var $ = this.incomes[B];
+			$.refresh()
+		}
+		for (B = 0; B < this.outputs.length; B++) {
+			$ = this.outputs[B];
+			$.refresh()
+		}
+	},
+	remove : function() {
+		for (var _ = this.outputs.length - 1; _ >= 0; _--) {
+			var $ = this.outputs[_];
+			$.remove()
+		}
+		for (_ = this.incomes.length - 1; _ >= 0; _--) {
+			$ = this.incomes[_];
+			$.remove()
+		}
+		Gef.figure.ImageNodeFigure.superclass.remove.call(this)
+	},
+	getTools : function() {
+		return []
+	}
+});
+Gef.figure.EdgeFigure = Gef.extend(Gef.figure.PolylineFigure, {
+	constructor : function(_, $) {
+		this.from = _;
+		this.to = $;
+		if (!this.name)
+			this.name = "to " + $.name;
+		this.from.outputs.push(this);
+		this.to.incomes.push(this);
+		this.alive = true;
+		this.innerPoints = [];
+		this.calculate();
+		Gef.figure.EdgeFigure.superclass.constructor.call(this, {});
+		this.textX = 0;
+		this.textY = 0
+	},
+	render : function() {
+		this.calculate();
+		Gef.figure.EdgeFigure.superclass.render.call(this)
+	},
+	onRenderVml : function() {
+		this.el.setAttribute("id", Gef.id());
+		this.el.style.position = "absolute";
+		this.el.style.cursor = "pointer";
+		this.el.setAttribute("strokeweight", 2);
+		this.el.setAttribute("strokecolor", "#909090");
+		this.getParentEl().appendChild(this.el);
+		this.stroke = document.createElement("v:stroke");
+		this.el.appendChild(this.stroke);
+		this.stroke.setAttribute("endArrow", "Classic");
+//		this.stroke.setAttribute("dashstyle", "LongDashDotDot");
+		var _ = document.createElement("textbox"), $ = this.getTextLocation();
+		_.style.position = "absolute";
+		_.style.left = $.x + "px";
+		_.style.top = ($.y - $.h) + "px";
+		_.style.textAlign = "center";
+		_.style.cursor = "pointer";
+		_.style.fontFamily = "Verdana";
+		_.style.fontSize = "12px";
+		_.innerHTML = this.name;
+		_.setAttribute("edgeId", this.getId());
+		this.getParentEl().appendChild(_);
+		this.textEl = _
+	},
+	onRenderSvg : function() {
+		this.el.setAttribute("id", Gef.id());
+		this.el.setAttribute("fill", "none");
+		this.el.setAttribute("stroke", "#909090");
+		this.el.setAttribute("stroke-width", "2");
+		this.el.setAttribute("cursor", "pointer");
+		this.el.setAttribute("marker-end", "url(#markerArrow)");
+		this.getParentEl().appendChild(this.el);
+		var _ = document.createElementNS(Gef.svgns, "text"),
+			$ = this.getTextLocation();
+		_.setAttribute("x", $.x);
+		_.setAttribute("y", $.y);
+		_.setAttribute("cursor", "pointer");
+		_.textContent = this.name;
+		_.setAttribute("edgeId", this.getId());
+		this.getParentEl().appendChild(_);
+		this.textEl = _
+	},
+	setConditional : function($) {
+		if (Gef.isVml)
+			this.setConditionalVml($);
+		else
+			this.setConditionalSvg($)
+	},
+	setConditionalVml : function($) {
+		if ($ == true)
+			this.stroke.setAttribute("startArrow", "diamond");
+		else
+			this.stroke.setAttribute("startArrow", "")
+	},
+	setConditionalSvg : function($) {
+		if ($ == true)
+			this.el.setAttribute("marker-start", "url(#markerDiamond)");
+		else
+			this.el.setAttribute("marker-start", "")
+	},
+	calculate : function() {
+		var A = new Geom.Line(this.from.x + this.from.w / 2, this.from.y + this.from.h / 2, this.to.x + this.to.w / 2, this.to.y + this.to.h / 2),
+			C = new Geom.Rect(this.from.x, this.from.y, this.from.w, this.from.h),
+			B = new Geom.Rect(this.to.x,this.to.y, this.to.w, this.to.h),
+			_ = C.getCrossPoint(A), $ = B.getCrossPoint(A);
+		if (_ == null || $ == null) {
+			this.x1 = 0;
+			this.y1 = 0;
+			this.x2 = 0;
+			this.y2 = 0
+		} else {
+			this.x1 = _.x;
+			this.y1 = _.y;
+			this.x2 = $.x;
+			this.y2 = $.y
+		}
+		this.convert()
+	},
+	recalculate : function(_, $) {
+		var B = new Geom.Line(_.x + _.w / 2, _.y + _.h / 2, $[0], $[1]),
+			C = new Geom.Rect(_.x, _.y, _.w, _.h), A = C.getCrossPoint(B);
+		return A
+	},
+	convert : function() {
+		this.points = [];
+		var _ = this.points, A = this.innerPoints.length;
+		if (A > 0) {
+			var $ = this.recalculate(this.from, this.innerPoints[0]);
+			this.x1 = $.x;
+			this.y1 = $.y
+		}
+		_.push([this.x1, this.y1]);
+		for (var B = 0; B < this.innerPoints.length; B++)
+			_.push([this.innerPoints[B][0], this.innerPoints[B][1]]);
+		if (A > 0) {
+			$ = this.recalculate(this.to, this.innerPoints[A - 1]);
+			if ($ != null) {
+				this.x2 = $.x;
+				this.y2 = $.y
+			}
+		}
+		_.push([this.x2, this.y2])
+	},
+	update : function(B, $, A, _) {
+		this.x1 = B;
+		this.y1 = $;
+		this.x2 = A;
+		this.y2 = _;
+		if (Gef.isVml)
+			this.updateVml();
+		else
+			this.updateSvg()
+	},
+	updateVml : function() {
+		this.el.points.value = this.getPoint(0, 0);
+		var $ = this.getTextLocation();
+		this.textEl.style.left = $.x + "px";
+		this.textEl.style.top = ($.y - $.h) + "px"
+	},
+	updateSvg : function() {
+		this.el.setAttribute("points", this.getPoint(0, 0));
+		var $ = this.getTextLocation();
+		this.textEl.setAttribute("x", $.x);
+		this.textEl.setAttribute("y", $.y)
+	},
+	refresh : function() {
+		if (!this.el)
+			this.render();
+		this.calculate();
+		this.update(this.x1, this.y1, this.x2, this.y2)
+	},
+	getTextLocation : function() {
+		var _ = Gef.getTextSize(this.name), $ = _.w + 2, B = _.h + 2,
+			C = (this.x1 + this.x2) / 2 + this.textX - 1,
+			A = (this.y1 + this.y2) / 2 + this.textY + 2;
+		return {
+			x : C,
+			y : A,
+			w : $,
+			h : B
+		}
+	},
+	updateAndShowText : function(_) {
+		this.name = _;
+		if (Gef.isVml) {
+			this.textEl.innerHTML = _;
+			var $ = this.getTextLocation();
+			this.textEl.style.left = $.x;
+			this.textEl.style.top = $.y
+		} else
+			this.textEl.textContent = _;
+		this.textEl.style.display = ""
+	},
+	remove : function() {
+		if (this.alive) {
+			this.from.outputs.remove(this);
+			this.to.incomes.remove(this);
+			this.getParentEl().removeChild(this.el);
+			this.getParentEl().removeChild(this.textEl);
+			this.alive = false
+		}
+	},
+	modify : function() {
+		this.convert();
+		if (Gef.isVml)
+			this.el.points.value = this.getPoint(0, 0);
+		else
+			this.el.setAttribute("points", this.getPoint(0, 0));
+		this.refresh()
+	}
+});
+Gef.figure.DraggingRectFigure = Gef.extend(Gef.figure.RectFigure, {
+	constructor : function($) {
+		Gef.figure.DraggingRectFigure.superclass.constructor.call(this, $);
+		this._className = "Gef.DraggingRectFigure"
+	},
+	onRenderVml : function() {
+		this.el.setAttribute("id", Gef.id());
+		this.el.style.position = "absolute";
+		this.el.style.cursor = "normal";
+		this.getParentEl().appendChild(this.el);
+		this.stroke = document.createElement("v:stroke");
+		this.el.appendChild(this.stroke);
+		this.stroke.setAttribute("strokecolor", "black");
+		this.stroke.setAttribute("dashstyle", "dot");
+		this.fill = document.createElement("v:fill");
+		this.el.appendChild(this.fill);
+		this.fill.setAttribute("color", "#F6F6F6");
+		this.fill.setAttribute("opacity", "0.5")
+	},
+	onRenderSvg : function() {
+		this.el.setAttribute("id", Gef.id());
+		this.el.setAttribute("fill", "#F6F6F6");
+		this.el.setAttribute("opacity", "0.7");
+		this.el.setAttribute("stroke", "black");
+		this.el.setAttribute("stroke-width", "1");
+		this.el.setAttribute("cursor", "normal");
+		this.el.setAttribute("stroke-dasharray", "2");
+		this.getParentEl().appendChild(this.el)
+	},
+	update : function(E, D, $, C) {
+		var B = this.x, A = this.y, _ = {
+			x : E,
+			y : D,
+			w : $,
+			h : C
+		};
+		if ($ < 0) {
+			this.oldX = this.x;
+			_.x = E + $;
+			_.w = -$
+		}
+		if (C < 0) {
+			_.y = D + C;
+			_.h = -C
+		}
+		Gef.figure.DraggingRectFigure.superclass.update.call(this, _.x, _.y, _.w, _.h);
+		if ($ < 0)
+			this.x = B;
+		if (C < 0)
+			this.y = A
+	}
+});
+Gef.figure.DraggingEdgeFigure = Gef.extend(Gef.figure.EdgeFigure, {
+	constructor : function($) {
+		Gef.figure.DraggingEdgeFigure.superclass.constructor.call(this, {
+			outputs : []
+		}, {
+			incomes : []
+		});
+		this._className = "Gef.DraggingEdgeFigure"
+	},
+	onRenderVml : function() {
+		this.el.setAttribute("id", Gef.id());
+		this.el.style.position = "absolute";
+		this.el.style.cursor = "normal";
+		this.getParentEl().appendChild(this.el);
+		this.stroke = document.createElement("v:stroke");
+		this.el.appendChild(this.stroke);
+		this.stroke.color = "#909090";
+		this.stroke.dashstyle = "dot";
+		this.stroke.endArrow = "Classic";
+		this.stroke.weight = 2
+	},
+	onRenderSvg : function() {
+		this.el.setAttribute("id", Gef.id());
+		this.el.setAttribute("fill", "none");
+		this.el.setAttribute("stroke", "#909090");
+		this.el.setAttribute("stroke-width", "2");
+		this.el.setAttribute("cursor", "normal");
+		this.el.setAttribute("stroke-dasharray", "2");
+		this.el.setAttribute("marker-end", "url(#markerArrow)");
+		this.getParentEl().appendChild(this.el)
+	},
+	updateForDragging : function(_, $) {
+		this.from = _;
+		this.x1 = this.from.x;
+		this.y1 = this.from.y;
+		this.to = {
+			x : $.x,
+			y : $.y,
+			w : 2,
+			h : 2
+		};
+		this.x2 = this.to.x;
+		this.y2 = this.to.y;
+		this.innerPoints = [];
+		this.refresh()
+	},
+	updateForMove : function($, _, A) {
+		if (_ == "start") {
+			this.from = {
+				x : A.x,
+				y : A.y,
+				w : 2,
+				h : 2
+			};
+			this.x1 = A.x;
+			this.y1 = A.y;
+			this.to = $.to;
+			this.x2 = $.x2;
+			this.y2 = $.y2
+		} else {
+			this.from = $.from;
+			this.x1 = $.x1;
+			this.y1 = $.y1;
+			this.to = {
+				x : A.x,
+				y : A.y,
+				w : 2,
+				h : 2
+			};
+			this.x2 = A.x;
+			this.y2 = A.y
+		}
+		this.innerPoints = $.innerPoints;
+		this.refresh()
+	},
+	moveToHide : function() {
+		this.from = null;
+		this.to = null;
+		this.innerPoints = null;
+		this.points = [[-1, -1], [-1, -1]];
+		this.update(-1, -1, -1, -1)
+	},
+	updateVml : function() {
+		this.el.points.value = this.getPoint(0, 0)
+	},
+	updateSvg : function() {
+		this.el.setAttribute("points", this.getPoint(0, 0))
+	}
+});
+Gef.figure.DraggingTextFigure = Gef.extend(Gef.figure.Figure, {
+	constructor : function($) {
+		Gef.figure.DraggingTextFigure.superclass.constructor.call(this);
+		this.edge = $
+	},
+	getTextLocation : function() {
+		var _ = this.edge.getTextLocation(), E = _.x, D = _.y, $ = _.w, C = _.h, B = $ / 2, A = C / 2;
+		D -= C;
+		return {
+			x : E,
+			y : D,
+			w : $,
+			h : C,
+			cx : B,
+			cy : A
+		}
+	},
+	renderVml : function() {
+		var A = this.getTextLocation(), G = A.x, F = A.y, $ = A.w, E = A.h, C = A.cx, B = A.cy,
+			_ = document.createElement("v:group");
+		_.style.left = G;
+		_.style.top = F;
+		_.style.width = $;
+		_.style.height = E;
+		_.setAttribute("coordsize", $ + "," + E);
+		this.el = _;
+		var D = document.createElement("v:rect");
+		D.filled = "f";
+		D.strokecolor = "black";
+		D.style.left = "0px";
+		D.style.top = "0px";
+		D.style.width = $ + "px";
+		D.style.height = E + "px";
+		_.appendChild(D);
+		this.rectEl = D;
+		this.nwEl = this.createItemVml(0, 0, "nw");
+		this.neEl = this.createItemVml($, 0, "ne");
+		this.swEl = this.createItemVml(0, E, "sw");
+		this.seEl = this.createItemVml($, E, "se")
+	},
+	createItemVml : function(B, A, $) {
+		var _ = document.createElement("v:rect");
+		_.id = this.edge.getId() + ":" + $;
+		_.fillcolor = "black";
+		_.style.cursor = $ + "-resize";
+		_.style.left = (B - 2) + "px";
+		_.style.top = (A - 2) + "px";
+		_.style.width = "4px";
+		_.style.height = "4px";
+		this.el.appendChild(_);
+		return _
+	},
+	renderSvg : function() {
+		var A = this.getTextLocation(), G = A.x, F = A.y, $ = A.w, E = A.h, C = A.cx, B = A.cy,
+			_ = document.createElementNS(Gef.svgns, "g");
+		_.setAttribute("transform", "translate(" + G + "," + F + ")");
+		this.el = _;
+		var D = document.createElementNS(Gef.svgns, "rect");
+		D.setAttribute("x", 0);
+		D.setAttribute("y", 0);
+		D.setAttribute("width", $);
+		D.setAttribute("height", E);
+		D.setAttribute("fill", "none");
+		D.setAttribute("stroke", "black");
+		this.rectEl = D;
+		this.el.appendChild(D);
+		this.nwEl = this.createItemSvg(0, 0, "nw");
+		this.neEl = this.createItemSvg($, 0, "ne");
+		this.swEl = this.createItemSvg(0, E, "sw");
+		this.seEl = this.createItemSvg($, E, "se")
+	},
+	createItemSvg : function(B, A, $) {
+		var _ = document.createElementNS(Gef.svgns, "rect");
+		_.setAttribute("id", this.edge.getId() + ":" + $);
+		_.setAttribute("cursor", $ + "-resize");
+		_.setAttribute("x", B - 2);
+		_.setAttribute("y", A - 2);
+		_.setAttribute("width", "5");
+		_.setAttribute("height", "5");
+		_.setAttribute("fill", "black");
+		_.setAttribute("stroke", "white");
+		this.el.appendChild(_);
+		return _
+	},
+	resize : function(B, $, A, _) {
+		if (Gef.isVml)
+			this.resizeVml(B, $, A, _);
+		else
+			this.resizeSvg(B, $, A, _)
+	},
+	resizeVml : function(I, A, E, C) {
+		var _ = this.getTextLocation(), H = _.x, G = _.y, $ = _.w, F = _.h, D = _.cx, B = _.cy;
+		this.el.style.left = H + "px";
+		this.el.style.top = G + "px";
+		this.el.style.width = $ + "px";
+		this.el.style.height = F + "px";
+		this.el.coordsize = $ + "," + F;
+		this.rectEl.style.width = $ + "px";
+		this.rectEl.style.height = F + "px";
+		this.neEl.style.left = ($ - 2) + "px";
+		this.swEl.style.top = (F - 2) + "px";
+		this.seEl.style.left = ($ - 2) + "px";
+		this.seEl.style.top = (F - 2) + "px"
+	},
+	resizeSvg : function(I, A, E, C) {
+		var _ = this.getTextLocation(), H = _.x, G = _.y, $ = _.w, F = _.h, D = _.cx, B = _.cy;
+		this.el.setAttribute("transform", "translate(" + H + "," + G + ")");
+		this.rectEl.setAttribute("width", $);
+		this.rectEl.setAttribute("height", F);
+		this.neEl.setAttribute("x", $ - 2);
+		this.swEl.setAttribute("y", F - 2);
+		this.seEl.setAttribute("x", $ - 2);
+		this.seEl.setAttribute("y", F - 2)
+	},
+	refresh : function() {
+		this.resize(this.edge.x1, this.edge.y1, this.edge.x2, this.edge.y2);
+		this.updateAndShowText()
+	},
+	updateAndShowText : function() {
+		var _ = this.edge.getTextLocation(), C = _.x, B = _.y, $ = _.w, A = _.h;
+		if (Gef.isVml) {
+			this.edge.textEl.style.left = C + "px";
+			this.edge.textEl.style.top = (B - A) + "px"
+		} else {
+			this.edge.textEl.setAttribute("x", C);
+			this.edge.textEl.setAttribute("y", B)
+		}
+	}
+});
+Gef.figure.ResizeNodeHandle = Gef.extend(Gef.figure.Figure, {
+	constructor : function($) {
+		this.children = [];
+		this.node = $
+	},
+	renderVml : function() {
+		var _ = this.node, G = _.x, F = _.y, $ = _.w, E = _.h, C = $ / 2, B = E / 2, A = document.createElement("v:group");
+		A.style.left = G;
+		A.style.top = F;
+		A.style.width = $;
+		A.style.height = E;
+		A.setAttribute("coordsize", $ + "," + E);
+		this.el = A;
+		var D = document.createElement("v:rect");
+		D.filled = "f";
+		D.strokecolor = "black";
+		D.style.left = "0px";
+		D.style.top = "0px";
+		D.style.width = $ + "px";
+		D.style.height = E + "px";
+		A.appendChild(D);
+		this.rectEl = D;
+		this.nEl = this.createItemVml(C, 0, "n");
+		this.sEl = this.createItemVml(C, E, "s");
+		this.wEl = this.createItemVml(0, B, "w");
+		this.eEl = this.createItemVml($, B, "e");
+		this.nwEl = this.createItemVml(0, 0, "nw");
+		this.neEl = this.createItemVml($, 0, "ne");
+		this.swEl = this.createItemVml(0, E, "sw");
+		this.seEl = this.createItemVml($, E, "se");
+		Gef.each(_.getTools(), function($) {
+			$.render(A, _)
+		})
+	},
+	createItemVml : function(B, A, $) {
+		var _ = document.createElement("v:rect");
+		_.id = this.node.getId() + ":" + $;
+		_.fillcolor = "black";
+		_.strokecolor = "white";
+		_.style.cursor = $ + "-resize";
+		_.style.left = (B - 2) + "px";
+		_.style.top = (A - 2) + "px";
+		_.style.width = "5px";
+		_.style.height = "5px";
+		this.el.appendChild(_);
+		return _
+	},
+	renderSvg : function() {
+		var _ = this.node, G = _.x, F = _.y, $ = _.w, E = _.h, C = $ / 2, B = E / 2, A = document.createElementNS(Gef.svgns, "g");
+		A.setAttribute("transform", "translate(" + G + "," + F + ")");
+		this.el = A;
+		var D = document.createElementNS(Gef.svgns, "rect");
+		D.setAttribute("x", 0);
+		D.setAttribute("y", 0);
+		D.setAttribute("width", $);
+		D.setAttribute("height", E);
+		D.setAttribute("fill", "none");
+		D.setAttribute("stroke", "black");
+		this.rectEl = D;
+		this.el.appendChild(D);
+		this.nEl = this.createItemSvg(C, 0, "n");
+		this.sEl = this.createItemSvg(C, E, "s");
+		this.wEl = this.createItemSvg(0, B, "w");
+		this.eEl = this.createItemSvg($, B, "e");
+		this.nwEl = this.createItemSvg(0, 0, "nw");
+		this.neEl = this.createItemSvg($, 0, "ne");
+		this.swEl = this.createItemSvg(0, E, "sw");
+		this.seEl = this.createItemSvg($, E, "se");
+		Gef.each(_.getTools(), function($) {
+			$.render(A, _)
+		})
+	},
+	createItemSvg : function(B, A, $) {
+		var _ = document.createElementNS(Gef.svgns, "rect");
+		_.setAttribute("id", this.node.getId() + ":" + $);
+		_.setAttribute("cursor", $ + "-resize");
+		_.setAttribute("x", B - 2);
+		_.setAttribute("y", A - 2);
+		_.setAttribute("width", "5");
+		_.setAttribute("height", "5");
+		_.setAttribute("fill", "black");
+		_.setAttribute("stroke", "white");
+		this.el.appendChild(_);
+		return _
+	},
+	resize : function(B, A, $, _) {
+		if (Gef.isVml)
+			this.resizeVml(B, A, $, _);
+		else
+			this.resizeSvg(B, A, $, _)
+	},
+	resizeVml : function(B, A, $, _) {
+		this.el.style.left = B + "px";
+		this.el.style.top = A + "px";
+		this.el.style.width = $ + "px";
+		this.el.style.height = _ + "px";
+		this.el.coordsize = $ + "," + _;
+		this.rectEl.style.width = $ + "px";
+		this.rectEl.style.height = _ + "px";
+		this.nEl.style.left = ($ / 2 - 2) + "px";
+		this.sEl.style.left = ($ / 2 - 2) + "px";
+		this.sEl.style.top = (_ - 2) + "px";
+		this.wEl.style.top = (_ / 2 - 2) + "px";
+		this.eEl.style.left = ($ - 2) + "px";
+		this.eEl.style.top = (_ / 2 - 2) + "px";
+		this.neEl.style.left = ($ - 2) + "px";
+		this.swEl.style.top = (_ - 2) + "px";
+		this.seEl.style.left = ($ - 2) + "px";
+		this.seEl.style.top = (_ - 2) + "px";
+		Gef.each(this.node.getTools(), function(C) {
+			C.resize(B, A, $, _)
+		})
+	},
+	resizeSvg : function(B, A, $, _) {
+		this.el.setAttribute("transform", "translate(" + B + "," + A + ")");
+		this.rectEl.setAttribute("width", $);
+		this.rectEl.setAttribute("height", _);
+		this.nEl.setAttribute("x", $ / 2 - 2);
+		this.sEl.setAttribute("x", $ / 2 - 2);
+		this.sEl.setAttribute("y", _ - 2);
+		this.wEl.setAttribute("y", _ / 2 - 2);
+		this.eEl.setAttribute("x", $ - 2);
+		this.eEl.setAttribute("y", _ / 2 - 2);
+		this.neEl.setAttribute("x", $ - 2);
+		this.swEl.setAttribute("y", _ - 2);
+		this.seEl.setAttribute("x", $ - 2);
+		this.seEl.setAttribute("y", _ - 2);
+		Gef.each(this.node.getTools(), function(C) {
+			C.resize(B, A, $, _)
+		})
+	},
+	refresh : function() {
+		this.resize(this.node.x, this.node.y, this.node.w, this.node.h)
+	}
+});
+Gef.figure.ResizeEdgeHandle = Gef.extend(Gef.figure.Figure, {
+	renderVml : function() {
+		var F = this.edge.x1, A = this.edge.y1, D = this.edge.x2, B = this.edge.y2, C = this.edge.innerPoints, H = Math
+			.max(F, D), E = Math.max(A, B), I = document.createElement("v:group");
+		I.style.width = H + "px";
+		I.style.height = E + "px";
+		I.setAttribute("coordsize", H + "," + E);
+		this.getParentEl().appendChild(I);
+		this.el = I;
+		var K = document.createElement("v:polyline");
+		K.setAttribute("points", this.edge.getPoint(0, 0));
+		K.filled = "false";
+		K.strokeweight = "2";
+		K.strokecolor = "black";
+		K.style.position = "absolute";
+		I.appendChild(K);
+		this.lineEl = K;
+		this.startEl = this.createItem(F, A, "start");
+		this.endEl = this.createItem(D, B, "end");
+		var G = 0, _ = [F, A], J = [];
+		for (; G < C.length; G++) {
+			var $ = C[G];
+			J.push(this.createItem((_[0] + $[0]) / 2, (_[1] + $[1]) / 2, "middle:" + (G - 1) + "," + G));
+			_ = $;
+			J.push(this.createItem($[0], $[1], "middle:" + G + "," + G))
+		}
+		J.push(this.createItem((_[0] + D) / 2, (_[1] + B) / 2, "middle:" + (G - 1) + "," + G));
+		this.items = J
+	},
+	renderSvg : function() {
+		var I = this.edge.x1, C = this.edge.y1, G = this.edge.x2, D = this.edge.y2, E = this.edge.innerPoints,
+			$ = document.createElementNS(Gef.svgns, "g");
+		this.getParentEl().appendChild($);
+		this.el = $;
+		var F = document.createElementNS(Gef.svgns, "polyline");
+		F.setAttribute("points", this.edge.getPoint(0, 0));
+		F.setAttribute("fill", "none");
+		F.setAttribute("stroke", "black");
+		F.setAttribute("stroke-width", "2");
+		$.appendChild(F);
+		this.lineEl = F;
+		this.startEl = this.createItem(I, C, "start");
+		this.endEl = this.createItem(G, D, "end");
+		var H = 0, B = [I, C], A = [];
+		for (; H < E.length; H++) {
+			var _ = E[H];
+			A.push(this.createItem((B[0] + _[0]) / 2, (B[1] + _[1]) / 2, "middle:" + (H - 1) + "," + H));
+			B = _;
+			A.push(this.createItem(_[0], _[1], "middle:" + H + "," + H))
+		}
+		A.push(this.createItem((B[0] + G) / 2, (B[1] + D) / 2, "middle:" + (H - 1) + "," + H));
+		this.items = A
+	},
+	createItem : function(A, _, $) {
+		if (Gef.isVml)
+			return this.createItemVml(A, _, $);
+		else
+			return this.createItemSvg(A, _, $)
+	},
+	createItemVml : function(B, A, _) {
+		var $ = document.createElement("v:rect");
+		$.id = this.edge.getId() + ":" + _;
+		$.fillcolor = "black";
+		$.strokecolor = "white";
+		$.style.left = (B - 2) + "px";
+		$.style.top = (A - 2) + "px";
+		$.style.width = "5px";
+		$.style.height = "5px";
+		$.style.cursor = "move";
+		this.el.appendChild($);
+		return $
+	},
+	createItemSvg : function(B, A, _) {
+		var $ = document.createElementNS(Gef.svgns, "rect");
+		$.setAttribute("id", this.edge.getId() + ":" + _);
+		$.setAttribute("x", B - 2);
+		$.setAttribute("y", A - 2);
+		$.setAttribute("width", 5);
+		$.setAttribute("height", 5);
+		$.setAttribute("fill", "black");
+		$.setAttribute("stroke", "white");
+		$.setAttribute("cursor", "move");
+		this.el.appendChild($);
+		return $
+	},
+	update : function() {
+		if (Gef.isVml)
+			this.updateVml();
+		else
+			this.updateSvg()
+	},
+	updateVml : function() {
+		var G = this.edge.x1, _ = this.edge.y1, D = this.edge.x2, A = this.edge.y2;
+		this.lineEl.points.value = this.edge.getPoint(0, 0);
+		this.startEl.style.left = (G - 2) + "px";
+		this.startEl.style.top = (_ - 2) + "px";
+		this.endEl.style.left = (D - 2) + "px";
+		this.endEl.style.top = (A - 2) + "px";
+		var B = this.edge.innerPoints, F = 0, C = G, E = _;
+		for (; F < B.length; F++) {
+			var $ = B[F];
+			this.items[F * 2].style.left = ((C + $[0]) / 2 - 2) + "px";
+			this.items[F * 2].style.top = ((E + $[1]) / 2 - 2) + "px";
+			C = $[0];
+			E = $[1];
+			this.items[F * 2 + 1].style.left = ($[0] - 2) + "px";
+			this.items[F * 2 + 1].style.top = ($[1] - 2) + "px"
+		}
+		this.items[F * 2].style.left = ((C + D) / 2 - 2) + "px";
+		this.items[F * 2].style.top = ((E + A) / 2 - 2) + "px"
+	},
+	updateSvg : function() {
+		var G = this.edge.x1, _ = this.edge.y1, D = this.edge.x2, A = this.edge.y2;
+		this.lineEl.setAttribute("points", this.edge.getPoint(0, 0));
+		this.startEl.setAttribute("x", G - 2);
+		this.startEl.setAttribute("y", _ - 2);
+		this.endEl.setAttribute("x", D - 2);
+		this.endEl.setAttribute("y", A - 2);
+		var B = this.edge.innerPoints, F = 0, C = G, E = _;
+		for (; F < B.length; F++) {
+			var $ = B[F];
+			this.items[F * 2].setAttribute("x", (C + $[0]) / 2 - 2);
+			this.items[F * 2].setAttribute("y", (E + $[1]) / 2 - 2);
+			C = $[0];
+			E = $[1];
+			this.items[F * 2 + 1].setAttribute("x", $[0] - 2);
+			this.items[F * 2 + 1].setAttribute("y", $[1] - 2)
+		}
+		this.items[F * 2].setAttribute("x", (C + D) / 2 - 2);
+		this.items[F * 2].setAttribute("y", (E + A) / 2 - 2)
+	},
+	modify : function() {
+		var A = this.edge.innerPoints.length, $ = this.items.length;
+		if (A * 2 + 1 > $) {
+			this.items.push(this.createItem(0, 0, "middle:" + (A - 1) + "," + (A - 1)));
+			this.items.push(this.createItem(0, 0, "middle:" + (A - 1) + "," + A))
+		} else if (A * 2 + 1 < $) {
+			var _ = null;
+			_ = this.items[$ - 1];
+			this.el.removeChild(_);
+			this.items.remove(_);
+			_ = this.items[$ - 2];
+			this.el.removeChild(_);
+			this.items.remove(_)
+		}
+		this.edge.refresh();
+		this.update()
+	}
+});
+Gef.figure.TextEditor = function(A, _) {
+	var $ = document.createElement("input");
+	$.setAttribute("type", "text");
+	$.value = "";
+	$.style.position = "absolute";
+	$.style.left = "0px";
+	$.style.top = "0px";
+	$.style.width = "0px";
+	$.style.border = "gray dotted 1px";
+	$.style.background = "white";
+	$.style.display = "none";
+	$.style.zIndex = 1000;
+	$.style.fontFamily = "Verdana";
+	$.style.fontSize = "12px";
+	$.style.textAlign = "center";
+	if(typeof Gef.Editor.EditorInterface.editor != "undefined"){
+		Gef.Editor.EditorInterface.editor.appendChild($);
+	}else
+	{
+		document.body.appendChild($);
+	}
+	this.el = $;
+	this.baseX = A;
+	this.baseY = _;
+};
+Gef.figure.TextEditor.prototype = {
+	showForNode : function($) {
+		this.el.style.left = (this.baseX + $.x + 5) + "px";
+		this.el.style.top = (this.baseY + $.y + $.h / 2 - 12) + "px";
+		this.el.style.width = ($.w - 10) + "px";
+		this.el.value = $.name;
+		this.el.style.display = "";
+		this.el.focus();
+	},
+	showForEdge : function(_) {
+		if (_ == null) return;//Jacky---------
+		var A = _.getTextLocation(), D = A.x, C = A.y, $ = A.w, B = A.h;
+		C -= B;
+		this.el.style.left = this.baseX + D + "px";
+		this.el.style.top = this.baseY + C + "px";
+		this.el.style.width = $ + "px";
+		this.el.value = _.name;
+		this.el.style.display = "";
+		this.el.focus()
+	},
+	getValue : function() {
+		return this.el.value
+	},
+	hide : function() {
+		this.el.style.display = "none"
+	},
+	show : function() {
+		this.el.style.display = ""
+	}
+};
+
+Gef.ns("Gef.layer");
+Gef.layer.Layer = Gef.extend(Gef.figure.GroupFigure, {
+	LAYER_MASK : "LAYER_MASK",
+	LAYER_LABEL : "LAYER_LABEL",
+	LAYER_DRAGGING : "LAYER_DRAGGING",
+	LAYER_HANDLE : "LAYER_HANDLE",
+	LAYER_NODE : "LAYER_NODE",
+	LAYER_CONNECTION : "LAYER_CONNECTION",
+	LAYER_SNAP : "LAYER_SNAP",
+	LAYER_GRID : "LAYER_GRID",
+	constructor : function($) {
+		this.name = $;
+		this.id = $;
+		Gef.layer.Layer.superclass.constructor.call(this)
+	},
+	getName : function() {
+		return this.name
+	}
+});
+Gef.layer.GridLayer = Gef.extend(Gef.layer.Layer, {});
+
+
+Gef.ns("Gef.gef.figures");
+Gef.gef.figures.GraphicalViewport = Gef.extend(Gef.figure.GroupFigure, {
+	LAYER_LANE : "LAYER_LANE",
+	constructor : function($) {
+		this.rootEditPart = $;
+		this.rootFigure = new Gef.figure.RootFigure();
+		this.layerMaps = {};
+		this.init()
+	},
+	init : function() {
+		var _ = new Gef.layer.GridLayer("LAYER_GRID");
+		this.registerLayer(_);
+		var D = new Gef.layer.Layer("LAYER_CONNECTION");
+		this.registerLayer(D);
+		var B = new Gef.layer.Layer("LAYER_NODE");
+		this.registerLayer(B);
+		var $ = new Gef.layer.Layer("LAYER_HANDLE");
+		this.registerLayer($);
+		var C = new Gef.layer.Layer("LAYER_DRAGGING");
+		this.registerLayer(C);
+		var A = new Gef.layer.Layer("LAYER_MASK");
+		this.registerLayer(A)
+	},
+	registerLayer : function($) {
+		this.addLayer($);
+		this.layerMaps[$.getName()] = $
+	},
+	addLayer : function($) {
+		this.rootFigure.addChild($)
+	},
+	getLayer : function($) {
+		return this.layerMaps[$]
+	},
+	addNode : function($) {
+		this.getLayer("LAYER_NODE").addChild($)
+	},
+	addConnection : function($) {
+		this.getLayer("LAYER_CONNECTION").addChild($)
+	},
+	render : function() {
+		if (this.rendered == true)
+			return;
+		this.rootFigure.setParent({
+									  el : this.rootEditPart.getParentEl()
+								  });
+		this.rootFigure.render();
+		this.rendered = true
+	}
+});
+
+
+Gef.ns("Gef.simple.figure");
+Gef.simple.figure.ProcessFigure = Gef.extend(Gef.figure.NoFigure, {});
+Gef.simple.figure.StartFigure = Gef.extend(Gef.figure.StartNodeFigure, {
+	constructor : function($) {
+		Gef.simple.figure.StartFigure.superclass.constructor.call(this, $);
+	}
+});
+Gef.simple.figure.EndFigure = Gef.extend(Gef.figure.EndNodeFigure, {
+	constructor : function($) {
+		Gef.simple.figure.EndFigure.superclass.constructor.call(this, $);
+	}
+});
+Gef.simple.figure.TaskFigure = Gef.extend(Gef.figure.NodeFigure, {});
+Gef.simple.figure.StateFigure = Gef.extend(Gef.figure.NodeFigure, {});
+//合并
+Gef.simple.figure.JoinFigure = Gef.extend(Gef.figure.JoinNodeFigure, {
+	constructor : function($) {
+		Gef.simple.figure.JoinFigure.superclass.constructor.call(this, $);
+	}
+});
+Gef.simple.figure.DecisionFigure = Gef.extend(Gef.figure.DecisionNodeFigure, {
+	constructor : function($) {
+		Gef.simple.figure.DecisionFigure.superclass.constructor.call(this, $);
+	}
+});
+//分散
+Gef.simple.figure.ForkFigure = Gef.extend(Gef.figure.ForkNodeFigure, {
+	constructor : function($) {
+		Gef.simple.figure.ForkFigure.superclass.constructor.call(this, $);
+	}
+});
+Gef.simple.figure.CountersignFigure = Gef.extend(Gef.figure.SignNodeFigure , {
+	constructor : function($) {
+		Gef.simple.figure.CountersignFigure.superclass.constructor.call(this, $);
+	}
+});
+Gef.simple.figure.SubprocessFigure = Gef.extend(Gef.figure.SubprocessNodeFigure , {
+	constructor : function($) {
+		Gef.simple.figure.SubprocessFigure.superclass.constructor.call(this, $);
+	}
+});
+Gef.simple.figure.EndCancelFigure = Gef.extend(Gef.figure.CancelNodeFigure, {
+	constructor : function($) {
+		Gef.simple.figure.EndCancelFigure.superclass.constructor.call(this, $);
+	}
+});
+Gef.simple.figure.TransitionFigure = Gef.extend(Gef.figure.EdgeFigure, {});
+
+
+Gef.ns("Gef.simple");
+Gef.simple.ExtEditor = Gef.extend(Gef.simple.SimpleEditor, {
+	createGraphicalViewer : function() {
+		return new Gef.simple.ExtGraphicalViewer(this)
+	},
+	getPaletteHelper : function() {
+		if (!this.paletteHelper)
+			this.paletteHelper = new Gef.simple.ExtPaletteHelper(this);
+		return this.paletteHelper
+	},
+	addSelectionListener : function($) {
+		var _ = this.getGraphicalViewer().getBrowserListener().trackers;
+		_[_.length - 1].addSelectionListener($)
+	}
+});
+Gef.simple.ExtGraphicalViewer = Gef.extend(Gef.gef.support.DefaultGraphicalViewer, {
+	getParentId  : function() {
+		if (typeof Gef.Editor.EditorInterface.editor != "undefined" && typeof Gef.Editor.EditorInterface.editor.id != "undefined"){
+			return Gef.Editor.EditorInterface.editor.id;
+		}else{
+			return "";
+		}
+	},
+	render : function() {
+		var parentId = this.getParentId();
+		var DomID = "__gef_simple_center__";
+		if(parentId != "" && parentId != null){
+			DomID = "_" + parentId + "_center_"
+		}
+		this.canvasEl = Ext.getDom(DomID);
+		this.rootEditPart.render()
+	},
+	getPaletteLocation : function() {
+		var parentId = this.getParentId();
+		var DomID = "__gef_simple_palette__";
+		if(parentId != "" && parentId != null){
+			DomID = "_" + parentId + "_palette_"
+		}
+		var $ = Ext.get(DomID).getBox();
+		return {
+			x : $.x,
+			y : $.y,
+			w : $.width,
+			h : $.height
+		}
+	},
+	getCanvasLocation : function() {
+		var parentId = this.getParentId();
+		var DomID = "__gef_simple_center__";
+		if(parentId != "" && parentId != null){
+			DomID = "_" + parentId + "_center_"
+		}
+		var _ = Ext.get(DomID).getBox();
+		return {
+			x : _.x,
+			y : _.y,
+			w : _.width,
+			h : _.height
+		};
+	},
+	getCanvasClientLocation : function(){
+		var parentId = this.getParentId();
+		var DomID = "__gef_simple__";
+		if(parentId != "" && parentId != null){
+			DomID = "_" + parentId + "_"
+		}
+		var _ = Ext.get(DomID).getBox();
+		var $ = Ext.getDom(DomID).parentNode;
+		return {
+			x : _.x,
+			y : _.y,
+			w : _.width,
+			h : _.height,
+			cw : $.clientWidth,
+			ch : $.clientHeight,
+			st : $.scrollTop
+		};
+	}
+});
+
+Gef.simple.ExtPaletteHelper = Gef.extend(Gef.simple.SimplePaletteHelper, {
+	createSource : function() {
+		return {
+			select : {
+				text : "select",
+				creatable : false
+			},
+			transition : {
+				text : "transition",
+				creatable : false,
+				isConnection : true
+			},
+			start : {
+				text : "start",
+				w : 48,
+				h : 48
+			},
+			end : {
+				text : "end",
+				w : 48,
+				h : 48
+			},
+			endCancel : {
+				text : "endCancel",
+				w : 48,
+				h : 48
+			},
+			task : {
+				text : "task",
+				w : 90,
+				h : 50
+			},
+			state : {
+				text : "state",
+				w : 90,
+				h : 50
+			},
+			fork : {
+				text : "fork",
+				w : 100,
+				h : 60
+			},
+			join : {
+				text : "join",
+				w : 100,
+				h : 60
+			},
+			decision : {
+				text : "decision",
+				w : 100,
+				h : 60
+			},
+			sign : {
+				text : "sign",
+				w : 100,
+				h : 60
+			},
+			sub : {
+				text : "sub",
+				w : 100,
+				h : 60
+			}
+		}
+	},
+	getSource : function() {
+		if (!this.source)
+			this.source = this.createSource();
+		return this.source
+	},
+	render : Gef.emptyFn,
+	getPaletteConfig : function(D, _) {
+		var $ = _.parentNode.id;
+		if (!$)
+			return null;
+		var B = this.getSource(), E = this.getSource()[$];
+		if (!E)
+			return null;
+		var A = null;
+		if (this.getActivePalette()) {
+			var C = this.getActivePalette().text;
+			A = document.getElementById(C + "-img");
+			A.style.border = ""
+		}
+		this.setActivePalette(E);
+		A = document.getElementById($ + "-img");
+		A.style.border = "1px dotted black";
+		if (E.creatable == false)
+			return null;
+		return E
+	}
+});
+Gef.simple.ExtSelectionListener = Gef.extend(Gef.gef.tracker.DefaultSelectionListener, {
+		constructor : function($) {
+			this.propertyGrid = $
+		},
+		selectNode : function(_) {
+			var $ = _.getModel();
+			if (this.propertyGrid)
+				this.propertyGrid.updateForm($);
+			this.model = $
+		},
+		selectConnection : function(_) {
+			var $ = _.getModel();
+			if (this.propertyGrid)
+				this.propertyGrid.updateForm($);
+			this.model = $
+		},
+		selectDefault : function(_) {
+			var $ = _.getModel();
+			if (this.propertyGrid)
+				this.propertyGrid.updateForm($);
+			this.model = $
+		},
+		setEditor : function($) {
+			this.editor = $;
+			this.model = $.getGraphicalViewer().getContents().getModel()
+		},
+		editText : function(_, $) {
+			var A = new Gef.gef.command.EditTextCommand(_, $);
+			this.editor.getEditDomain().getCommandStack().execute(A)
+		},
+		getModel : function() {
+			return this.model
+		}
+	});
+
+
+Gef.ns("Gef.Editor");
+Gef.Editor = {
+	taskNodePermissions	: new Array(),
+	taskNodeSettings	: new Array(),
+	nodeTimerSettings	: new Array(),
+	signSettings		: new Array(),
+	subProcessNodeSettings : new Array(),
+	findCountersignSettingByNodeName : function(nodeName) {
+		/**
+		 * 根据节点名称，获取会签的配置信息
+		 */
+		if(null == this.signSettings)
+			this.signSettings = new Array();
+		for(var i=0;i<this.signSettings.length;i++){
+			var countersignSetting = this.signSettings[i];
+			if(countersignSetting.nodeName == nodeName)
+				return countersignSetting;
+		}
+		return null;
+	},
+	findTaskNodeSettingByNodeName	: function (nodeName) {
+		/**
+		 * 根据任务节点名称获取节点的配置信息
+		 */
+		if(null == this.taskNodeSettings)
+			this.taskNodeSettings = new Array();
+		for(var i=0;i<this.taskNodeSettings.length;i++){
+			var taskNodeSetting = this.taskNodeSettings[i];
+			if(taskNodeSetting.nodeName == nodeName)
+				return taskNodeSetting;
+		}
+		return null;
+	},
+	findNodeTimerSettingByNodeName	: function (nodeName) {
+		/**
+		 * 根据节点名称获取，节点的定时器配置信息
+		 */
+		if(null == this.nodeTimerSettings)
+			this.nodeTimerSettings = new Array();
+		for(var i=0;i<this.nodeTimerSettings.length;i++){
+			var nodeTimerSetting = this.nodeTimerSettings[i];
+			if(nodeTimerSetting.nodeName == nodeName)
+				return nodeTimerSetting;
+		}
+		return null;
+	},
+	findSubProcessNodeSettingByNodeName	: function (nodeName) {
+		/**
+		 * 根据节点名称，获取子流程的配置信息
+		 */
+		if(null == this.subProcessNodeSettings)
+			this.subProcessNodeSettings = new Array();
+		for(var i=0; i < this.subProcessNodeSettings.length; i++){
+			var setting = this.subProcessNodeSettings[i];
+			if((setting.nodeName == nodeName) && (setting.subProcessVersion != null && setting.subProcessVersion != ''))
+				return setting;
+		}
+		return null;
+	},
+	findTaskNodePermissionByNodeName: function (nodeName) {
+		/**
+		 * 根据任务节点名称获取节点的权限配置信息
+		 */
+		for(var i=0;i<this.taskNodePermissions.length;i++){
+			var taskNodePermission = this.taskNodePermissions[i];
+			if(taskNodePermission.nodeName == nodeName)
+				return taskNodePermission;
+		}
+		return null;
+	},
+	isArray : function(v) {
+		return v && typeof v.length == "number" && typeof v.splice == "function"
+	},
+	init : function (xmlString) {
+		$("body").find('div[data-toggle="floweditor"]').each(function ()
+			{
+				Gef.Editor.EditorInterface.init(this,xmlString);
+			})
+	},
+	EditorInterface : {
+		webforms : {},
+		editor : null,
+		id : "uniqueViewPort",
+		init : function(Interface, xmlString) {
+			this.editor = Interface
+			if(typeof Interface.id != "undefined" && Interface.id != ""){
+				this.id = Interface.id + "ViewPort";
+			}
+			Ext.prefix = this.id;
+			if(Ext.getCmp(this.id)){
+				Ext.getCmp(this.id).destroy();
+			}
+			var $ = new  Ext.Panel({
+									   id : this.id,
+									   layout : 'border',
+									   border : false,
+									   height : Interface.offsetHeight,
+									   region : 'center',
+									   renderTo: Interface.id,
+									   items  : [this.createWest(), this.createCenter()]
+								   })
+			this.initEditor(xmlString);
+		},
+		initEditor : function(xmlString) {
+			var A = new Gef.simple.ExtEditor()
+				_ = new Gef.simple.SimpleEditorInput(),
+				B = new Gef.ui.support.DefaultWorkbenchWindow();
+			if (null != xmlString && 'null' != xmlString && '' != xmlString)
+				_.readXml(xmlString)
+			B.getActivePage().openEditor(A, _);
+			B.render(this.editor);
+			Gef.activeEditor = A;
+			Gef.workbenchWindow = B;
+		},
+		createNorth : function() {
+			var $ = new Ext.Panel({
+				region : "north",
+				hidden : true,
+				bodyStyle : "background:#000066",
+				height : 31,
+				html : "<img src=\""+Gef.IMAGE_ROOT+"jiralogo.gif\">"
+			});
+			Gef.Editor.EditorInterface.northPanel = $;
+			return $
+		},
+		createSouth : function() {
+			var $ = new Gef.Editor.EditorInterface.BottomPropertyPanel({
+				collapsible : true
+			});
+			Gef.Editor.EditorInterface.southPanel = $;
+			return $
+		},
+		createWest : function() {
+			var $ = new Gef.Editor.EditorInterface.PalettePanel({
+				collapsible : false
+			});
+			Gef.Editor.EditorInterface.westPanel = $;
+			return $
+		},
+		createEast : function() {
+			var $ = new Gef.Editor.EditorInterface.PropertyPanel({
+				collapsible : true
+			});
+			Gef.Editor.EditorInterface.eastPanel = $;
+			return $
+		},
+		createCenter : function() {
+			var $ = new Gef.Editor.EditorInterface.CanvasPanel();
+			Gef.Editor.EditorInterface.centerPanel = $;
+			return $
+		},
+		getSelectionListener : function() {
+			if (!this.selectionListener)
+				this.selectionListener = new Gef.simple.ExtSelectionListener(null);
+			return this.selectionListener
+		},
+		CanvasPanel : Ext.extend(Ext.Panel, {
+			getParentId : function(){
+				if (typeof Gef.Editor.EditorInterface.editor != "undefined" && typeof Gef.Editor.EditorInterface.editor.id != "undefined"){
+					return Gef.Editor.EditorInterface.editor.id;
+				}else{
+					return "";
+				}
+			},
+			initComponent : function() {
+				this.region = "center";
+				this.autoScroll = true;
+				this.cls = 'left_ext top_ext';
+				this.tbar = new Ext.Toolbar([{
+					text : "清空",
+					iconCls : "tb-clear",
+					handler : function() {
+						Gef.activeEditor.clear()
+					}
+				}, {
+					text : "撤销",
+					iconCls : "tb-undo",
+					handler : function() {
+						var B = Gef.activeEditor.getGraphicalViewer(),
+							A = B.getBrowserListener(),
+							$ = A.getSelectionManager();
+						$.clearAll();
+						var _ = B.getEditDomain().getCommandStack();
+						_.undo()
+					},
+					scope : this
+				}, {
+					text : "重做",
+					iconCls : "tb-redo",
+					handler : function() {
+						var B = Gef.activeEditor.getGraphicalViewer(),
+							A = B.getBrowserListener(),
+							$ = A.getSelectionManager();
+						$.clearAll();
+						var _ = B.getEditDomain().getCommandStack();
+						_.redo()
+					},
+					scope : this
+				}]);
+				Gef.Editor.EditorInterface.CanvasPanel.superclass.initComponent.call(this)
+			},
+			afterRender : function() {
+				var view_width = Gef.Editor.EditorInterface.editor.offsetWidth - Gef.Editor.EditorInterface.westPanel.width - 5;
+				var view_height = Gef.Editor.EditorInterface.editor.offsetHeight - 36;
+				var center_width = view_width;
+				var center_height = view_height - 6;
+				Gef.Editor.EditorInterface.CanvasPanel.superclass.afterRender.call(this);
+
+				var parentId = this.getParentId();
+				var DomID = "__gef_simple__", DomCID = "__gef_simple_center__", DomBID = "__gef_simple_bottom__";
+				if(parentId != "" && parentId != null){
+					DomID = "_" + parentId + "_";
+					DomCID = "_" + parentId + "_center_";
+					DomBID = "_" + parentId + "_bottom_";
+				}
+				Ext.DomHelper.append(this.body, [{
+					id : DomID,
+					tag : "div",
+					style : "width:"+view_width+"px;height:"+view_height+"px;",
+					children : [{
+						id : DomCID,//中间的流程图绘制区域
+						tag : "div",
+						style : "width:"+center_width+"px;height:"+center_height+"px;float:left;"
+					},
+					{
+						id : DomBID,//SVG底部边界
+						tag : "div",
+						style : "width:"+center_width+"px;height:10px;float:left;background-color:#EEEEEE;cursor:pointer;"
+					}]
+				}]);
+				var $ = Ext.fly(DomBID);
+				$.on("mouseover", function(_) {
+					var $ = _.getTarget();
+					$.style.backgroundColor = "yellow";
+					$.style.backgroundImage = "url("+Gef.IMAGE_ROOT+"/arrow-bottom.png)"
+				});
+				$.on("mouseout", function(_) {
+					var $ = _.getTarget();
+					$.style.backgroundColor = "#EEEEEE";
+					$.style.backgroundImage = ""
+				});
+				$.on("click", function($) {
+					Ext.fly(DomID).setHeight(Ext.fly(DomID).getHeight() + 100);
+					Ext.fly(DomCID).setHeight(Ext.fly(DomCID).getHeight() + 100);
+					Gef.activeEditor.addHeight(100)
+				});
+				this.body.on("contextmenu", this.onContextMenu, this)
+			},
+			onContextMenu : function($) {
+				this.contextMenu = this.createRightMenu();
+				$.preventDefault();
+				if(null != this.contextMenu)
+					this.contextMenu.showAt($.getXY())
+			},
+			createRightMenu : function(){
+				var graphicalViewer = Gef.activeEditor.getGraphicalViewer();
+				var bsListener = graphicalViewer.getBrowserListener();
+				var selectionManager = bsListener.getSelectionManager();
+				var selectedConnection = selectionManager.selectedConnection;
+				var selectedNodes = selectionManager.items;
+				var menuItems = new Array();
+				var deleteMenu = {
+					text : '删除',
+					iconCls : "tb-remove",
+					handler : this.removeSelected,
+					scope : this
+				}
+				if(null != selectedConnection){//选择了边
+					var srcNode = selectedConnection.source;
+					var type = srcNode.model.type;
+					//if('start'!=type){//开始节点的出边上不允许设置screen（ISM-8303）
+					var screenMenu = {
+						text : 'Screen设置',
+						iconCls : "tb-prop",
+						handler : this.setScreen,
+						scope : this
+					}
+					menuItems.push(screenMenu);
+					//}
+					menuItems.push(deleteMenu);
+				}else if(null != selectedNodes){//选择了节点
+					if(selectedNodes.length == 1){//只选择一个节点
+						var node = selectedNodes[0];
+						var type = node.model.type;
+						if('start' == type){
+							var permissionMenu = {
+								text : '权限设置',
+								iconCls : "tb-prop",
+								handler : this.setPermission,
+								scope : this
+							}
+							menuItems.push(permissionMenu);
+						}
+						if('join' == type){//合并节点，需设置汇聚条件
+							var joinMenu = {
+								text : '汇聚条件设置',
+								iconCls : "tb-prop",
+								handler : this.setJoin,
+								scope : this
+							}
+							menuItems.push(joinMenu);
+						}
+						if('sign' == type){//会签节点，设置会签节点的属性
+							var signMenu = {
+								text : '会签设置',
+								iconCls : 'tb-prop',
+								handler : this.setSign,
+								scope : this
+							}
+							menuItems.push(signMenu);
+						}
+						if('state'==type || 'task'==type){//手动节点，需要设置权限和Screen
+
+							var screenMenu = {
+								text : 'Screen设置',
+								iconCls : "tb-prop",
+								handler : this.setScreen,
+								scope : this
+							}
+							menuItems.push(screenMenu);
+							var timerMenu = {
+								text : '定时器设置',
+								iconCls : "tb-prop",
+								handler : this.setTimer,
+								scope : this
+							}
+							menuItems.push(timerMenu);
+							if('task'==type){
+								var permissionMenu = {
+									text : '权限设置',
+									iconCls : "tb-prop",
+									handler : this.setPermission,
+									scope : this
+								}
+								menuItems.push(permissionMenu);
+								var taskMenu = {
+									text : '任务设置',
+									iconCls : "tb-prop",
+									handler : this.setTask,
+									scope : this
+								}
+								menuItems.push(taskMenu);
+							}
+						}else if('decision'==type){//判断节点，需要设置逻辑判断条件
+							var trendMenu = {
+								text : '流转设置',
+								iconCls : "tb-prop",
+								handler : this.setTrend,
+								scope : this
+							}
+							menuItems.push(trendMenu);
+							menuItems.push({
+								text : '旋转',
+								iconCls : 'tb-prop',
+								handler : this.setRotate,
+								scope : this
+										   });
+						} else if('sub' == type){ //子流程设置
+							var viewSubProcessMenu = {
+								text : '查看子流程',
+								iconCls : "tb-prop",
+								handler : this.viewSubProcess,
+								scope : this
+							}
+							menuItems.push(viewSubProcessMenu);
+							var subProcessMenu = {
+								text : '设置子流程',
+								iconCls : "tb-prop",
+								handler : this.setSubProcess,
+								scope : this
+							}
+							menuItems.push(subProcessMenu);
+							var permissionMenu = {
+								text : '权限设置',
+								iconCls : "tb-prop",
+								handler : this.setPermission,
+								scope : this
+							}
+							menuItems.push(permissionMenu);
+						}
+						if('start'!= type)
+							menuItems.push(deleteMenu);
+					}else if(selectedNodes.length > 0){//选择了多个节点
+						menuItems.push(deleteMenu);
+					}
+				}
+				if(0 == menuItems.length){
+					return null;
+				}else{
+					var contextMenu = new Ext.menu.Menu({
+						parentEl : Gef.Editor.EditorInterface.editor,
+						items : menuItems
+					});
+					return contextMenu;
+				}
+			},
+			setScreen : function(){
+				var graphicalViewer = Gef.activeEditor.getGraphicalViewer();
+				var bsListener = graphicalViewer.getBrowserListener();
+				var selectionManager = bsListener.getSelectionManager();
+				var selectedConnection = selectionManager.selectedConnection;
+				var selectedNodes = selectionManager.items;
+				var nodeName = "";
+				var transitionName = "";
+				var screenType = "";
+				var title = "";
+				if(null != selectedConnection){//设置边上的Screen
+					var srcNode = selectedConnection.source;
+					var type = srcNode.model.type;
+					if('start'==type)
+						nodeName = '开始';
+					else
+						nodeName = srcNode.model.text;
+					transitionName = selectedConnection.model.text;
+					screenType = "transition";
+					title = "【"+transitionName+"】边Screen设置";
+					Gef.Event.trigger(Gef.Event.DialogScreenTransition,title,nodeName,transitionName,screenType);
+				}else{//设置节点上的Screen
+					var selectedNode = selectedNodes[0];
+					nodeName= selectedNode.model.text;
+					transitionName = nodeName+"_transition";
+					screenType = "node";
+					title = "【"+nodeName+"】节点Screen设置";
+					Gef.Event.trigger(Gef.Event.DialogScreenNode,title,nodeName,transitionName,screenType);
+				}
+			},
+			setPermission : function(){
+				var graphicalViewer = Gef.activeEditor.getGraphicalViewer();
+				var bsListener = graphicalViewer.getBrowserListener();
+				var selectionManager = bsListener.getSelectionManager();
+				var selectedNodes = selectionManager.items;
+				var selectedNode = selectedNodes[0];
+				var type = selectedNode.model.type;
+				var nodeName = selectedNode.model.text;
+				if('start'==type)
+					nodeName = '开始';
+				var transitionNames = new Array();
+				var transitions = selectedNode.model.sourceConnections;
+				for(var i=0;i<transitions.length;i++){
+					transitionNames.push(transitions[i].text);
+				}
+				Gef.Event.trigger(Gef.Event.DialogPermission,"【"+nodeName+"】节点权限设置",nodeName,transitionNames);
+			},
+			setTrend : function(){
+				var graphicalViewer = Gef.activeEditor.getGraphicalViewer();
+				var bsListener = graphicalViewer.getBrowserListener();
+				var selectionManager = bsListener.getSelectionManager();
+				var selectedNodes = selectionManager.items;
+				var selectedNode = selectedNodes[0];
+				var nodeName = selectedNode.figure.name;
+				var transitionNames = new Array();
+				var transitions = selectedNode.model.sourceConnections;
+				if(null == transitions || transitions.length==0){
+					Gef.Event.trigger(Gef.Event.Info,"请先设置判断节点的出边！")
+					return;
+				}
+				for(var i=0;i<transitions.length;i++){
+					transitionNames.push(transitions[i].text);
+				}
+				Gef.Event.trigger(Gef.Event.DialogTrend,"【"+nodeName+"】节点设定分支条件",nodeName,transitionNames);
+			},
+			setRotate : function() {
+				var graphicalViewer = Gef.activeEditor.getGraphicalViewer();
+				var bsListener = graphicalViewer.getBrowserListener();
+				var selectionManager = bsListener.getSelectionManager();
+				var selectedNodes = selectionManager.items;
+				var selectedNode = selectedNodes[0];
+				if(selectedNode.figure.rotate > 2){
+					selectedNode.figure.setRotate(0);
+				}else{
+					selectedNode.figure.setRotate(++selectedNode.figure.rotate);
+				}
+			},
+			setTimer : function(){
+				var graphicalViewer = Gef.activeEditor.getGraphicalViewer();
+				var bsListener = graphicalViewer.getBrowserListener();
+				var selectionManager = bsListener.getSelectionManager();
+				var selectedNodes = selectionManager.items;
+				var selectedNode = selectedNodes[0];
+				var nodeName = selectedNode.model.text;
+				var transitionNames = new Array();
+				var transitions = selectedNode.model.sourceConnections;
+				if(null == transitions || transitions.length==0){
+					Gef.Event.trigger(Gef.Event.Info,"请先设置任务节点的出边！")
+					return;
+				}
+				for(var i=0;i<transitions.length;i++){
+					transitionNames.push(transitions[i].editPart.figure.name);
+				}
+				Gef.Event.trigger(Gef.Event.DialogTimer,"【"+nodeName+"】节点定时器设置",nodeName,transitionNames);
+			},
+			setTask : function(){
+				var graphicalViewer = Gef.activeEditor.getGraphicalViewer();
+				var bsListener = graphicalViewer.getBrowserListener();
+				var selectionManager = bsListener.getSelectionManager();
+				var selectedNodes = selectionManager.items;
+				var selectedNode = selectedNodes[0];
+				var nodeName = selectedNode.model.text;
+				Gef.Event.trigger(Gef.Event.DialogTask,"【"+nodeName+"】节点任务设置",nodeName);
+			},
+			setJoin : function(){
+				var graphicalViewer = Gef.activeEditor.getGraphicalViewer();
+				var bsListener = graphicalViewer.getBrowserListener();
+				var selectionManager = bsListener.getSelectionManager();
+				var selectedNodes = selectionManager.items;
+				var selectedNode = selectedNodes[0];
+				var nodeName = selectedNode.model.text;
+				var transitions = selectedNode.model.targetConnections;
+				Gef.Event.trigger(Gef.Event.DialogJoin,"【"+nodeName+"】节点汇聚条件设置",nodeName,transitions);
+			},
+			setSign : function(){
+				var graphicalViewer = Gef.activeEditor.getGraphicalViewer();
+				var bsListener = graphicalViewer.getBrowserListener();
+				var selectionManager = bsListener.getSelectionManager();
+				var selectedNodes = selectionManager.items;
+				var selectedNode = selectedNodes[0];
+				var nodeName = selectedNode.model.text;
+				var transitionNames = new Array();
+				var transitions = selectedNode.model.sourceConnections;
+				if(null == transitions || transitions.length!=2){
+					Gef.Event.trigger(Gef.Event.Info,"请先为会签节点设置代表通过与否决的两条出边！")
+					return;
+				}
+				for(var i=0;i<transitions.length;i++){
+					transitionNames.push(transitions[i].text);
+				}
+				Gef.Event.trigger(Gef.Event.DialogSign,"【"+nodeName+"】节点会签属性设置",nodeName,transitionNames);
+			},
+			setSubProcess : function(){
+				var graphicalViewer = Gef.activeEditor.getGraphicalViewer();
+				var bsListener = graphicalViewer.getBrowserListener();
+				var selectionManager = bsListener.getSelectionManager();
+				var selectedNodes = selectionManager.items;
+				var selectedNode = selectedNodes[0];
+				var nodeName = selectedNode.model.text;
+				var transitions = selectedNode.model.sourceConnections;
+				if(null == transitions || transitions.length==0){
+					Gef.Event.trigger(Gef.Event.Info,"请先设置子流程节点的入边！")
+					return;
+				}
+				Gef.Event.trigger(Gef.Event.DialogSubProcess,"【"+nodeName+"】节点设置子流程",nodeName);
+			},
+			viewSubProcess : function(){
+				var graphicalViewer = Gef.activeEditor.getGraphicalViewer();
+				var bsListener = graphicalViewer.getBrowserListener();
+				var selectionManager = bsListener.getSelectionManager();
+				var selectedNodes = selectionManager.items;
+				var selectedNode = selectedNodes[0];
+				var nodeName = selectedNode.model.text;
+				Gef.Event.trigger(Gef.Event.DialogViewSubProcess,'【'+nodeName+'】节点查看子流程',nodeName)
+			},
+			showWindow : function() {
+				if (!this.propertyWindow)
+					this.propertyWindow = new Gef.Editor.EditorInterface.form.PropertyWindow({
+						closeAction : "hide"
+					});
+				this.propertyWindow.show()
+			},
+			removeSelected : function() {
+				var graphicalViewer = Gef.activeEditor.getGraphicalViewer(),
+					C = graphicalViewer.getBrowserListener(),
+					$ = C.getSelectionManager(),
+					_ = $.selectedConnection, A = $.items, B = {};
+				if (_ != null) {//删除边
+					B.role = {
+						name : "REMOVE_EDGE"
+					};
+					var srcNodeName = _.source.model.text;
+					var transitionName = _.model.text;
+					this.executeCommand(_, B);
+					$.removeSelectedConnection();
+					Gef.Event.trigger(Gef.Event.RemoveTransition,srcNodeName,transitionName);
+				} else if (A.length > 0) {//删除节点
+					B.role = {
+						name : "REMOVE_NODES",
+						nodes : A
+					};
+					var selectedNode = A[0];
+					var nodeName = selectedNode.model.text;
+					var outTransitions = selectedNode.model.sourceConnections;
+					var outTransitionNames = new Array();
+					if(null != outTransitions && outTransitions.length>0){
+						for(var i=0;i<outTransitions.length;i++){
+							outTransitionNames.push(outTransitions[i].text);
+						}
+					}
+					var inTransitions = selectedNode.model.targetConnections;
+					var inTransitionNames = new Array();
+					var previousNodeName = "";
+					if(null != inTransitions && inTransitions.length>0){
+						var firstInTransition = inTransitions[0];
+						previousNodeName = firstInTransition.source.text;
+						for(var i=0;i<inTransitions.length;i++){
+							inTransitionNames.push(inTransitions[i].text);
+						}
+					}
+					this.executeCommand(graphicalViewer.getContents(), B);
+					$.clearAll();
+					Gef.Event.trigger(Gef.Event.RemoveNode,nodeName,previousNodeName,outTransitionNames,inTransitionNames);
+				}
+			},
+			executeCommand : function(A, $) {
+				var _ = A.getCommand($);
+				if (_ != null)
+					Gef.activeEditor.getGraphicalViewer().getEditDomain().getCommandStack().execute(_)
+			}
+		}),
+		PalettePanel: Ext.extend(Ext.Panel, {
+			getParentId : function(){
+				if (typeof Gef.Editor.EditorInterface.editor != "undefined" && typeof Gef.Editor.EditorInterface.editor.id != "undefined"){
+					return Gef.Editor.EditorInterface.editor.id;
+				}else{
+					return "";
+				}
+			},
+			initComponent : function() {
+				this.region = "west";
+				this.title = "活动组件";
+				this.iconCls = "tb-activity";
+				this.border = true;
+				this.cls = 'top_ext';
+				this.width = 110;
+				this.height = 500;
+				this.autoScroll = true;
+				this.createHtml([{
+					name : "select",
+					image : "select32",
+					title : "选择"
+				}, {
+					name : "transition",
+					image : "flow_sequence",
+					title : "连线"
+				}, {
+					name : "start",
+					image : "start_event_empty",
+					title : "开始"
+				},
+				{
+					name : "task",
+					image : "task_empty",
+					title : "任务"
+				},{
+					name : "sign",
+					image : "task_wait",
+					title : "会签"
+				},{
+					name : "sub",
+					image : "sub_process",
+					title : "子流程"
+				}, {
+					name : "decision",  //decision
+					image : "gateway_exclusive",
+					title : "判断"
+				}, {
+					name : "fork",  //fork
+					image : "gateway_parallel",
+					title : "分支"
+				}, {
+					name : "join", //join
+					image : "gateway_parallel_j",
+					title : "合并"
+				},{
+					name : "end",
+					image : "end_event_terminate",
+					title : "结束"
+				},{
+					name : "endCancel",
+					image : "end_event_cancel",
+					title : "取消"
+				}]);
+				Gef.Editor.EditorInterface.PalettePanel.superclass.initComponent.call(this)
+			},
+			createHtml : function(C) {
+				var parentId = this.getParentId();
+				var DomID = "__gef_simple_palette__";
+				if(parentId != "" && parentId != null){
+					DomID = "_" + parentId + "_palette_"
+				}
+				var A = Gef.IMAGE_ROOT, _ = "<div id=\"" + DomID + "\" unselectable=\"on\">";
+				for (var B = 0; B < C.length; B++) {
+					var $ = C[B];
+					_ += "<div id=\""
+						 + $.name
+						 + "\" class=\"paletteItem-"
+						 + $.name
+						 + "\" style=\"text-align:center;font-size:12px;cursor:pointer;\" unselectable=\"on\"><img id=\""
+						 + $.name + "-img\" class=\"paletteItem-" + $.name
+						 + "\" src=\"" + A + $.image
+						 + ".png\" unselectable=\"on\"><br>" + $.title + "</div>"
+				}
+				_ += "</div>";
+				this.html = _
+			}
+		}),
+	},
+	validateData : function(){
+		var counterNodeNames = [];
+		var subProcessNodeNames = [];
+		var editor = Gef.activeEditor;
+		var model = editor.getGraphicalViewer().getContents().getModel();
+		var totalNodes = model.getChildren();
+		for(i=0;i<totalNodes.length;i++){
+			if('sign' == totalNodes[i].type){
+				counterNodeNames.push(totalNodes[i].text);
+			} else if('sub' == totalNodes[i].type){
+				subProcessNodeNames.push(totalNodes[i].text);
+			}
+		}
+		for(i=0;i<counterNodeNames.length;i++){
+			if(null == this.findCountersignSettingByNodeName(counterNodeNames[i])){
+				Gef.Event.trigger(Gef.Event.Info,"请设置会签节点 "+counterNodeNames[i]+" 的相关属性")
+				return false;
+			}
+		}
+
+		for(var i=0; i < subProcessNodeNames.length; i++){
+			if(null == this.findSubProcessNodeSettingByNodeName(subProcessNodeNames[i])){
+				Gef.Event.trigger(Gef.Event.Info,"请为子流程节点 "+subProcessNodeNames[i]+" 设置子流程类型")
+				return false;
+			}
+		}
+		return true;
+	},
+	SaveFlowInfo : function(){
+		if(typeof Gef.activeEditor != "undefined")
+		{
+			return Gef.activeEditor.serial();
+		}else{
+			return "";
+		}
+	}
+}
+

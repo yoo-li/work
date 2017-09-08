@@ -1,0 +1,8 @@
+rm -fr Ma_*
+rm -fr Local_*
+rm -fr Vehicle_*
+rm -fr Tezan_*  
+rm -fr Official* 
+rm -fr Wcs_*
+rm -fr Mall_Official*
+rm -fr Dc_*

@@ -1,0 +1,91 @@
+<?php
+require_once('Smarty_setup.php');
+require_once('include/utils/utils.php');
+
+
+global  $currentModule;
+
+if (isset($_REQUEST['record']) && $_REQUEST['record'] != "" &&
+    isset($_REQUEST['type']) && $_REQUEST['type'] == "submit")
+{
+    try {
+        $binds = $_REQUEST['record'];
+        $suppliertype = $_REQUEST['suppliertype'];
+        $binds = str_replace(";",",",$binds);
+        $binds = explode(",",trim($binds,','));
+        array_unique($binds);
+        foreach($binds as $record)
+        {
+            $content=XN_Content::load($record,"suppliers");
+            $content->my->suppliertype = $suppliertype;
+            $content->save("suppliers");
+
+            $profilesid = initprofilebyname($suppliertype.'商家');
+
+            $supplier_users = XN_Query::create ( 'Content' ) ->tag('supplier_users')
+                ->filter ( 'type', 'eic', 'supplier_users')
+                ->filter ( 'my.deleted', '=', '0' )
+                ->filter ( 'my.supplierid', '=',$record)
+                ->execute();
+            if (count($supplier_users) > 0)
+            {
+                foreach($supplier_users as $supplier_user_info)
+                {
+                    $profileid = $supplier_user_info->my->profileid;
+                    $users = XN_Query::create ( 'Content' )
+                        ->filter ( 'type', 'eic', 'Users' )
+                        ->filter ( 'my.profileid', '=', $profileid )
+                        ->end(1)
+                        ->execute ();
+                    if (count($users) > 0 )
+                    {
+                        $user_info = $users[0];
+                        $user_info->my->profilesid = $profilesid;
+                        $user_info->save("users");
+                        XN_MemCache::delete("user_privileges_".XN_Application::$CURRENT_URL."_".$profileid);
+                    }
+
+                }
+
+            }
+        }
+        echo '{"statusCode":"200","message":null,"tabid":"'.$currentModule.'","closeCurrent":"true"}';
+    } catch ( XN_Exception $e )
+    {
+        echo '{"statusCode":"300","message":"'.$e->getMessage().'"}';
+    }
+    die();
+}
+else{
+    require_once 'modules/PickList/PickListUtils.php';
+    $picklistValues = getAssignedPicklistValues("suppliertype");
+    $ids=$_REQUEST["ids"];
+	$msg='<div class="form-group" style="margin: 20px 0 20px; ">
+            <label class="control-label x85">商家类型：</label>';
+    foreach($picklistValues as $key=>$value){
+        $msg.='<span class="left" style="padding-right: 8px;">
+                    <input style="cursor: pointer;margin-top: 5px;"  type="radio" value="'.$key.'"  name="suppliertype"  id="suppliertype_'.$key.'">
+                    <label style="cursor: pointer;width:auto;padding: 0;" for="suppliertype_'.$key.'">
+                        '.$value.'
+                    </label>
+                </span>
+        ';
+    }
+    $msg.='</div>';
+}
+
+$smarty = new vtigerCRM_Smarty;
+global $mod_strings;
+global $app_strings;
+global $app_list_strings;
+$smarty->assign("APP", $app_strings);
+$smarty->assign("CMOD", $mod_strings);
+$smarty->assign("MSG", $msg);
+$smarty->assign("OKBUTTON", "确定");
+$smarty->assign("RECORD",$_REQUEST['ids']);
+$smarty->assign("SUBMODULE", "Suppliers");
+$smarty->assign("SUBACTION", "changesuppliertype");
+
+$smarty->display("MessageBox.tpl");
+
+?>

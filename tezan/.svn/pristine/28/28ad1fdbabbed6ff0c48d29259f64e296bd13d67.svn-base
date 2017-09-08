@@ -1,0 +1,174 @@
+<?php
+//echo '<pre>';
+//var_dump($_REQUEST);
+echo '<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />';
+
+header("Content-type:application/vnd.ms-excel");
+header("Content-Disposition:filename=".$_REQUEST['module'].".xls");
+
+$currentModule = $_REQUEST['module'];
+$ids = $_REQUEST['ids'];
+
+if (empty($ids)){
+    exit;
+}
+$ids = explode(",",trim($ids,','));
+array_unique($ids);
+$ids = array_filter($ids);
+
+$config_fields= array(
+    '订单号'=>'mall_orders_no',
+    '购货人'=>'consignee',
+    '商品金额'=>'orderstotal',
+    '邮费'=>'postage',
+    '订单金额'=>'paymentamount',
+    '余额支付'=>'usemoney',
+    '实际支付'=>'paymentamount',
+    '商品总计'=>'productcount',
+    '状态'=>'order_status',
+    '支付方式'=>'payment',
+    '开票'=>'isinvoice',
+    '发票抬头'=>'fapiaoname',
+    '下单时间'=>'singletime',
+    '订单状态'=>'order_status',
+    '发货时间'=>'deliverytime',
+    '物流公司'=>'delivery',
+    '物流单号'=>'invoicenumber',
+    );
+$order_detail_header= array(
+    '商品名称'=>'productname',
+    '内部编号'=>'internalno',
+    '商品分类'=>'categorys',
+    '属性'=>'property',
+    '数量'=>'quantity',
+    '供应商价格'=>'vendor_price',
+    '销售价格'=>'shop_price',
+    '价格'=>'profit',
+    '退货数量'=>'returnamount',
+);
+
+$jd_config_fields= array(
+    '京东订单号'=>'jdorderid',
+    '订单金额'=>'sumorderstotal',
+    '实际支付'=>'paymentamount',
+    '余额支付'=>'usemoney',
+    '状态'=>'mall_jdordersstatus',
+    '运费'=>'freight',
+    '邮费'=>'postage',
+    '订单总金额'=>'orderprice',
+    '订单裸价'=>'ordernakedprice',
+
+);
+$jd_order_detail_header= array(
+    '商品'=>'productid',
+    '京东ID'=>'skuid',
+    '数量'=>'num',
+    '京东价格'=>'price',
+    '京东名称'=>'name',
+    '税种'=>'tax',
+    '京东税额'=>'taxprice',
+    '类别'=>'skutype',
+    '裸价'=>'nakedprice',
+    '销售价'=>'shop_price',
+    '结算价'=>'vendor_price',
+    '总价'=>'total_price',
+);
+
+$list_result = XN_Query::create('YearContent')->tag(strtolower($currentModule))
+    ->filter ( 'type', 'eic', strtolower($currentModule) )
+    ->filter ( 'id', 'in', $ids)
+    ->begin(0)->end(-1)->execute();
+
+
+$table = '<table border="1">';
+        $table .= '<tr>';
+    foreach($config_fields as $k=>$v) {
+        $table .= '<td colspan="" rowspan="">';
+        $table .= $k;
+        $table .= '</td>';
+    }
+
+    foreach($jd_config_fields as $k=>$v) {
+        $table .= '<td colspan="" rowspan="">';
+        $table .= $k;
+        $table .= '</td>';
+    }
+
+    foreach($order_detail_header as $k=>$v) {
+        $table .= '<td colspan="" rowspan="">';
+        $table .= $k;
+        $table .= '</td>';
+    }
+
+//    $table .= '<td colspan="" rowspan="">';
+//    $table .= '商城税额';
+//    $table .= '</td>';
+
+    foreach($jd_order_detail_header as $k=>$v) {
+        $table .= '<td colspan="" rowspan="">';
+        $table .= $k;
+        $table .= '</td>';
+    }
+
+    $table .= '</tr>';
+foreach($list_result as $v) {
+
+    $order_ids=$v->id;
+    $orders_products=XN_Query::create("YearContent")
+    ->tag("mall_orders_products")
+    ->filter("type","eic","mall_orders_products")
+    ->filter("my.orderid",'=',$order_ids)
+    ->filter("my.deleted","=",'0')
+    ->end(-1)
+    ->execute();
+
+    $jd_orders_products=XN_Query::create("YearContent")
+    ->tag("mall_jdorders")
+    ->filter("type","eic","mall_jdorders")
+    ->filter("my.orderid",'=',$order_ids)
+    ->filter("my.deleted","=",'0')
+    ->end(-1)
+    ->execute();
+
+    $jd_orders_skus=XN_Query::create("YearContent")
+    ->tag("mall_jdorder_skus")
+    ->filter("type","eic","mall_jdorder_skus")
+    ->filter("my.orderid",'=',$order_ids)
+    ->filter("my.deleted","=",'0')
+    ->end(-1)
+    ->execute();
+
+    $table .= '<tr>';
+    foreach($config_fields as $k01=>$v01) {
+        $table .= '<td colspan="" rowspan='.(count($orders_products)+1).'>';
+        $table .= $v->my->$config_fields[$k01];
+        $table .= '</td>';
+    }
+
+    foreach($jd_config_fields as $k01=>$v01) {
+        $table .= '<td colspan="" rowspan='.(count($orders_products)+1).'>';
+        $table .= $jd_orders_products[0]->my->$jd_config_fields[$k01];
+        $table .= '</td>';
+    }
+    $table .= '</tr>';
+
+    foreach($orders_products as $k01=>$v01) {
+        $table .= '<tr>';
+        foreach($order_detail_header as $k02=>$v02) {
+            $table .= '<td colspan="" rowspan="">';
+            $table .= $v01->my->$order_detail_header[$k02];
+            $table .= '</td>';
+        }
+
+        foreach($jd_order_detail_header as $k02=>$v02) {
+            $table .= '<td colspan="" rowspan="">';
+            $table .= $jd_orders_skus[$k01]->my->$jd_order_detail_header[$k02];
+            $table .= '</td>';
+        }
+        $table .= '</tr>';
+    }
+}
+$table .= '</table>';
+
+
+echo $table;

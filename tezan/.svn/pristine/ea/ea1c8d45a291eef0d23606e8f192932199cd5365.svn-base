@@ -1,0 +1,170 @@
+<?php
+/*+**********************************************************************************
+ * The contents of this file are subject to the 361CRM Public License Version 1.0
+ * ("License"); You may not use this file except in compliance with the License
+ * The Original Code is:  361CRM Open Source
+ * The Initial Developer of the Original Code is vtiger.
+ * Portions created by vtiger are Copyright (C) vtiger.
+ * All Rights Reserved.
+ ************************************************************************************/
+
+global $mod_strings,$app_strings,$theme,$currentModule,$current_user;
+
+require_once('Smarty_setup.php');
+require_once('include/utils/utils.php');
+
+
+if(isset($_REQUEST['readonly']) && $_REQUEST['readonly'] !='') 
+{
+		$readonly = $_REQUEST['readonly'];
+}
+if(isset($_REQUEST['submodule']) && $_REQUEST['submodule'] !='') 
+{
+		$submodule = $_REQUEST['submodule'];
+}
+
+$panel =  strtolower(basename(__FILE__,".php"));	
+
+if(isset($_REQUEST['record']) && $_REQUEST['record'] !='') 
+{
+	    global  $supplierid,$supplierusertype; 
+	    $recordid = $_REQUEST['record'];
+	    $supplier_chat_info = XN_Content::load($recordid,'supplier_chats_'.$supplierid);
+	   
+	    $profileid = $supplier_chat_info->my->profileid;
+		
+		
+		   
+		$html = '<table id="'.$panel.'_details_table" class="table table-bordered table-hover table-striped" width="100%" >
+		<tbody>
+		<tr>
+		<th align="center" width="100">'.getTranslatedString('CustomService').'</th>
+		<th align="center" width="100">'.getTranslatedString('Profile').'</th>
+		<th align="center" width="100">'.getTranslatedString('MsgType').'</th>
+		<th align="center" width="50%">'.getTranslatedString('MessageBody').'</th>
+		<th align="center" width="150">'.getTranslatedString('Published').'</th> 
+		<th align="center" style="50">&nbsp;</th>
+		</tr>';
+
+		 
+
+
+
+		$supplier_messages = XN_Query::create ( 'YearmonthContent' )->tag('supplier_messages_'.$supplierid)
+							->filter ( 'type', 'eic', 'supplier_messages') 
+							->filter ( 'yearmonth', '=', date("Y-m")) 
+							->filter ( 'my.deleted', '=', '0') 
+							->filter ( 'my.supplierid', '=', $supplierid)  
+							->filter ( 'my.profileid', '=', $profileid) 
+							->order("published",XN_Order::ASC) 
+							->end(-1)
+							->execute (); 
+		if (count ( $supplier_messages ) > 0) 
+		{ 
+			$auto_increment = 1;
+			$profileids = array();
+			$profileids[] = $profileid;
+			foreach($supplier_messages as $supplier_message_info)
+			{
+				$fromprofileid = $supplier_message_info->my->fromprofileid;
+				if (isset($fromprofileid) && $fromprofileid != "")
+				$profileids[] = $fromprofileid;
+			}
+			$userlist = getOwnerProfileNameList($profileids);
+			$username = $userlist[$profileid]; 
+			foreach($supplier_messages as $supplier_message_info)
+			{
+			    $fromprofileid = $supplier_message_info->my->fromprofileid;
+				$source = $supplier_message_info->my->source;
+				$msgtype = $supplier_message_info->my->msgtype;
+				$message = $supplier_message_info->my->message;
+				$time = strtotime($supplier_message_info->published);
+				$published = date('Y-m-d H:i', $time);
+				
+				if ($msgtype == '1')
+				{
+					$msgtype = 'text'; 
+				} 
+				else if ($msgtype == '2')
+				{
+					$msgtype = 'image'; 
+				} 
+				else if ($msgtype == '3')
+				{
+					$msgtype = 'sound'; 
+				} 
+				else 
+				{
+					$msgtype = 'text'; 
+				} 
+								
+				
+				
+				if ($source == "0")
+				{
+					$html .= '<tr id="'.$panel.'_row_'.$auto_increment.'">
+						<td align="center" style="text-align: center;" width="100">-</td>
+					    <td align="center" style="text-align: center;" width="100">'.$username.'</td>
+						<td align="center" style="text-align: center;" width="100">'.$msgtype.'</td> 
+						<td align="center" style="text-align: center;" width="50%">'.message_html($msgtype,$message).'</td>
+					    <td align="center" style="text-align: center;" width="150">'.$published.'</td>';
+					$html .= '<td align="center" style="text-align: center;">&nbsp;</td>';
+					$html .= '</tr>';
+				} 
+				else
+				{
+					if ($fromprofileid == "SYSTEM")
+					{
+						$CustomService = "系统";
+					}
+					else
+					{
+						$CustomService = $userlist[$fromprofileid]; 
+					} 
+					$html .= '<tr id="'.$panel.'_row_'.$auto_increment.'">
+						<td align="center" style="text-align: center;" width="100">'.$CustomService.'</td>
+					    <td align="center" style="text-align: center;" width="100">'.$username.'</td>
+						<td align="center" style="text-align: center;" width="100">'.$msgtype.'</td> 
+						<td align="center" style="text-align: center;" width="50%">'.message_html($msgtype,$message).'</td>
+					    <td align="center" style="text-align: center;" width="150">'.$published.'</td>';
+					$html .= '<td align="center" style="text-align: center;">&nbsp;</td>';
+					$html .= '</tr>';
+				} 
+				$auto_increment ++;	
+			}
+		}
+				
+		$html .= '<tr><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td><td>&nbsp;</td>';
+		$html .= '<td align="center" style="text-align: center;" ><a  href="index.php?module=Supplier_Chats&action=AddMessage&record='.$recordid.'"  data-toggle="dialog" data-id="changepwd_page" data-mask="true" data-maxable="false" data-resizable="false" data-width="700" data-height="310" data-title="回复"><i class="fa btn-default fa-plus-circle" style="cursor: pointer;font-size:1.3em;"></i></a></td></tr>';
+		$html .= '</tbody></table>';
+		
+}
+
+$script = '';
+
+
+echo '<script type="text/javascript" defer="defer">'.$script.'</script>
+<div id="memo_form_div">'.$html.'</div>';
+
+
+function message_html($msgtype,$message) 
+{
+	if ( $msgtype == "text")
+	{
+		return $message;
+	}
+	else if ( $msgtype == "image")
+	{
+		return '<img src="'.$message.'" style="height:100px;">';
+	}
+	else if ( $msgtype == "sound")
+	{
+		return '<audio controls src="'.$message.'" ></audio>';
+	}
+	else
+	{
+		return $message;
+	}
+}	
+
+?>

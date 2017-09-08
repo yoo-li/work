@@ -1,0 +1,90 @@
+<div class="bjui-pageHeader">
+<form>
+    请输入查询时间(查询时间不能跨月) :
+    <span class="wrap_bjui_btn_box" style="position: relative; display: inline-block;">
+        <input type="text" name = "starttime" id="finance_startdate" value="" readonly="" data-toggle="datepicker" size="11" class="form-control n-valid" style="padding-right: 15px; width: 110px;">
+        <a class="bjui-lookup" href="javascript:;" data-toggle="datepickerbtn" style="height: 22.6667px; line-height: 22.6667px;">
+            <i class="fa fa-calendar"></i>
+        </a>
+    </span>
+    -
+    <span class="wrap_bjui_btn_box" style="position: relative; display: inline-block;">
+        <input type="text" name = "endtime" id="finance_enddate" value="" readonly="" data-toggle="datepicker"  data-date-end-date="0d" size="11" class="form-control n-valid" style="padding-right: 15px; width: 110px;">
+        <a class="bjui-lookup" href="javascript:;" data-toggle="datepickerbtn"  data-date-end-date="0d" style="height: 22.6667px; line-height: 22.6667px;">
+            <i class="fa fa-calendar"></i>
+        </a>
+    </span>
+</form>
+</div>
+<div class="bjui-pageContent">
+    <ul>
+        <li style="padding: 2px 0px;">
+            <span style="display:inline-block;width:150px;">收款表合计表</span>
+            <a class="btn btn-default" data-icon="file-excel-o" onclick="submit(this);"><i class="fa fa-file-excel-o"></i> 导出EXCEL</a>
+        </li>
+        <li style="padding: 2px 0px;">
+            <span style="display:inline-block;width:150px;">收款表明细表</span>
+            <a class="btn btn-default" data-icon="file-excel-o" onclick="submit(this);"><i class="fa fa-file-excel-o"></i> 导出EXCEL</a>
+        </li>
+        <li style="padding: 2px 0px;">
+            <span style="display:inline-block;width:150px;">已退款合计表</span>
+            <a class="btn btn-default" data-icon="file-excel-o" onclick="submit(this);"><i class="fa fa-file-excel-o"></i> 导出EXCEL</a>
+        </li>
+        <li style="padding: 2px 0px;">
+            <span style="display:inline-block;width:150px;">已退款明细表</span>
+            <a class="btn btn-default" data-icon="file-excel-o" onclick="submit(this);"><i class="fa fa-file-excel-o"></i> 导出EXCEL</a>
+        </li>
+        <li style="padding: 2px 0px;">
+            <span style="display:inline-block;width:150px;">已付款未发货合计表</span>
+            <a class="btn btn-default" data-icon="file-excel-o" onclick="submit(this);"><i class="fa fa-file-excel-o"></i> 导出EXCEL</a>
+        </li>
+        <li style="padding: 2px 0px;">
+            <span style="display:inline-block;width:150px;">已付款未发货明细表</span>
+            <a class="btn btn-default" data-icon="file-excel-o" onclick="submit(this);"><i class="fa fa-file-excel-o"></i> 导出EXCEL</a>
+        </li>
+        <li style="padding: 2px 0px;">
+            <span style="display:inline-block;width:150px;">已退货未退款合计表</span>
+            <a class="btn btn-default" data-icon="file-excel-o" onclick="submit(this);"><i class="fa fa-file-excel-o"></i> 导出EXCEL</a>
+        </li>
+        <li style="padding: 2px 0px;">
+            <span style="display:inline-block;width:150px;">已退货未退款明细表</span>
+            <a class="btn btn-default" data-icon="file-excel-o" onclick="submit(this);"><i class="fa fa-file-excel-o"></i> 导出EXCEL</a>
+        </li>
+        <li style="padding: 2px 0px;">
+            <span style="display:inline-block;width:150px;">供应商结算合计表</span>
+            <a class="btn btn-default" data-icon="file-excel-o" onclick="submit(this);"><i class="fa fa-file-excel-o"></i> 导出EXCEL</a>
+        </li>
+        <li style="padding: 2px 0px;">
+            <span style="display:inline-block;width:150px;">供应商结算明细表</span>
+            <a class="btn btn-default" data-icon="file-excel-o" onclick="submit(this);"><i class="fa fa-file-excel-o"></i> 导出EXCEL</a>
+        </li>
+    </ul>
+</div>
+<script>
+    {literal}
+    function submit(btn){
+        var xhr=getXhr();
+        xhr.open("post","index.php?module=Mall_Finance&action=Finance_getexcel");
+        xhr.setRequestHeader("Content-Type","application/x-www-form-urlencoded");
+        var finance_startdate=document.getElementById("finance_startdate").value;
+        var finance_enddate=document.getElementById("finance_enddate").value;
+        xhr.send("finance_startdate="+finance_startdate+"&finance_enddate="+finance_enddate);
+        xhr.onreadystatechange=function(){
+            if(xhr.readyState==4&&xhr.status==200){
+                //提交成功后
+                var data=xhr.responseText;
+                console.log(data);
+            }
+        }
+    }
+    function getXhr(){
+        var xhr=null;
+        if(window.XMLHttpRequest){
+            xhr=new XMLHttpRequest();
+        }else{
+            xhr=new ActiveXObject("Microsoft.XMLHttp");
+        }
+        return xhr;
+    }
+    {/literal}
+</script>

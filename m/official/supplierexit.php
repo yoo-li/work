@@ -1,0 +1,68 @@
+<?php
+
+session_start();
+
+require_once (dirname(__FILE__) . "/../include/config.inc.php");
+require_once (dirname(__FILE__) . "/../include/config.common.php");
+require_once (dirname(__FILE__) . "/../include/utils.php");
+
+
+try
+{
+    if (isset($_REQUEST["parameter"]) && $_REQUEST["parameter"] != "" && isset($_REQUEST["token"]) && $_REQUEST["token"] != "")
+    {
+        $Sou = Verification($_REQUEST["parameter"],$_REQUEST["token"]);
+        if(!isset($Sou) || !is_array($Sou) || count($Sou) <= 0){
+            errorprint("错误", '参数校验错误！');
+            die();
+        }
+        $profileid = $Sou["profileid"];
+
+        $_SESSION['profileid'] = $profileid;
+    }
+    else
+    {
+        if(isset($_SESSION['profileid']) && $_SESSION['profileid'] !='')
+        {
+            $profileid = $_SESSION["profileid"];
+        }
+        else
+        {
+            messagebox("错误", '检测不到必需的请求参数！');
+            die();
+        }
+    }
+    $supplier_profile = XN_Query::create('MainContent')->tag("supplier_profile_" . $profileid)
+        ->filter('type', 'eic', 'supplier_profile')
+        ->filter('my.deleted', '=', '0')
+        ->filter('my.official', '=', '0')
+        ->filter('my.profileid', '=', $profileid)
+        ->end(-1)
+        ->execute();
+
+    foreach ( $supplier_profile as $b ){
+
+        $b->my->official = '1';
+        $b->save("supplier_profile_" . $profileid);
+    }
+    if (count($supplier_profile) > 0)
+    {
+        $supplier_profile_info = $supplier_profile[0];
+        if ($supplier_profile_info->my->official != '1')
+        {
+            $supplier_profile_info->my->official = '1';
+            $supplier_profile_info->save("supplier_profile,supplier_profile_".$profileid.",supplier_profile_".$supplierid);
+        }
+    }
+
+}
+catch ( XN_Exception $e )
+{
+
+}
+
+header("Location: index.php");
+die();
+
+
+?>

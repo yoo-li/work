@@ -1,0 +1,352 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
+    <title>惠民商城 </title>
+    <link href="public/css/mui.min.css" rel="stylesheet"/>
+    <link href="public/css/common.css" rel="stylesheet"/>
+    <link href="public/css/goods-list.css" rel="stylesheet"/>
+    <link href="public/css/iconfont.css" rel="stylesheet" />
+
+    <script src="public/js/zepto.min.js" type="text/javascript" charset="utf-8"></script>
+    <script src="public/js/mui.min.js" type="text/javascript" charset="utf-8"></script>
+    <script src="public/js/lazyload.min.js" type="text/javascript" charset="utf-8"></script>
+    <script src="public/js/utils.js" type="text/javascript" charset="utf-8"></script>
+    <script type="text/javascript" src="public/js/jweixin.js"></script>
+
+    <script type="text/javascript" charset="utf-8">
+        {literal}
+        mui.init();
+        window.onload = function(){
+            mui('.mui-scroll-wrapper').scroll({
+                deceleration: 0.0005 //flick 减速系数，系数越大，滚动速度越慢，滚动距离越小，默认值0.0006
+            });
+            mui('body').on('tap', 'a', function(){
+                document.location.href=this.href;
+            });
+            mui('.goods-price').on('tap', '.praise', function(){
+                $(this).toggleClass('active');
+            });
+            mui('.mui-row').on('tap', '.filter', function(){
+                $('.filter').removeClass('active');
+                $(this).addClass('active');
+            });
+        }
+        !function(){function a(){document.documentElement.style.fontSize=document.documentElement.clientWidth/6.4+"px";if(document.documentElement.clientWidth>=640)document.documentElement.style.fontSize='100px';}var b=null;window.addEventListener("resize",function(){clearTimeout(b),b=setTimeout(a,300)},!1),a()}(window);
+        {/literal}
+    </script>
+    <style>
+        {literal}
+        .icon-tezan:before {
+            content: "\e619";
+        }
+        .mui-off-canvas-wrap .mui-bar {
+            border-bottom: 0px solid #ffffff;
+        }
+        .mui-title {
+            color: #fff;
+        }
+        .mui-bar-nav.mui-bar .mui-icon {
+            color: #fff;
+        }
+        {/literal}
+    </style>
+</head>
+<body>
+<div class="mui-off-canvas-wrap mui-draggable">
+    <!-- 主页面容器 -->
+    <div class="mui-inner-wrap">
+        <!-- 底部navbar -->
+        {include file='footer.tpl'}
+
+        <!-- 主页面内容容器 -->
+        <div class="mui-content">
+            <div class="mui-scroll-wrapper" id="pullrefresh">
+                <div class="mui-scroll">
+                    <!-- 搜索 -->
+                    <div class="mui-input-row mui-search" style="
+                        height: 44px;
+                        margin-left: 0px;
+                        margin-right: 0px;
+                        margin-top: 0px;
+                        margin-bottom: 0px;"}>
+                        <header class="mui-bar mui-bar-nav" style="padding-right: 15px;background-color:#f23023;">
+                            <a class="mui-icon mui-action-back mui-icon-back mui-pull-left"></a>
+                            <h1 class="mui-title">{$salesactivityinfo.activityname}</h1>
+                        </header>
+                    </div>
+                    <!-- 筛选 -->
+                    <div class="mui-row"  id="sortbar">
+                        <div class="mui-col-xs-3 filter bar-item active mui-media "  data-sort="desc" data-order="published">
+                            默认
+                        </div>
+                        <div class="mui-col-xs-3 filter bar-item mui-media " data-sort="desc" data-order="price">
+                            价格<span id="icon_price" style="display:none" class="icon-sort iconfont icon-sort-desc"></span>
+                        </div>
+                        <div class="mui-col-xs-3 filter bar-item mui-media " data-sort="desc" data-order="salevalue">
+                            销量<span id="icon_salevalue" style="display:none" class="icon-sort iconfont icon-sort-desc">
+                        </div>
+                        <div class="mui-col-xs-3 filter bar-item mui-media " data-sort="desc" data-order="praise">
+                            人气<span id="icon_praise" style="display:none" class="icon-sort iconfont icon-sort-desc">
+                        </div>
+                    </div>
+
+                    {*<li class="mui-table-view-cell mui-media mui-col-xs-3 bar-item active" data-sort="asc" data-order="published">默认</li>*}
+                    {*<li class="mui-table-view-cell mui-media mui-col-xs-3 bar-item" data-sort="asc" data-order="price">价格<span id="icon_price" style="display:none" class="icon-sort iconfont icon-sort-desc"></span></li>*}
+                    {*<li class="mui-table-view-cell mui-media mui-col-xs-3 bar-item" data-sort="asc" data-order="salevalue">销量<span id="icon_salevalue" style="display:none" class="icon-sort iconfont icon-sort-desc"></li>*}
+                    {*<li class="mui-table-view-cell mui-media mui-col-xs-3 bar-item" data-sort="desc" data-order="praise">人气<span id="icon_praise" style="display:none" class="icon-sort iconfont icon-sort-desc"></li>*}
+
+                    <input id="page"  type="hidden" value="1">
+                    <input id="salesactivityid"  type="hidden" value="{$salesactivityinfo.id}">
+                    <input id="sort"  type="hidden" value="asc">
+                    <input id="order"  type="hidden" value="published">
+                    <ul class="mui-table-view list" id="list">
+
+                    </ul>
+                    <div class="h50"></div>
+                </div>
+            </div>
+        </div>
+        <div class="mui-off-canvas-backdrop"></div>
+    </div>
+</div>
+</body>
+</html>
+<script type="text/javascript">
+            {literal}
+            mui.init({
+                pullRefresh: {
+                    container: '#pullrefresh', //待刷新区域标识，querySelector能定位的css选择器均可，比如：id、.class等
+                    down: {
+                        callback: pulldownRefresh
+                    },
+                    up: {
+                        contentrefresh: "正在加载...", //可选，正在加载状态时，上拉加载控件上显示的标题内容
+                        contentnomore: '没有更多数据了', //可选，请求完毕若没有更多数据时显示的提醒内容；
+                        callback: add_more //必选，刷新函数，根据具体业务来编写，比如通过ajax从服务器获取新数据；
+                    }
+                },
+            });
+    mui.ready(function() {
+        mui('#pullrefresh').scroll();
+        mui('.mui-bar').on('tap','a',function(e){
+            mui.openWindow({
+                url: this.getAttribute('href'),
+                id: 'info'
+            });
+        });
+        mui('#list').on('tap','a',function(e){
+            mui.openWindow({
+                url: this.getAttribute('href'),
+                id: 'info'
+            });
+        });
+        mui('#sortbar').on('tap','div.mui-media',function(){
+            var order =  this.getAttribute('data-order');
+            var sort =  this.getAttribute('data-sort');
+            Zepto(".bar-item").removeClass("active");
+            Zepto(this).addClass("active");
+            if (order == "price")
+            {
+                Zepto("#icon_price").css("display","");
+                if (sort == "asc")
+                {
+                    Zepto("#icon_price").removeClass("icon-sort-asc");
+                    Zepto("#icon_price").addClass("icon-sort-desc");
+                    Zepto(this).attr("data-sort","desc");
+                }
+                else
+                {
+                    Zepto("#icon_price").removeClass("icon-sort-desc");
+                    Zepto("#icon_price").addClass("icon-sort-asc");
+                    Zepto(this).attr("data-sort","asc");
+                }
+
+                Zepto("#icon_salevalue").css("display","none");
+                Zepto("#icon_praise").css("display","none");
+            }
+            else if (order == "salevalue")
+            {
+                Zepto("#icon_salevalue").css("display","");
+                if (sort == "asc")
+                {
+                    Zepto("#icon_salevalue").removeClass("icon-sort-asc");
+                    Zepto("#icon_salevalue").addClass("icon-sort-desc");
+                    Zepto(this).attr("data-sort","desc");
+                }
+                else
+                {
+                    Zepto("#icon_salevalue").removeClass("icon-sort-desc");
+                    Zepto("#icon_salevalue").addClass("icon-sort-asc");
+                    Zepto(this).attr("data-sort","asc");
+                }
+
+                Zepto("#icon_price").css("display","none");
+                Zepto("#icon_praise").css("display","none");
+            }
+            else if (order == "praise")
+            {
+                Zepto("#icon_praise").css("display","");
+                if (sort == "asc")
+                {
+                    Zepto("#icon_praise").removeClass("icon-sort-asc");
+                    Zepto("#icon_praise").addClass("icon-sort-desc");
+                    Zepto(this).attr("data-sort","desc");
+                }
+                else
+                {
+                    Zepto("#icon_praise").removeClass("icon-sort-desc");
+                    Zepto("#icon_praise").addClass("icon-sort-asc");
+                    Zepto(this).attr("data-sort","asc");
+                }
+
+                Zepto("#icon_price").css("display","none");
+                Zepto("#icon_salevalue").css("display","none");
+            }
+            else
+            {
+                Zepto("#icon_price").css("display","none");
+                Zepto("#icon_salevalue").css("display","none");
+                Zepto("#icon_praise").css("display","none");
+            }
+            Zepto("#sort").val(sort);
+            Zepto("#order").val(order);
+            Zepto('#page').val(1);
+            Zepto('.list').html('');
+            add_more();
+            mui('#pullrefresh').pullRefresh().refresh(true);
+        });
+        mui('.mui-table-view').on('tap','a.add_shoppingcart',function(){
+            var record =  this.getAttribute('data-id');
+            var salesactivityid =  this.getAttribute('salesactivity-id');
+            var salesactivitys_product_id =  this.getAttribute('salesactivitys_product-id');
+            add_shoppingcart(record,salesactivityid,salesactivitys_product_id);
+        });
+    });
+
+    /**
+     * 下拉刷新具体业务实现
+     */
+    function pulldownRefresh() {
+        Zepto('#sortbar').css("display","none");
+        setTimeout(function() {
+            Zepto('#page').val(1);
+            Zepto('.list').html('');
+            Zepto('#sortbar').css("display","");
+            add_more();
+            mui('#pullrefresh').pullRefresh().refresh(true);
+            mui('#pullrefresh').pullRefresh().endPulldownToRefresh(); //refresh completed
+            $(".lazy").lazyload();
+        }, 1000);
+    }
+
+
+    function add_shoppingcart(record,salesactivityid,salesactivitys_product_id)
+    {
+        mui.ajax({
+            type: 'POST',
+            url: "shoppingcart_add.ajax.php",
+            data: 'record=' + record +"&salesactivityid="+salesactivityid+"&salesactivitys_product_id="+salesactivitys_product_id,
+            success: function(json) {
+                var jsondata = eval("("+json+")");
+                if (jsondata.code == 200) {
+                    mui.toast(jsondata.msg);
+                    flyItem("product_item_"+record);
+                    Zepto('#shoppingcart_badge').html('<span class="mui-badge">'+jsondata.shoppingcart+'</span>');
+                }
+                else
+                {
+                    mui.toast(jsondata.msg);
+                }
+            }
+        });
+    }
+    function product_html(v) {
+        var sb=new StringBuilder();
+        sb.append('<li class="mui-table-view-cell mui-media">' +
+                '<div class="mui-media-body"><a href="detail.php?from=salesactivity&productid='+v.productid+'&salesactivityid='+v.salesactivityid+'">' +
+                '<img id="product_item_'+v.productid+'" class="mui-media-object lazy img-responsive mui-pull-left" src="images/smkLoad.png" data-original="'+v.productlogo+'">' +
+                '<p class="goods-title">'+v.productname+'</p></a>' +
+                '<div class="goods-price clearfix">' +
+                '<div class="mui-pull-left">' +
+                '<span class="price-red">￥'+v.promotional_price+'</span><s class="price-gray">￥'+v.shop_price+'</s></div>' +
+                '<div class="mui-pull-right"><span class="mui-icon iconfont icon-zhekou" style="font-size: 1.3em;">' +
+                '<span>'+v.label+' |</span>' +
+                '<a  class="add_shoppingcart" salesactivitys_product-id="'+v.salesactivitys_product_id+'" salesactivity-id="'+v.salesactivityid+'" data-id="'+v.productid+'" href="javascript:;">' +
+                '<span class="mui-icon mui-icon-plus"></span></a>' +
+                '</div></div></div></li>');
+        return sb.toString();
+    }
+
+    function bargain_product_html(v) {
+        var sb=new StringBuilder();
+        sb.append('<li class="mui-table-view-cell mui-media">' +
+                '<div class="mui-media-body"><a href="detail_bargain.php?from=salesactivity&productid='+v.productid+'&salesactivityid='+v.salesactivityid+'">' +
+                '<img id="product_item_'+v.productid+'" class="mui-media-object lazy img-responsive mui-pull-left" src="images/smkLoad.png" data-original="'+v.productlogo+'">' +
+                '<p class="goods-title">'+v.productname+'</p></a>' +
+                '<div class="goods-price clearfix">' +
+                '<div class="mui-pull-left">' +
+                '<span class="price-red">￥'+v.promotional_price+'</span><s class="price-gray">￥'+v.shop_price+'</s></div>' +
+                '<div class="mui-pull-right"><span class="mui-icon iconfont icon-zhekou"></span>' +
+                '<span>砍价 |</span>' +
+                '<a   href="detail_bargain.php?from=salesactivity&productid='+v.productid+'&salesactivityid='+v.salesactivityid+' ">' +
+                '<span class="mui-icon iconfont icon-shoppingcart"></span></a>' +
+                '</div></div></div></li>');
+        return sb.toString();
+    }
+
+    function add_more() {
+        var page = Zepto('#page').val();
+        var salesactivityid = Zepto('#salesactivityid').val();
+        var sort = Zepto('#sort').val();
+        var order = Zepto('#order').val();
+        Zepto('#page').val(parseInt(page) + 1);
+        mui.ajax({
+            type: 'POST',
+            url: "salesactivity.ajax.php",
+            data: 'page='+page+'&salesactivityid='+salesactivityid+'&order='+order+'&sort='+sort,
+            success: function(json) {
+                var msg = eval("("+json+")");
+                if (msg.code == 200) {
+                    Zepto.each(msg.data, function(i, v) {
+                        var nd;
+                        if (v.activitymode == '1')
+                        {
+                            nd = bargain_product_html(v);
+                        }
+                        else
+                        {
+                            nd = product_html(v);
+                        }
+
+                        Zepto('.list').append(nd);
+                    });
+                    $(".lazy").lazyload();
+                    mui('#pullrefresh').pullRefresh().endPullupToRefresh(false); //参数为true代表没有更多数据了。
+                } else {
+                    mui('#pullrefresh').pullRefresh().endPullupToRefresh(true); //参数为true代表没有更多数据了。
+                }
+            }
+        });
+    }
+
+    //触发第一页
+    if (mui.os.plus) {
+        mui.plusReady(function() {
+            setTimeout(function() {
+                mui('#pullrefresh').pullRefresh().pullupLoading();
+            }, 1000);
+
+        });
+    } else {
+        mui.ready(function() {
+            Zepto('#page').val(1);
+            mui('#pullrefresh').pullRefresh().pullupLoading();
+        });
+    }
+
+
+    {/literal}
+</script>
+</script>

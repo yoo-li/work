@@ -1,0 +1,638 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1,minimum-scale=1,maximum-scale=1,user-scalable=no" />
+    <meta name="x5-orientation" content="portrait">
+    <meta name="x5-fullscreen" content="true">
+    <meta name="full-screen" content="yes">
+    <title>惠民商城</title>
+    <script src="public/js/mui.min.js"></script>
+    <script src="public/js/zepto.min.js"></script>
+    <link href="public/css/public.css" rel="stylesheet" />
+    <link href="public/css/mui.min.css" rel="stylesheet"/>
+    <link href="public/css/reset.css" rel="stylesheet"/>
+    <link href="public/css/iconfont.css" rel="stylesheet" />
+    <script type="text/javascript">
+        {*//高度适配说明：通过设置一个方便计算的数值，来设置根元素的font-size,所有元素通过rem为单位达到适配需求；*}
+        {*//具体使用：*}
+        {*//通过视觉稿宽度除以一个数获得一个方便计算的值100；*}
+        {*//所有元素的高度可用{(视觉稿量的的高度)/100}rem获得适配的高度；*}
+        {literal}
+        !function(){function a(){document.documentElement.style.fontSize=document.documentElement.clientWidth/6.4+"px";if(document.documentElement.clientWidth>=640)document.documentElement.style.fontSize='100px';}var b=null;window.addEventListener("resize",function(){clearTimeout(b),b=setTimeout(a,300)},!1),a()}(window);
+
+        window.onload = function(){
+            mui('.hot').scroll({
+                scrollX: true,
+                scrollY: false,
+                indicators: false, //是否显示滚动条
+                deceleration: 0.0005 //flick 减速系数，系数越大，滚动速度越慢，滚动距离越小，默认值0.0006
+            });
+        }
+        mui.init({
+            pullRefresh: {
+                container: '#pullrefresh'
+            }
+        });
+        mui.ready(function() {
+            document.querySelector('.mui-media').addEventListener('touchend',function(event){
+                $('.mui-media').removeClass('mui-active');
+            });
+            document.querySelector('.mui-content').addEventListener('touchstart',function(event){
+                document.querySelector('input').blur();
+            });
+            mui('#pullrefresh').scroll({
+                scrollX: false,
+                scrollY: true,
+                indicators: false, //是否显示滚动条
+                deceleration:0.0006, //阻尼系数,系数越小滑动越灵敏
+                bounce: false //是否启用回弹
+            });
+            var slider = mui("#slider");
+            slider.slider({
+                interval: 3000
+            });
+            mui('body').on('tap','a',function(e){
+                var record =  this.getAttribute('class');
+                if(record=="add_shoppingcart" || record=="star") return;
+                location.href = this.getAttribute('href');
+            });
+            mui('body').on('tap','.add_shoppingcart',function(){
+                var record =  this.getAttribute('data-id');
+                add_shoppingcart(record);
+            });
+            mui('body').on('tap','.star img',function(){
+                var src = this.getAttribute('src');
+                if(src ==  'public/images/icon_active.png'){
+                    this.src =  'public/images/icon_star.png';
+                }else{
+                    this.src =  'public/images/icon_active.png';
+                }
+            });
+
+//            Zepto('.mui-focusin input').focus();
+//            var btn = document.getElementById("keywords");
+//            btn.addEventListener("tap",function () {
+//                console.log("tap event trigger");
+//            });
+//            mui.trigger(btn,'tap');
+            function add_shoppingcart(record)
+            {
+                mui.ajax({
+                    type: 'POST',
+                    url: "shoppingcart_add.ajax.php",
+                    data: 'record=' + record,
+                    success: function(json) {
+                        var jsondata = eval("("+json+")");
+                        if (jsondata.code == 200) {
+                            mui.toast(jsondata.msg);
+                            Zepto('#shoppingcart_badge').html('<span class="mui-badge">'+jsondata.shoppingcart+'</span>');
+                        }
+                        else
+                        {
+                            mui.toast(jsondata.msg);
+                        }
+                    }
+                });
+            }
+        });
+        {/literal}
+    </script>
+    <style>
+        {literal}
+        .hot-sale {
+            width: 12rem;
+        }
+        .h-grid p .gray{
+            font-size:10px;
+        }
+        form{
+            float: left;
+        }
+        .recommend-content{
+            background-color: #FFF;
+            padding:5px;
+            overflow: hidden;
+            margin:0;
+        }
+        .recommend a{
+            display: inline-block;
+            width:100%;
+            height:100%;
+            padding:0;
+        }
+        .recommend-left{
+            width:40%;
+            float:left;
+        }
+        .recommend-left .recommend img{
+            height:205px;
+        }
+        .recommend-left .recommend a{
+            height:205px;
+        }
+        .recommend-left .recommend{
+            height:205px;
+        }
+        .recommend-right{
+            width:58%;
+            float:right;
+        }
+        .recommend-right .recommend{
+            height:100px;
+        }
+        .recommend img{
+            width:100%;
+            height:100px;
+        }
+        .recommend-text1{
+            position: absolute;
+            font-size: 0.3rem;
+            font-weight:bold;
+            margin:0.2rem 0 0 0.2rem;
+            color:#FE4D36;
+        }
+        .recommend-text2{
+            position: absolute;
+            font-size: 0.3rem;
+            font-weight:bold;
+            margin:0.2rem 0 0 0.2rem;
+            color:#1484B7;
+        }
+        .recommend-text3{
+            position: absolute;
+            font-size: 0.3rem;
+            font-weight:bold;
+            margin-top:0.2rem;
+            right:0.2rem;
+            color:#FDA525;
+        }
+        {/literal}
+    </style>
+</head>
+<body>
+<div class="mui-off-canvas-wrap  mui-draggable">
+    <!-- 主页面容器 -->
+    <div class="mui-inner-wrap">
+        <!-- 菜单容器 -->
+        <aside class="mui-off-canvas-left" id="offCanvasSide">
+            <style>
+                <!--
+                .user-info .mui-ellipsis .iconfont {ldelim}width:18px;color: #fff; {rdelim}
+                -->
+            </style>
+            <div class="mui-scroll-wrapper">
+                <div class="mui-scroll">
+                    <!-- 菜单具体展示内容 -->
+                    <div class="user-info">
+                        {if $profile_info.profileid neq 'anonymous'}
+                            {if $profile_info.givenname neq ''}
+                                <a href="javascript:;">
+                                    <img class="mui-media-object mui-pull-left" src="{$profile_info.headimgurl}">
+                                    <div class="mui-media-body">
+                                        {$profile_info.givenname}，您好！
+                                        <p class='mui-ellipsis' >等级：{include file='profilerank.tpl'}</p>
+
+                                    </div>
+                                </a>
+                            {else}
+                                <a href="javascript:;">
+                                    <img class="mui-media-object mui-pull-left" src="{if $supplier_info.logo neq ''}{$supplier_info.logo}{else}images/logo.png{/if}">
+                                    <div class="mui-media-body">
+                                        尊敬的客人，您好！<br>
+                                        <p class='mui-ellipsis'>关注之后内容更精彩!</p>
+                                    </div>
+                                </a>
+                            {/if}
+
+                        {else}
+                            <a href="javascript:;">
+                                <img class="mui-media-object mui-pull-left" src="{if $businesse_info.logo neq ''}{$businesse_info.logo}{else}images/logo.png{/if}">
+                                <div class="mui-media-body">
+                                    {$businesse_info.businessename}
+                                    <p class='mui-ellipsis'>注册之后内容更精彩!</p>
+                                </div>
+                            </a>
+                            <p>{$businesse_info.share_description}</p>
+                            <p style="text-align: center;">
+                                <a href="login.php" class="mui-btn mui-btn-outlined mui-btn-primary">登陆 </a>
+                                <a href="register.php" class="mui-btn mui-btn-outlined mui-btn-primary">注册 </a>
+                            </p>
+                        {/if}
+                    </div>
+                    <ul class="mui-table-view mui-table-view-chevron mui-table-view-inverted">
+                        <li class="mui-table-view-cell">
+                            <a href="index.php" class="mui-navigate-right mui-ellipsis"><span class="mui-icon iconfont icon-mainpage"></span> 店铺首页 </a>
+                        </li>
+                        <!--<li class="mui-table-view-cell">
+                            <a href="usercenter.php" class="mui-navigate-right mui-ellipsis">
+                                <span class="mui-icon iconfont icon-gerenzhongxin"></span> 会员中心
+                                <span class="left-desc"></span>
+                            </a>
+                        </li>-->
+                        {assign var="badges" value=$share_info.badges}
+
+                        <li class="mui-table-view-cell">
+                            <a href="orders_receipt.php" class="mui-navigate-right mui-ellipsis">
+                                <span class="mui-icon iconfont icon-daichulidingdan"></span> 我的待处理订单{if $badges.new_order eq 'yes'}<span style="font-size: 20px;padding: 1px 3px;" class="mui-badge mui-badge-danger iconfont icon-newbadge"></span>{/if}
+                                <span class="left-desc"></span>
+                            </a>
+                        </li>
+                        <li class="mui-table-view-cell">
+                            <a href="orders_payment.php" class="mui-navigate-right mui-ellipsis">
+                                <span class="mui-icon iconfont icon-dingdan"></span> 全部已付款订单
+                                <span class="left-desc"></span>
+                            </a>
+                        </li>
+                        {if $supplier_info.allowtakecash eq '1'}
+                            <li class="mui-table-view-cell">
+                                <a href="takecashs.php" class="mui-navigate-right mui-ellipsis">
+                                    <span class="mui-icon iconfont icon-money"></span> 提现申请
+                                    <span class="left-desc"></span>
+                                </a>
+                            </li>
+                        {/if}
+                        <li class="mui-table-view-cell">
+                            <a href="mycollections.php" class="mui-navigate-right mui-ellipsis">
+                                <span class="mui-icon iconfont icon-shoucang"></span> 我的收藏
+                                <span class="left-desc"></span>
+                            </a>
+                        </li>
+                        {if $supplier_info.showfubisi eq '0'}
+                            <li class="mui-table-view-cell">
+                                <a href="fubusi.php" class="mui-navigate-right mui-ellipsis">
+                                    <span class="mui-icon iconfont icon-fubushi"></span> 福布斯榜
+                                    <span class="left-desc"></span>
+                                </a>
+                            </li>
+                        {/if}
+                        <li class="mui-table-view-cell">
+                            <a href="contactus.php" class="mui-navigate-right mui-ellipsis">
+                                <span class="mui-icon iconfont icon-lianxiwomen"></span> 联系我们
+                                <span class="left-desc"></span>
+                            </a>
+                        </li>
+                        {if $sysinfo.http_user_agent eq 'tezan'}
+                            {assign var="copyrights" value=$supplier_info.copyrights}
+                            <script type="text/javascript" charset="utf-8" src="/public/js/cordova.js"></script>
+                            <li class="mui-table-view-cell">
+                                <a id="back_tezan" class="mui-navigate-right mui-ellipsis">
+                                    <span class="mui-icon iconfont icon-logo"></span> 返回{$copyrights.trademark}
+                                    <span class="left-desc"></span>
+                                </a>
+                            </li>
+                            <script type="text/javascript">
+                                {literal}
+                                mui.ready(function() {
+                                    document.getElementById('back_tezan').addEventListener('tap', function() {
+                                        Cordova.exec(null, null, "PhoneGapPlugin", "PluginFunction", [{"type":"historyback"}]);
+                                    });
+                                });
+                                {/literal}
+                            </script>
+                        {/if}
+                    </ul>
+                </div>
+            </div>
+        </aside>
+        <!-- 主页面标题 -->
+        <header class="mui-bar mui-bar-nav mui-row">
+            <a class="mui-icon mui-action-menu mui-icon-bars mui-pull-left" href="#offCanvasSide"></a>
+            <form action="search.php" onSubmit="return searchgo()">
+                <div class="mui-input-row mui-search">
+                        <input id="keywords" name="keywords" type="search" class="mui-input-clear" placeholder="">
+                        {*<input type="search" class="mui-input-clear" placeholder="">*}
+                </div>
+            </form>
+            <a class="mui-pull-right message" href="webim.php">
+                <span class="mui-icon mui-icon-chat"></span>
+                <br>消息
+            </a>
+        </header>
+        <!-- 底部navbar -->
+        {include file='footer.tpl'}
+        <!-- 主页面内容容器 -->
+        <div class="mui-content mui-scroll-wrapper">
+            <div class="mui-scroll-wrapper" id="pullrefresh" style="padding-top:44px;">
+                <div class="mui-scroll">
+                    <!-- 轮播 -->
+                    <div id="slider" class="mui-slider" >
+                        <div class="mui-slider-group mui-slider-loop">
+                            <!-- 额外增加的一个节点(循环轮播：第一个节点是最后一张轮播) -->
+                            <div class="mui-slider-item mui-slider-item-duplicate">
+                                <a href="{$ads_date.lunbotu3.url}">
+                                    <img src="{$ads_date.lunbotu3.image}">
+                                </a>
+                            </div>
+                            <!-- 第一张 -->
+                            <div class="mui-slider-item">
+                                <a href="{$ads_date.lunbotu1.url}">
+                                <img src="{$ads_date.lunbotu1.image}">
+                                </a>
+                            </div>
+                            <!-- 第二张 -->
+
+                            <!-- 第三张 -->
+                            <div class="mui-slider-item">
+                                <a href="{$ads_date.lunbotu2.url}">
+                                    <img src="{$ads_date.lunbotu2.image}">
+                                </a>
+                            </div>
+                            <!-- 第四张 -->
+                            <div class="mui-slider-item">
+                                <a href="{$ads_date.lunbotu3.url}">
+                                    <img src="{$ads_date.lunbotu3.image}">
+                                </a>
+                            </div>
+                            <!-- 额外增加的一个节点(循环轮播：最后一个节点是第一张轮播) -->
+                            <div class="mui-slider-item mui-slider-item-duplicate">
+                                <a href="{$ads_date.lunbotu1.url}">
+                                    <img src="{$ads_date.lunbotu1.image}">
+                                </a>
+                            </div>
+                        </div>
+                        <div class="mui-slider-indicator">
+                            <div class="mui-indicator mui-active"></div>
+                            <div class="mui-indicator"></div>
+
+                            <div class="mui-indicator"></div>
+                        </div>
+                    </div>
+
+                    <!-- 图片 -->
+                    <ul class="mui-table-view mui-grid-view mui-grid-9">
+                        <li class="mui-table-view-cell mui-media mui-col-xs-3">
+                            <a href="{$ads_date.tubiao1.url}">
+                                <img src="{$ads_date.tubiao1.image}" alt="">
+                                <span><br>食品粮油</span>
+                            </a>
+                        </li>
+                        <li class="mui-table-view-cell mui-media mui-col-xs-3">
+                            <a href="{$ads_date.tubiao2.url}">
+                                <img src="{$ads_date.tubiao2.image}" alt="">
+                                <span><br>个护清洁</span>
+                            </a>
+                        </li>
+                        <li class="mui-table-view-cell mui-media mui-col-xs-3">
+                            <a href="{$ads_date.tubiao3.url}">
+                                <img src="{$ads_date.tubiao3.image}" alt="">
+                                <span><br>母婴用品</span>
+                            </a>
+                        </li>
+                        <li class="mui-table-view-cell mui-media mui-col-xs-3">
+                            <a href="{$ads_date.tubiao4.url}">
+                                <img src="{$ads_date.tubiao4.image}" alt="">
+                                <span><br>家居日用</span>
+                            </a>
+                        </li>
+                        <li class="mui-table-view-cell mui-media mui-col-xs-3">
+                            <!--<a href="search.php?categoryid=202174">-->
+                            <a href="{$ads_date.tubiao5.url}">
+                                <img src="{$ads_date.tubiao5.image}" alt="">
+                                <span><br>清凉采购</span>
+                            </a>
+                        </li>
+                        <li class="mui-table-view-cell mui-media mui-col-xs-3">
+                            <a href="{$ads_date.tubiao6.url}">
+                                <img src="{$ads_date.tubiao6.image}" alt="">
+                                <span><br>领券中心</span>
+                            </a>
+                        </li>
+                        <li class="mui-table-view-cell mui-media mui-col-xs-3">
+                            <a href="{$ads_date.tubiao7.url}">
+                                <img src="{$ads_date.tubiao7.image}" alt="">
+                                <span><br>惠折扣</span>
+                            </a>
+                        </li>
+                        <li class="mui-table-view-cell mui-media mui-col-xs-3">
+                            <!--<a href="index.php?module=Mall_SalesActivitys&action=EditView&record=410623">-->
+                            <a href="{$ads_date.tubiao8.url}">
+                                <img src="{$ads_date.tubiao8.image}" alt="">
+                                <span><br>劳保采购</span>
+                            </a>
+                        </li>
+                    </ul>
+                    <div class="warp">
+                        <div class="w-title">
+                            <img src="public/images/icon_Sale.png" alt="">
+                            <span>惠民推荐</span>
+                        </div>
+                        <div class="recommend-content">
+                            <div  class="recommend-left">
+                            // <a href="{$ads_date.xianshizhekou.image}">
+                                <a href="products_rob.php?salesactivityid=514873">
+                                <div class="recommend">
+                                    <span class="recommend-text1">限时折扣</span><img src="{$ads_date.xianshizhekou.image}" alt="">
+                                </div>
+                                </a>
+                            </div>
+                            <div  class="recommend-right">
+                                <div class="recommend" style="margin-bottom:5px;">
+                                    <a href="{$ads_date.tegongzhuanqu.url}"><span class="recommend-text2">特供专区</span><img src="{$ads_date.tegongzhuanqu.image}" alt=""></a>
+                                </div>
+                                <div class="recommend">
+                                    <a href="{$ads_date.remaibaokuan.url}"><span class="recommend-text3">热卖爆款</span><img src="{$ads_date.remaibaokuan.image}" alt=""></a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <!-- 特卖 -->
+                    <div class="warp">
+                        <div class="w-title">
+                            <img src="public/images/icon_Sale.png" alt="">
+                            <span>主题特卖</span>
+                        </div>
+                        <a href="{$ads_date.zhutitemai1.url}"><img class="banner" src="{$ads_date.zhutitemai1.image}" alt=""></a>
+                        <div class="hot" id="tph_hot">
+                            <div class="hot-sale clear" id="tph_bar"  style="width:14rem;">
+                                {foreach item=vo from=$hairlist}
+                                    <div class="h-grid">
+                                        {if $vo.zhekou neq ''}
+                                            <a href="{$vo.urlpromotionalprice}">
+                                        {else}
+                                            <a href="{$vo.url}">
+                                        {/if}
+
+                                            <img src="{$vo.productlogo}" alt=""></a>
+                                        <p>{$vo.productname}</p>
+                                        <p class="mui-text-center" style="padding-right: 12px;">
+                                            <span class="red" style="font-size:1.3em;color: #fb0000;display:block;">￥{if $vo.zhekou neq ''}{$vo.promotionalprice}{else}{$vo.market_price}{/if}</span>
+                                            <s class="gray" style="font-size:1.0em;display:block;margin-top: -5px;">￥{$vo.shop_price}</s>
+                                        </p>
+                                    </div>
+                                {/foreach}
+                                <div class="h-grid">
+                                    <a href="salesactivity.php?record=410120" class="more-icon">
+                                        <img src="public/images/more_wash.jpg" alt="">
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                        <a href="{$ads_date.zhutitemai2.url}"><img class="banner" src="{$ads_date.zhutitemai2.image}" alt=""></a>
+                        <div class="hot" id="tph_hot1">
+                            <div class="hot-sale clear" id="tph_bar1" style="width:14rem;">
+                                {foreach item=vo from=$paperlist}
+                                    <div class="h-grid">
+                                        {if $vo.zhekou neq ''}
+                                        <a href="{$vo.urlpromotionalprice}">
+                                            {else}
+                                            <a href="{$vo.url}">
+                                                {/if}
+                                                <img src="{$vo.productlogo}" alt=""></a>
+                                            <p>{$vo.productname}</p>
+                                            <p class="mui-text-center" style="padding-right: 12px;">
+                                                <span class="red" style="font-size:1.3em;color: #fb0000;display:block;">￥{if $vo.zhekou neq ''}{$vo.promotionalprice}{else}{$vo.market_price}{/if}</span>
+                                                <s class="gray" style="font-size:1.0em;display:block;margin-top: -5px;">￥{$vo.shop_price}</s>
+                                            </p>
+                                    </div>
+                                {/foreach}
+                                <div class="h-grid">
+                                    <a href="salesactivity.php?record=410124" class="more-icon"><img src="public/images/more_wash.jpg" alt=""></a>
+                                </div>
+                            </div>
+                        </div>
+                        <!--五粮液-->
+                        <a href="{$ads_date.zhutitemai3.url}"><img class="banner" src="{$ads_date.zhutitemai3.image}" alt=""></a>
+                        <div class="hot" id="tph_hot2">
+                            <div class="hot-sale clear" id="tph_bar2"  style="width:14rem;">
+                                {foreach item=vo from=$alcohollist}
+                                <div class="h-grid">
+                                    {if $vo.zhekou neq ''}
+                                    <a href="{$vo.urlpromotionalprice}">
+                                        {else}
+                                        <a href="{$vo.url}">
+                                            {/if}
+                                            <img src="{$vo.productlogo}" alt=""></a>
+                                        <p>{$vo.productname}</p>
+                                        <p class="mui-text-center" style="padding-right: 12px;">
+                                            <span class="red" style="font-size:1.3em;color: #fb0000;display:block;">￥{if $vo.zhekou neq ''}{$vo.promotionalprice}{else}{$vo.market_price}{/if}</span>
+                                            <s class="gray" style="font-size:1.0em;display:block;margin-top: -5px;">￥{$vo.shop_price}</s>
+                                        </p>
+                                </div>
+                                {/foreach}
+                                <div class="h-grid">
+                                    <a href="salesactivity.php?record=410721" class="more-icon">
+                                        <img src="public/images/more_wash.jpg" alt="">
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 楼层 -->
+                    <div class="warp">
+                        <div class="w-title">
+                            <img src="public/images/icon_Sale.png" alt="">
+                            <span>食品粮油</span>
+                            <a class="more" href="{$ads_date.louceng1.url}">查看更多<span class="mui-icon mui-icon-arrowright"></span></a>
+                        </div>
+                        <a href="{$ads_date.louceng1.url}"><img class="banner" src="{$ads_date.louceng1.image}" alt=""></a>
+                        <div class="goods clear">
+
+                            {foreach item=vo from=$icon_Sale}
+                                <div class="goods-container">
+                                    <a href="detail.php?from=index&productid={$vo->id}"><img src="{$vo->my->productlogo}" alt=""></a>
+                                    <p>{$vo->my->productname}</p>
+                                    <div class="goods-bottom">
+                                        <span class="mui-pull-left red">￥{$vo->my->market_price}</span>
+                                        <div class="mui-pull-right icon">
+                                            {*<a class="star">*}
+                                                {*<img src="public/images/icon_star.png" alt=""></a>*}
+                                            <a class="add_shoppingcart" data-id="{$vo->id}">
+                                                <img src="public/images/icon_cart.png" alt=""></a>
+                                        </div>
+                                    </div>
+                                </div>
+                            {/foreach}
+
+                        </div>
+                    </div>
+
+                    <div class="warp">
+                        <div class="w-title">
+                            <img src="public/images/icon_activity_cleaning.png" alt="">
+                            <span>个护清洁</span>
+                            <a class="more" href="{$ads_date.louceng2.url}">查看更多<span class="mui-icon mui-icon-arrowright"></span></a>
+                        </div>
+                        <a href="{$ads_date.louceng2.url}"><img class="banner" src="{$ads_date.louceng2.image}" alt=""></a>
+                        <div class="goods clear">
+
+                            {foreach item=vo from=$icon_activity_cleaning}
+                                <div class="goods-container">
+                                    <a href="detail.php?from=index&productid={$vo->id}"><img src="{$vo->my->productlogo}" alt=""></a>
+                                    <p>{$vo->my->productname}</p>
+                                    <div class="goods-bottom">
+                                        <span class="mui-pull-left red">￥{$vo->my->market_price}</span>
+                                        <div class="mui-pull-right icon">
+                                            {*<a href="">*}
+                                                {*<img src="public/images/icon_star.png" alt="">*}
+                                            {*</a>*}
+                                            <a class="add_shoppingcart" data-id="{$vo->id}"><img src="public/images/icon_cart.png" alt=""></a>
+                                        </div>
+                                    </div>
+                                </div>
+                            {/foreach}
+
+                        </div>
+                    </div>
+
+                    <div class="warp">
+                        <div class="w-title">
+                            <img src="public/images/icon_drinks.png" alt="">
+                            <span>酒水饮料</span>
+                            <a class="more" href="{$ads_date.louceng3.url}">查看更多<span class="mui-icon mui-icon-arrowright"></span></a>
+                        </div>
+                        <a href="{$ads_date.louceng3.url}"><img class="banner" src="{$ads_date.louceng3.image}" alt=""></a>
+                        <div class="goods clear">
+
+                            {foreach item=vo from=$icon_drinks}
+                                <div class="goods-container">
+                                    <a href="detail.php?from=index&productid={$vo->id}"><img src="{$vo->my->productlogo}" alt=""></a>
+                                    <p>{$vo->my->productname}</p>
+                                    <div class="goods-bottom">
+                                        <span class="mui-pull-left red">￥{$vo->my->market_price}</span>
+                                        <div class="mui-pull-right icon">
+                                            {*<a href=""><img src="public/images/icon_star.png" alt=""></a>*}
+                                            <a class="add_shoppingcart" data-id="{$vo->id}"><img src="public/images/icon_cart.png" alt=""></a>
+                                        </div>
+                                    </div>
+                                </div>
+                            {/foreach}
+
+                        </div>
+                    </div>
+                    <div class="warp">
+                        <div class="w-title">
+                            <img src="public/images/icon_drinks.png" alt="">
+                            <span>酒水饮料</span>
+                            <a class="more" href="{$ads_date.louceng4.url}">查看更多<span class="mui-icon mui-icon-arrowright"></span></a>
+                        </div>
+                        <a href="{$ads_date.louceng4.url}"><img class="banner" src="{$ads_date.louceng4.image}" alt=""></a>
+                        <div class="goods clear">
+
+                            {foreach item=vo from=$icon_drinks}
+                                <div class="goods-container">
+                                    <a href="detail.php?from=index&productid={$vo->id}"><img src="{$vo->my->productlogo}" alt=""></a>
+                                    <p>{$vo->my->productname}</p>
+                                    <div class="goods-bottom">
+                                        <span class="mui-pull-left red">￥{$vo->my->market_price}</span>
+                                        <div class="mui-pull-right icon">
+                                            {*<a href=""><img src="public/images/icon_star.png" alt=""></a>*}
+                                            <a class="add_shoppingcart" data-id="{$vo->id}"><img src="public/images/icon_cart.png" alt=""></a>
+                                        </div>
+                                    </div>
+                                </div>
+                            {/foreach}
+
+                        </div>
+                    </div>
+                    <div class="h50"></div>
+                </div>
+            </div>
+        </div>
+    <div class="mui-off-canvas-backdrop"></div>
+        {include file='weixin.tpl'}
+</div>
+</div>
+</body>
+</html>
